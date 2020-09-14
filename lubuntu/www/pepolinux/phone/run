@@ -1,6 +1,5 @@
 #!/bin/bash
-# The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.4.10 update 2016.8.24
+# licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.4.10 update 2016.8.24
 # FOMA cellular phone dial management for rasberry pi
 # /pepolinux/phone/run
 DIALDIR=/www/remote-hand/tmp
@@ -8,6 +7,7 @@ CALL=/www/pepolinux/phone/phone_call
 DIALMODE=/etc/ppp/ppp-dailer-mode
 PING_FAIL=/www/remote-hand/tmp/phone_dial_lock
 MODEM_DEV=/www/remote-hand/tmp/.modem
+
 check_foma () {
   FOMA_CK=`ls /dev/|awk 'BEGIN{I="NO"};/ttyACM0/{I="YES"};END{print I}'`
   DRV=`lsmod |awk 'BEGIN{I="NO"};/acm_FOMA/{I="YES"};END{print I}'`
@@ -25,6 +25,7 @@ check_foma () {
     MODEM=/dev/ttyACM2
   fi
 }
+
 check_pppchat () {
   PPPCHAT=`ps ax |awk 'BEGIN{I="NO"};/pppchat$/{I="YES"};END{printf I}'`
   PPPCHAT2=`ps ax |awk 'BEGIN{I="NO"};/pppchat2$/{I="YES"};END{printf I}'`
@@ -33,10 +34,12 @@ stop_ppp() {
   svc -d /pepolinux/ppp-foma
   msleep 1000
 }
+
 run_ppp() {
   svc -u /pepolinux/ppp-foma
   msleep 1000
 }
+
 while true
   do
   check_foma

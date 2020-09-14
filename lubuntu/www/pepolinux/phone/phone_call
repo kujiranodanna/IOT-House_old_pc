@@ -1,9 +1,8 @@
 #!/bin/bash
-# The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2010.7.31 update 2015.4.10
-# FOMA cellular phone dial
+# licence GPLv2 ; this scripts designed by IZAMUKARERA 2010.7.31 update 2018.3.9
+# FOMA cellular phone or modem dial
 PING_FAIL=/www/remote-hand/tmp/phone_dial_lock
-INIT_CMD="at+cbst=134,1,0"
+#INIT_CMD="at+cbst=134,1,0"
 [ ! -e "$PING_FAIL" ] && exit 1
 msleep 100
 [ `cat "$PING_FAIL" | wc -c` = "0" ] && exit 1
@@ -25,7 +24,12 @@ do
   fi
   RESULT=`echo $IN | awk '/OK/{print "OK"}'`
 done
-echo -en "ATDT${CALL_NUM};\r\n" || exit 1
+# for FOMA
+#echo -en "ATDT${CALL_NUM};\r\n" || exit 1
+# for modem DP
+#echo -en "ATD${CALL_NUM}\r\n" || exit 1
+# for modem TONE
+echo -en "ATDT${CALL_NUM}\r\n" || exit 1
 msleep 20000
 echo -en "ATH\r\n" || exit 1
 exit 0

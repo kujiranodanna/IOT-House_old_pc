@@ -1,7 +1,5 @@
 #!/bin/bash
-# The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2008.4.20 update 2020.9.10
-# pppchat2
+#licence GPLv2 ; this scripts designed by IZAMUKARERA 2008.4.20
 LOCKFILE="/var/www/html/remote-hand/tmp/LCK..pppchat"
 lockfile -3 -r 3 ${LOCKFILE} >/dev/null 2>&1
 if [ $? != 0 ];then
@@ -15,27 +13,31 @@ G=""
 msleep 5000
 while [ "X$G" != "XOK" ]
 do
-  echo -en "AT&F\r\n" || exit
-  if [ $? != "0" ]; then
-    exit
-  fi
-  msleep 1000
-  read -s -n 3 -t 2 I || exit
-  if [ $? != "0" ]; then
-    exit
-  fi
-  G=`echo $I|awk '/OK/{print "OK"}'`
+	echo -en "AT&F\r\n" || exit
+	if [ $? != "0" ]; then
+		exit
+	fi
+
+	msleep 1000
+	read -s -n 3 -t 2 I || exit
+	if [ $? != "0" ]; then
+		exit
+	fi
+	G=`echo $I|awk '/OK/{print "OK"}'`
 done
+
 echo -en "ATD *99***1#\r\n" || exit
+
 #while [ "X$G" != "XCONNECT" ]
 #do
-#  msleep 5000
-#  read -s -n 8 -t 5 I || exit
-#  if [ $? != "0" ]; then
-#    exit
-#  fi
-#  G=`echo $I|awk '/CONNECT/{print "CONNECT"}'`
+#        msleep 5000
+#        read -s -n 8 -t 5 I || exit
+#        if [ $? != "0" ]; then
+#		exit
+#	fi
+#	G=`echo $I|awk '/CONNECT/{print "CONNECT"}'`
 #done
+
 msleep 5000
 exec /usr/sbin/pppd $1
 

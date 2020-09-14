@@ -1,6 +1,5 @@
 #!/bin/bash
-# The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.10.21update 2013.7.24
+#licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.10.21update 2013.7.24
 # ping watch of dio on for rasberry pi 
 PING_HOST=$1
 DIO_ACT=$2

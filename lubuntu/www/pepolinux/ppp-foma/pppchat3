@@ -1,6 +1,5 @@
 #!/bin/bash
-# The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.6.27 update 2020.9.10
+# licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.6.27
 # /pepolinux/pppchat3
 DEMAND=/etc/ppp/options.demand
 CHAT=/etc/ppp/chat-ppp0
@@ -16,6 +15,7 @@ if [ $? != 0 ];then
 else
   echo -en $$ > ${LOCKFILE}
 fi
+
 if [ ! -e "$DEMAND" ];then
 cat>"$DEMAND"<<EOF
 demand
@@ -32,6 +32,7 @@ connect '/usr/sbin/chat -v -f $CHAT'
 EOF
 chmod 600 $DEMAND
 fi
+
 if [ ! -e "$CHAT" ];then
 cat>"$CHAT"<<EOF
 'ABORT' 'BUSY'
@@ -44,9 +45,11 @@ cat>"$CHAT"<<EOF
 EOF
 chmod 600 $CHAT
 fi
+
 if [ -e "$OPTACM" ];then
   mv $OPTACM $tOPTACM
 fi
 mv $PPPOPT $tPPPOPT 
 cp $DEMAND $PPPOPT
+
 exec /usr/sbin/pppd

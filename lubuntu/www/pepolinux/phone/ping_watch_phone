@@ -1,6 +1,5 @@
 #!/bin/bash
-# The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2010.8.15 update 2020.6.29
+#licence GPLv2 ; this scripts designed by IZAMUKARERA 2010.8.15
 # ping watch of phone-call
 PING_HOST=$1
 CALL_NUM=$2
@@ -8,9 +7,10 @@ PING_LOCK=/var/www/html/remote-hand/tmp/"$PING_HOST"_tel_lock
 PING_LOG=/var/www/html/remote-hand/tmp/"$PING_HOST"_tel_log
 FAIL_DONE=/var/www/html/remote-hand/tmp/"$PING_HOST"_tel_lock.done
 if [ $# -ne 2 ]; then
-  echo usage: $0 ip_addres phone_number
-  exit
+        echo usage: $0 ip_addres phone_number
+        exit
 fi
+
 if ! ping -c 1 $1 2>&1 >$PING_LOG; then
   sleep 1
   if ! ping -c 1 $1 2>&1 >> $PING_LOG; then

@@ -1,7 +1,6 @@
 #!/bin/bash
-# The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2010.5.6 update 2014.11.21
-# exec cmd for rasberry pi
+#licence GPLv2 ; this scripts designed by IZAMUKARERA 2010.5.6 update 2014.11.21
+#exec cmd for rasberry pi
 DIR=/www/remote-hand/tmp
 EXEC=$DIR/run_cmd
 while true 
