@@ -1,0 +1,72 @@
+#!/bin/bash
+# pepostart_remote-hand ; start remote-hand for i386
+# licence GPLv3 ; this scripts designed by Isamu.Yamauchi 2011.11.28 update 2018.6.4
+hdparm -S 1 /dev/sda
+/etc/init.d/svscan stop
+/etc/init.d/rsyslog stop
+/etc/init.d/apache2 stop
+/etc/init.d/exim4 stop
+WORKDIR=/www/remote-hand
+WORKDIR_TMP=/www/remote-hand/tmp
+if [ ! -e /www/pepolinux ];then 
+   [ ! -e ${WORKDIR} ] && mkdir -p ${WORKDIR_TMP}
+   if [ ! -e /www/tmp ];then
+     mkdir -p /www/tmp/mozilla
+     cd /www/tmp/mozilla
+     tar xfz /usr/src/pepolinux/mozilla.tar.gz
+     chmod 777 /www/tmp/mozilla
+   fi
+   if [ -e /usr/src/pepolinux/log.tar.gz ];then
+     (cd /var/log ; tar xfz /usr/src/pepolinux/log.tar.gz)
+#    [ /root/.config/Xorg.0.log ] && cp /root/.config/Xorg.0.log /www/log
+   fi
+   if [ -e /usr/src/pepolinux/spool.tar.gz ];then
+     (cd /www/ ; tar xfz /usr/src/pepolinux/spool.tar.gz)
+     (cd /var ; rm -rf spool ; ln -s /www/spool spool)
+   fi
+  (cd /usr/bin/ ; rm -f dio*)
+  (mkdir -p /www/pepolinux ; cd /www/pepolinux ; tar xfz /usr/src/pepolinux/pepolinux.tar.gz ; chown root.root /www/pepolinux)
+  /etc/init.d/svscan start
+  (cd /var ; rm -rf mail ; mkdir /www/mail ; chown mail.mail /www/mail ; ln -s /www/mail mail)
+  (cd /etc/exim4 ; cp -f passwd.client.org passwd.client)
+  (cd /etc/apache2; rm -f logs ; ln -s /www/logs logs)
+  (cd ${WORKDIR} ; tar xfz /usr/src/pepolinux/remote_dio.tar.gz)
+  if [ -e /usr/src/pepolinux/back_up.tar.gz ];then
+    (cd ${WORKDIR} ; tar xfz /usr/src/pepolinux/back_up.tar.gz)
+    (cd ${WORKDIR_TMP} ; rm -f .pepodioctl.* .pepotocsctl.* LCK* .*.rrd .*start_time *.png temperature *.mp4 *.jpg)
+  else
+    (cd ${WORKDIR} ; rm -f dio_sh.tar.gz)    
+  fi
+  sync
+  if [ -e ${WORKDIR}/dio_sh.tar.gz ];then
+    (cd /usr/bin ; tar xfz ${WORKDIR}/dio_sh.tar.gz)
+  fi
+  if [ -e /usr/src/pepolinux/startup.s ];then
+    /usr/src/pepolinux/startup.s
+  else
+    [ -e /usr/src/pepolinux/back_up.tar.gz ] && rm -f /usr/src/pepolinux/back_up.tar.gz
+    [ -e /usr/src/pepolinux/back_up_log.tar.gz ] && rm -f /usr/src/pepolinux/back_up_log.tar.gz
+  fi
+  chown www-data.www-data ${WORKDIR} ${WORKDIR_TMP}
+  if [ -e ${WORKDIR_TMP}/.ping_watch.cron ];then
+    crontab -u www-data ${WORKDIR_TMP}/.ping_watch.cron
+  fi
+  if [ -e ${WORKDIR_TMP}/.pepogmail4dio.conf ];then
+    . ${WORKDIR_TMP}/.pepogmail4dio.conf
+    cat >/etc/exim4/passwd.client<<END
+gmail-smtp.l.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
+*.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
+smtp.gmail.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
+END
+  fi
+else
+  echo remote-hand aredy running!
+fi
+/usr/local/bin/pepousbttyck
+/etc/init.d/svscan start
+/etc/init.d/rsyslog start
+/etc/init.d/apache2 start
+/etc/init.d/exim4 start
+/etc/init.d/cron restart
+echo -en >/home/remote/.bash_history
+echo -en >/root/.bash_history

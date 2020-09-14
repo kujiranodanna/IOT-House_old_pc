@@ -1,0 +1,10 @@
+# password file used when the local exim is authenticating to a remote
+# host as a client.
+#
+# see exim4_passwd_client(5) for more documentation
+#
+# Example:
+### target.mail.server.example:login:password
+gmail-smtp.l.google.com:YOUR-USER-NAME@gmail.com:YOUR-USER-PASSWORD
+*.google.com:YOUR-USER-NAME@gmail.com:YOUR-USER-PASSWORD
+smtp.gmail.com:YOUR-USER-NAME@gmail.com:YOUR-USER-PASSWORD

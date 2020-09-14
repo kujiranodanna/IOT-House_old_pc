@@ -1,0 +1,21 @@
+#!/bin/sh
+# epicon sample script 2004.9.20
+sleep 1
+echo -en "router command\r"
+sleep 1
+echo -en "\r"
+echo -en "enable\r"
+echo -en "password\r"
+echo -en "show run\r"
+echo -en "show ipx route\r"
+echo -en "show ip route\r"
+echo -en "configure\r"
+echo -en "ip route 192.168.1.0 255.255.255.0 192.168.2.1\r"
+# ctl-Z
+echo -en "\032"
+sleep 2
+# external command
+gkermit -r
+echo -en "\020"
+exit 0
+

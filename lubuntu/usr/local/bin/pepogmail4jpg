@@ -1,0 +1,35 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2012.7.11 update 2018.2.24
+# pepogmail4pic ; get jpeg & send mail
+# pepogmail4pic mail_to subject message
+# /usr/local/bin/peposendmail $1:mail_to, $2:subject, $3:message ,$4:image.jpg
+
+IMAGE=remote_hand.jpg
+WORKDIR=/www/remote-hand/tmp
+WORKIMAGE=${WORKDIR}/${IMAGE}
+MUA=/usr/local/bin/peposendmail
+FFMPEGCTL=/usr/local/bin/pepomp4ctl
+DEV=/dev/$1
+if [ $# = 0 ];then
+  echo "usage :$0 mail_to | subject | message"
+  exit
+fi
+MAILTO=$2
+SUBJECT=$3
+MSG=$4
+
+error(){
+  exit 0
+}
+trap error SIGINT SIGTERM SIGHUP SIGKILL
+
+VIDEO=$DEV
+$FFMPEGCTL $VIDEO $IMAGE \$$
+if [ ! -e $WORKIMAGE ];then
+  exit -1
+fi
+if [ -e $WORKIMAGE ];then
+  $MUA $MAILTO $SUBJECT $MSG $IMAGE
+  rm -f $WORKIMAGE
+fi

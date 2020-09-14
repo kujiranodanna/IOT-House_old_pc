@@ -1,0 +1,147 @@
+#!/bin/bash
+# licence GPLv2 ; this scripts designed by Isamu.Yamauchi 2011.11.16 update 2018.2.11
+# Scan ANDDIO for i386.
+# pepoanddiod
+DIOCTL="/usr/local/bin/pepoanddioctl 9"
+DIOCTL_0="/usr/local/bin/pepoanddioctl 0 0"
+DIOCTL_1="/usr/local/bin/pepoanddioctl 1 0"
+DIOCTL_2="/usr/local/bin/pepoanddioctl 2 0"
+DIOCTL_3="/usr/local/bin/pepoanddioctl 3 0"
+DIOCTL_4="/usr/local/bin/pepoanddioctl 4 0"
+DIOCTL_5="/usr/local/bin/pepoanddioctl 5 0"
+DIOCTL_DO="/usr/local/bin/pepoanddioctl"
+WAIT=50
+LOOP=1000
+LOOPDO=2
+DIR=/www/remote-hand/tmp
+ANDDIORD=$DIR/.anddi_read_data
+tANDDIORD=$DIR/.anddi_read_data.tmp
+ANDDIOWD=$DIR/.anddo_write_data
+tANDDIOWD=$DIR/.anddo_write_data.tmp
+ANDDIOWDHELP=$DIR/.anddo_write_data_helper
+ALIAS_DI=$DIR/.alias_di
+ANDDIO_INIT_FLAG=$DIR/.anddio_init_flag
+echo -en "YES" >$ANDDIO_INIT_FLAG
+error(){
+  [ -e $tANDDIORD ] && rm -f $tDIORD
+  [ -e $ANDDIORD ] && rm -f $ANDDIORD
+  [ -e $ANDDIOWD ] && rm -f $ANDDIOWD
+  [ -e $ANDDIO_INIT_FLAG ] && rm -f $ANDDIO_INIT_FLAG
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+[ -e $tANDDIORD ] && rm -f $tANDDIORD
+[ -e $ANDDIORD ] && rm -f $ANDDIORD
+[ -e $ANDDIOWD ] && rm -f $ANDDIOWD
+[ -e $tANDDIOWD ] && rm -f $tANDDIOWD
+LOOPCT=${LOOPDO}
+while true;do
+  unset DI_TTY
+  [ -e $ALIAS_DI ] && . $ALIAS_DI
+  ANDDIO=`echo $DI_TTY |awk 'BEGIN{YESNO="NO"};/ttyUSB/{YESNO="YES"};END{printf("%s",YESNO)}'`
+  if [ $ANDDIO = "NO" ];then
+    [ -e $ANDDIORD ] && rm -f $ANDDIORD
+    [ -e $ANDDIOWD ] && rm -f $ANDDIOWD
+    [ -e $ANDDIOWDHELP ] && rm -f $ANDDIOWDHELP
+    if [ -e ${ANDDIO_INIT_FLAG} ];then
+       [ `cat $ANDDIO_INIT_FLAG` = "NO" ] && echo -en "YES" >$ANDDIO_INIT_FLAG
+    else 
+      echo -en "YES" >$ANDDIO_INIT_FLAG
+    fi
+    LOOPTIME=$LOOP
+    msleep $LOOPTIME
+    continue
+  fi
+  unset piface_ip di do DO
+  for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do old[$i]="-1" ;done
+  LOOPTIME=$LOOP
+# usb dio read data initialize
+  if [ `cat $ANDDIO_INIT_FLAG` = "YES" ];then
+    RD=`$DIOCTL 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$ANDDIO_INIT_FLAG || echo -en "YES" >$ANDDIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$DIOCTL_0 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$ANDDIO_INIT_FLAG || echo -en "YES" >$ANDDIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$DIOCTL_1 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$ANDDIO_INIT_FLAG || echo -en "YES" >$ANDDIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$DIOCTL_2 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$ANDDIO_INIT_FLAG || echo -en "YES" >$ANDDIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$DIOCTL_3 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$ANDDIO_INIT_FLAG || echo -en "YES" >$ANDDIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$DIOCTL_4 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$ANDDIO_INIT_FLAG || echo -en "YES" >$ANDDIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$DIOCTL_5 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$ANDDIO_INIT_FLAG || echo -en "YES" >$ANDDIO_INIT_FLAG
+    msleep $WAIT
+  fi
+#DO write
+  if [ -e $ANDDIOWDHELP ];then
+    if [ $LOOPCT = 0 ];then
+    LOOPCT=${LOOPDO}
+    unset DO
+    . $ANDDIOWDHELP
+    for i in 0 1 2 3 4 5 ;do
+      if [ ! -z ${DO[$i]} ];then
+      case "$i" in
+        0) RD=`$DIOCTL_DO 0 ${DO[0]} 2>&1 ; msleep $WAIT` ;;
+        1) RD=`$DIOCTL_DO 1 ${DO[1]} 2>&1 ; msleep $WAIT` ;;
+        2) RD=`$DIOCTL_DO 2 ${DO[2]} 2>&1 ; msleep $WAIT` ;;
+        3) RD=`$DIOCTL_DO 3 ${DO[3]} 2>&1 ; msleep $WAIT` ;;
+        4) RD=`$DIOCTL_DO 4 ${DO[4]} 2>&1 ; msleep $WAIT` ;;
+        5) RD=`$DIOCTL_DO 5 ${DO[5]} 2>&1 ; msleep $WAIT` ;;
+      esac
+      fi
+    done
+    else
+    LOOPCT=$(($LOOPCT - 1))
+    fi
+  fi
+  RD="-1"
+  RD=`$DIOCTL 2>&1`
+  if [ "$RD" != "-1" ];then
+    echo -en "NO" >$ANDDIO_INIT_FLAG
+    for i in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do
+    case "$i" in
+      1) tRD="$(($((0x$RD & 1)) / 1))" ;j=0 ;;
+      2) tRD="$(($((0x$RD & 2)) / 2))" ;j=1 ;;
+      4) tRD="$(($((0x$RD & 4)) / 4))" ;j=2 ;;
+      8) tRD="$(($((0x$RD & 8)) / 8))" ;j=3 ;;
+      16) tRD="$(($((0x$RD & 16)) / 16))" ;j=4 ;;
+      32) tRD="$(($((0x$RD & 32)) / 32))" ;j=5 ;;
+      64) tRD="$(($((0x$RD & 64)) / 64))" ;j=6 ;;
+      128) tRD="$(($((0x$RD & 128)) / 128))" ;j=7 ;;
+      256) tRD="$(($((0x$RD & 256)) / 256))" ;j=8 ;;
+      512) tRD="$(($((0x$RD & 512)) / 512))" ;j=9 ;;
+      1024) tRD="$(($((0x$RD & 1024)) / 1024))" ;j=10 ;;
+      2048) tRD="$(($((0x$RD & 2048)) / 2048))" ;j=11 ;;
+      4096) tRD="$(($((0x$RD & 4096)) / 4096))" ;j=12 ;;
+      8192) tRD="$(($((0x$RD & 8192)) / 8192))" ;j=13 ;;
+    esac
+    old[$j]=$tRD
+    done
+  else
+    echo -en "YES" >$ANDDIO_INIT_FLAG
+    rm -f $ANDDIORD $ANDDIOWD
+  fi
+  cat>$tANDDIORD<<END
+di[0]=${old[0]}
+di[1]=${old[1]}
+di[2]=${old[2]}
+di[3]=${old[3]}
+di[4]=${old[4]}
+di[5]=${old[5]}
+di[6]=${old[6]}
+di[7]=${old[7]}
+END
+cat>$tANDDIOWD<<END
+do[0]=${old[8]}
+do[1]=${old[9]}
+do[2]=${old[10]}
+do[3]=${old[11]}
+do[4]=${old[12]}
+do[5]=${old[13]}
+do[6]=${old[14]}
+do[7]=${old[15]}
+END
+  chown www-data.www-data $tANDDIORD ; chown www-data.www-data $tANDDIOWD
+  mv $tANDDIORD $ANDDIORD ; mv $tANDDIOWD $ANDDIOWD
+done
+

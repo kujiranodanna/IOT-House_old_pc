@@ -1,0 +1,71 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
+# pepo_alexado ; For raspberry pi , and scripts to run the Remote DIO and TOCOS.
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+RETRYTIME=20
+RETRY=1
+WAIT=5000
+PORT=443
+LOCAL_DIR=/www/remote-hand/tmp
+REMOTE_DIR=remote-hand
+JSON_DATA=.di_read_data.json
+RM_JSON_DATA=$REMOTE_DIR/$JSON_DATA
+REMOTE_CGI=$REMOTE_DIR/ip_do_ajax.cgi
+WORK=$LOCAL_DIR/.pepoalexado
+tWORK=$LOCAL_DIR/.pepoalexado_tmp
+ALIAS_DI=$LOCAL_DIR/.alias_di
+USERAGENT="Chrome/83.0.4103.116"
+GETSIZE="1024"
+usage(){
+  echo "usage $0 host user password [write->chno:0-17 [DO:0|1] [timer->1 to 300000ms]] or read->json_name" >/dev/stderr
+  exit
+}
+if [ $# -lt 4 ];then
+  usage
+fi
+prog=$0
+RM_HOST=$1
+USER=$2
+PASSWORD=$3
+ch=$4
+json_name=$4
+val=$5
+time=$6
+if expr "$ch" : "[0-9]*$" >&/dev/null;then
+  ACT=PUT
+else
+  ACT=GET  
+fi
+[ "$ch" = "voice_req" ] && ACT=PUT
+rm -if $WORK
+rm -if $tWORK
+if [ $ACT = PUT ];then
+  if [ "$ch" != "voice_req" ];then
+    if [ $# -eq 5 -o $# -eq 6 ];then
+      if [ "$ch" -lt 0 -o "$ch" -gt 17 ];then
+        usage
+      elif [ "$val" -lt 0 -o  "$val" -gt 1 ];then
+        usage
+      fi
+      if [  $# -eq 6 ];then
+        if [ "$time" -gt 300000 -o "$time" -lt 1 ];then
+          usage
+        fi
+      fi
+    fi
+  fi
+  data='ch='${ch}'&val='$val'&time='${time}
+  curl -s -d --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --user-agent ${USERAGENT} --tlsv1 -k -u ${USER}:${PASSWORD} -X POST -d $data https://$RM_HOST:$PORT/$REMOTE_CGI >${WORK}
+  exit
+elif [ $ACT = GET ];then
+  curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
+  if [ -e $WORK ];then
+    LEN=`cat $WORK |wc -l`
+    if [ $LEN -gt 2 ];then
+      JSON_DATA=`cat $WORK | jq -r .${json_name}`
+      echo -n $JSON_DATA
+      exit 
+    fi
+  fi
+fi

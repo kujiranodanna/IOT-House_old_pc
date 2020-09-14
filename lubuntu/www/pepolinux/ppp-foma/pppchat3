@@ -1,0 +1,52 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.6.27 update 2020.9.10
+# /pepolinux/pppchat3
+DEMAND=/etc/ppp/options.demand
+CHAT=/etc/ppp/chat-ppp0
+PPPOPT=/etc/ppp/options
+tPPPOPT=/etc/ppp/options.old
+OPTACM=/etc/ppp/options.ttyACM0
+tOPTACM=/etc/ppp/options.ttyACM0.old
+LOCKFILE="/var/www/html/remote-hand/tmp/LCK..pppchat"
+
+lockfile -3 -r 3 ${LOCKFILE} >/dev/null 2>&1
+if [ $? != 0 ];then
+  exit -1
+else
+  echo -en $$ > ${LOCKFILE}
+fi
+if [ ! -e "$DEMAND" ];then
+cat>"$DEMAND"<<EOF
+demand
+idle 30
+debug 7
+kdebug 6
+updetach
+115200
+usepeerdns
+defaultroute
+lock
+/dev/ttyACM0
+connect '/usr/sbin/chat -v -f $CHAT'
+EOF
+chmod 600 $DEMAND
+fi
+if [ ! -e "$CHAT" ];then
+cat>"$CHAT"<<EOF
+'ABORT' 'BUSY'
+'ABORT' 'ERROR'
+'ABORT' 'NO CARRIER'
+'ABORT' 'NO DIALTONE'
+'' 'ATZ'
+'OK' 'ATD *99***1#'
+'CONNECT' ''
+EOF
+chmod 600 $CHAT
+fi
+if [ -e "$OPTACM" ];then
+  mv $OPTACM $tOPTACM
+fi
+mv $PPPOPT $tPPPOPT 
+cp $DEMAND $PPPOPT
+exec /usr/sbin/pppd

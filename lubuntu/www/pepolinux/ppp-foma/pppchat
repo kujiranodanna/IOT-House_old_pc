@@ -1,0 +1,43 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2008.4.13 update 2020.9.10
+# pppchat
+LOCKFILE="/var/www/html/remote-hand/tmp/LCK..pppchat"
+lockfile -3 -r 3 ${LOCKFILE} >/dev/null 2>&1
+if [ $? != 0 ];then
+  exit -1
+else
+  echo -en $$ > ${LOCKFILE}
+fi
+I=""
+G=""
+msleep 5000
+while [ "X$G" != "XOK" ]
+do
+  echo -en "AT&F\r\n"
+  if [ $? != "0" ]; then
+    exit
+  fi
+  msleep 1000
+  read -s -n 3 -t 2 I
+  if [ $? != "0" ]; then
+    exit
+  fi
+  G=`echo $I|awk '/OK/{print "OK"}'`
+done
+
+while [ "X$G" != "XRING" ]
+do
+  msleep 1000
+  read -s -n 5 -t 604800 I
+  if [ $? != "0" ]; then
+    exit
+  fi
+  G=`echo $I|awk '/RING/{print "RING"}'`
+done
+echo -en "ATA\r\n"
+if [ $? != "0" ]; then
+  exit
+fi
+msleep 2000
+exec /usr/sbin/pppd $1

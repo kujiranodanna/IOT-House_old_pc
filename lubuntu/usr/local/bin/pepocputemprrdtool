@@ -1,0 +1,36 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.5.3 update 2020.5.27
+# pepocputemprrdtool ; For raspberry pi or Iubuntu, and scripts to run the CPU Temperature Data Base Create and Update.
+# That to run a cron of 300 seconds interval.
+# add following 2 lines --> /etc/cron.d/pepocputemprrdtool
+#MAILTO=""
+#*/5 * * * * root /usr/local/bin/pepocputemprrdtool
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+WORKDIR=/www/remote-hand
+DSFILE=${WORKDIR}/tmp/.cpu_temp.rrd
+RRDSTART=${WORKDIR}/tmp/.cpu_temp_start_time
+DIREADJSON=${WORKDIR}/.di_read_data.json
+[ ! -e $DIREADJSON ] && exit
+TEMP=`cat ${DIREADJSON} |awk '/cpu_temp/{gsub(/"|cpu_temp|℃|:|\,/,"",$0);printf $0}'`
+TEMP_YESNO=`echo ${TEMP} | awk 'BEGIN{YESNO="NO"};/none/{YESNO="YES"};END{printf("%s",YESNO)}'`
+[ "${TEMP_YESNO}" = "YES" ] && exit
+[ -z "${TEMP}" ] && exit
+if [ ! -e ${DSFILE} ];then
+# db create
+  START=`date "+%Y%m%d %H:%M:00"`
+  START=`date -d "${START}" +%s`
+  echo -en "START=${START}" > ${RRDSTART}
+  rrdtool create ${DSFILE} --start ${START} --step 300 DS:cpu_temp:GAUGE:600:U:U RRA:MAX:0.5:1:1200
+  UPTIME=`date "+%Y%m%d %H:%M:00"`
+  UPTIME=`date -d "${UPTIME}" +%s`
+# db update
+  rrdtool update ${DSFILE} --template temp ${UPTIME}:${TEMP}
+else
+  TEMP=`cat ${DIREADJSON} |awk '/cpu_temp/{gsub(/"|cpu_temp|℃|:|\,/,"",$0);printf $0}'`
+  UPTIME=`date "+%Y%m%d %H:%M:00"`
+  UPTIME=`date -d "${UPTIME}" +%s`
+# db update
+  rrdtool update ${DSFILE} --template cpu_temp ${UPTIME}:${TEMP}
+fi
+

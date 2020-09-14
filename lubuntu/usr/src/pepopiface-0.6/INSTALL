@@ -1,0 +1,55 @@
+[root@remote-hand src]# tar xvfz pepopiface.tar.gz
+./pepopiface/
+./pepopiface/pepopiface.c
+./pepopiface/INSTALL
+./pepopiface/README
+./pepopiface/Makefile
+./pepopiface/patch-pfio
+[root@remote-hand src]#
+[root@remote-hand src]# git clone https://github.com/thomasmacpherson/piface.git
+Cloning into 'piface'...
+remote: Counting objects: 1387, done.
+remote: Compressing objects: 100% (634/634), done.
+remote: Total 1387 (delta 673), reused 1360 (delta 648)
+Receiving objects: 100% (1387/1387), 529.38 KiB | 151 KiB/s, done.
+Resolving deltas: 100% (673/673), done.
+[root@remote-hand src]# cd piface/
+[root@remote-hand piface]# ls
+c  django  easyteach  misc  python  README.md  scratch  scripts
+[root@remote-hand piface]# cd c/
+[root@remote-hand c]# ls
+autogen.sh  configure.ac  examples  Makefile.am  piface-1.0.pc.in  src
+[root@remote-hand c]# patch -p0 </usr/src/pepopiface/patch-pfio
+[root@remote-hand c]# ./autogen.sh
+[root@remote-hand c]# ./configure
+[root@remote-hand c]# make
+[root@remote-hand c]# make install
+[root@remote-hand c]# vi /etc/ld.so.conf.d/piface.conf
+/usr/local/lib
+
+[root@remote-hand c]# ll /usr/local/lib/libpiface-1.0.a
+rw-r--r-- 1 root root 12364 Jul 20 07:57 /usr/local/lib/libpiface-1.0.a
+[root@remote-hand c]# ldconfig
+
+[root@remote-hand c]# cd ../scripts/
+[root@remote-hand scripts]# ./spidev-setup
+Creating udev rule
+Adding user pi to group spiuser
+Adding user www-data to group spiuser
+User "pi" can now access the /dev/spidev* devices
+Please REBOOT for the changes to take effect
+root@raspberrypi:/usr/src/piface/scripts#
+
+[root@remote-hand scripts]# cd /usr/src/pepopiface
+[root@remote-hand pepopiface]# ls
+INSTALL  Makefile  patch-pfio  pepopiface.c  README
+[root@remote-hand pepopiface]# make
+gcc -Wall -L/usr/local/lib/ -lpiface-1.0 -o pepopiface pepopiface.c
+[root@remote-hand pepopiface]# make install
+install -s pepopiface /usr/local/bin
+[root@remote-hand pepopiface]# pepopiface
+
+** Welcome to pepopiface Version-0.5 Copyright Yamauchi.Isamu compiled:Jan 11 2015 **
+usage:pepopiface port:0-8 [0|1] [timer:0-65535ms]
+
+Enjoy the piface and raspberry pi.

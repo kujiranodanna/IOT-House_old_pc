@@ -1,0 +1,166 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.23 update 2020.6.30
+# pepoipdiotocsd ; For raspberry pi or i386, and scripts to run the Remote DIO and Twlite.
+# licence GPLv2 ; the scripts designed by Isamu.Yamauchi, 
+#
+RETRYTIME=20
+RETRY=1
+WAIT=10000
+#WAIT=2000
+PORT=443
+LOCAL_DIR=/www/remote-hand/tmp
+REMOTE_DIR=remote-hand
+SERVERCONF=$LOCAL_DIR/.startup.s.tmp
+WORK=$LOCAL_DIR/.ip_json_work
+ALIAS_DI=$LOCAL_DIR/.alias_di
+USERAGENT="Chrome/77.0.386590"
+JSON_DATA=.di_read_data.json
+RM_JSON_DATA=$REMOTE_DIR/$JSON_DATA
+DIRDIP=.di_read_data_ip
+DOWDIP=.do_write_data_ip
+LO_DI_DATA=$LOCAL_DIR/$DIRDIP
+tLO_DI_DATA=$LOCAL_DIR/${DIRDIP}.tmp
+LO_DO_DATA=$LOCAL_DIR/$DOWDIP
+tLO_DO_DATA=$LOCAL_DIR/${DOWDIP}.tmp
+TOCOS_RD=.tocos_read_data
+TOCOS_WD=.tocos_write_data
+LO_TOCOS_RD_DATA=$LOCAL_DIR/$TOCOS_RD
+tLO_TOCOS_RD_DATA=$LOCAL_DIR/${TOCOS_RD}.tmp
+LO_TOCOS_WD_DATA=$LOCAL_DIR/$TOCOS_WD
+tLO_TOCOS_WD_DATA=$LOCAL_DIR/${TOCOS_WD}.tmp
+error(){
+  [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA
+  [ -e $tLO_DI_DATA ] && rm -f $tLO_DI_DATA
+  [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
+  [ -e $tLO_DO_DATA ] && rm -f $tLO_DO_DATA
+#  [ -e $LO_TOCOS_RD_DATA ] && rm -f $LO_TOCOS_RD_DATA
+  [ -e $tLO_TOCOS_RD_DATA ] && rm -f $tLO_TOCOS_RD_DATA
+  [ -e $LO_TOCOS_WD_DATA ] && rm -f $LO_TOCOS_WD_DATA
+  [ -e $tLO_TOCOS_WD_DATA ] && rm -f $tLO_TOCOS_WD_DATA
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+
+while true;do
+  while [ -e $ALIAS_DI -a -e $SERVERCONF ];do
+    unset tocos_ip piface_ip vWEBPASSWORD vWEBUSER
+    . $ALIAS_DI
+    . $SERVERCONF
+    if [ -z "$piface_ip" -a -z "$tocos_ip" ];then
+      [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA
+      [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
+      msleep $WAIT
+      continue
+    fi
+    PASSWORD=$vWEBPASSWORD
+    USER=$vWEBUSER
+    LOOPTIME=$WAIT
+    for i in 0 1 2 3 4 5 6 7;do
+      do[$i]="-1"
+      di[$i]="-1"
+    done
+    if [ ! -z $piface_ip ];then
+      RM_HOST=$piface_ip
+      rm -f $WORK
+curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
+#      wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$RM_JSON_DATA --http-user=${USER} --http-password=${PASSWORD} --output-document=${WORK}
+      if [ -e $WORK ];then
+        LEN=`cat $WORK |wc -l`
+        if [ $LEN -gt 2 ];then
+          cat $WORK |awk '
+          /"di0"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[0]="i)}
+          /"di1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[1]="i)}
+          /"di2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[2]="i)}
+          /"di3"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[3]="i)}
+          /"di4"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[4]="i)}
+          /"di5"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[5]="i)}
+          /"di6"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[6]="i)}
+          /"di7"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[7]="i)}
+          ' >$tLO_DI_DATA
+          if [ $DI_TTY = "none" ];then
+            cat $WORK |awk '
+            /gpio_i2c/{gsub(/gpio_i2c":{|date":|temp":|hum":|pres":|gas":|hPa"|iaq":|℃|％|Ω|{:|"|}/,"",$0);split($0,j,",");printf("gpio_i2c=%s,%s,%s,%s,%s,%s\n",j[1],j[2],j[3],j[4],j[5],j[6],J[7])}' >>$tLO_DI_DATA
+          fi
+          [ -e $tLO_DI_DATA ] && mv $tLO_DI_DATA $LO_DI_DATA
+          if [ $DI_TTY = "none" ];then
+            cat $WORK |awk '
+            /"do0"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[0]="i)}
+            /"do1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[1]="i)}
+            /"do2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[2]="i)}
+            /"do3"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[3]="i)}
+            /"do4"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[4]="i)}
+            /"do5"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[5]="i)}
+            /"do6"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[6]="i)}
+            /"do7"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[7]="i)}
+            ' >$tLO_DO_DATA
+            [ -e $tLO_DO_DATA ] && mv $tLO_DO_DATA $LO_DO_DATA
+          else
+            [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA             
+          fi
+        fi
+      fi
+    else
+      [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
+      [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA      
+    fi
+    if [ ! -z $tocos_ip ];then
+      if [ ! -z $piface_ip ];then
+        if [ $tocos_ip != $piface_ip ];then
+          RM_HOST=$tocos_ip
+curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
+#          wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$RM_JSON_DATA --http-user=${USER} --http-password=${PASSWORD} --output-document=${WORK}
+        fi
+      else
+        RM_HOST=$tocos_ip
+curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
+#        wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$RM_JSON_DATA --http-user=${USER} --http-password=${PASSWORD} --output-document=${WORK}
+      fi
+      if [ -e $WORK ];then
+        LEN=`cat $WORK |wc -l`
+        if [ $LEN -gt 2 ];then
+#          rm -f $LO_TOCOS_RD_DATA
+          cat $WORK |awk '
+            /"ti1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI1="i)}
+            /"ti2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI2="i)}
+            /"ti3"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI3="i)}
+            /"vai1"/{gsub(/\,/,"",$0);split($0,j,":");print("VAI1="j[2])}
+            /"vai2"/{gsub(/\,/,"",$0);split($0,j,":");print("VAI2="j[2])}
+            /"vai3"/{gsub(/\,/,"",$0);split($0,j,":");print("VAI3="j[2])}
+            /"vai4"/{gsub(/\,/,"",$0);split($0,j,":");print("VAI4="j[2])}
+            /i2ctemp/{gsub(/date|i2ctemp|temp|hum|{|}|":|"/,"",$0);split($0,j,",");printf("i2c=\"%s %s %s\"\n",j[1],j[2],j[3])}
+            ' >$tLO_TOCOS_RD_DATA
+          if [ -e $tLO_TOCOS_RD_DATA ];then
+cat $tLO_TOCOS_RD_DATA
+            . $tLO_TOCOS_RD_DATA
+            if [ -n "${slice_ai[12]}" ];then
+              [ "${VAI1}" -lt "${slice_ai[12]}" ] && AI1="0" || AI1="1"
+            fi                
+            if [ -n "${slice_ai[13]}" ];then
+              [ "${VAI2}" -lt "${slice_ai[13]}" ] && AI2="0" || AI2="1"
+            fi                
+            if [ -n "${slice_ai[14]}" ];then
+              [ "${VAI3}" -lt "${slice_ai[14]}" ] && AI3="0" || AI3="1"
+            fi                
+            if [ -n "${slice_ai[15]}" ];then
+              [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"
+            fi
+            echo -e "AI1=$AI1\nAI2=$AI2\nAI3=$AI3\nAI4=$AI4" >> $tLO_TOCOS_RD_DATA
+            mv $tLO_TOCOS_RD_DATA $LO_TOCOS_RD_DATA
+          fi
+          cat $WORK |awk '                        
+            /"to1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO1="i)}
+            /"to2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO2="i)}
+            /"to3"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO3="i)}
+            ' >$tLO_TOCOS_WD_DATA
+          [ -e $tLO_TOCOS_WD_DATA ] && mv $tLO_TOCOS_WD_DATA $LO_TOCOS_WD_DATA
+        fi
+      fi
+    elif [ -z "$tocos_ip" -a "$TOCOS_TTY" = "none" ];then
+      [ -e $LO_TOCOS_WD_DATA ] && rm -f $LO_TOCOS_WD_DATA
+      [ -e $LO_TOCOS_RD_DATA ] && rm -f $LO_TOCOS_RD_DATA
+    fi
+    rm -f $WORK
+    msleep $WAIT 
+  done
+done

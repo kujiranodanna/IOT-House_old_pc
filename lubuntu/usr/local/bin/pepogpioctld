@@ -1,0 +1,238 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2018.1.8 update 2020.6.30
+# Scan GPIO for rasberry pi zero W.
+# pepogpioctld
+GPIOCTL="/usr/local/bin/pepogpioctl 8"
+GPIOINT="/usr/local/bin/pepogpioctl 9"
+GPIOCTL_I2C="/usr/local/bin/pepoam2320"
+GPIOCTL_I2CBME680="/usr/local/bin/pepobme680"
+GPIOCTL_DO="/usr/local/bin/pepogpioctl"
+WAIT=5
+LOOPSLEEP=1000
+LOOPDOCT=2
+LOOPI2CT=20
+LOOPI2CT_BME680=2
+BASECT=50
+EPOCHOLD=`date -ud "0 second ago" +%s`
+EPOC5MIN=300
+gpio_i2c="-1"
+DIR=/www/remote-hand/tmp
+GPIOGPIORD=$DIR/.gpiodi_read_data
+tGPIOGPIORD=$DIR/.gpiodi_read_data.tmp
+GPIOGPIOWD=$DIR/.gpiodo_write_data
+tGPIOGPIOWD=$DIR/.gpiodo_write_data.tmp
+DOWDHELP=$DIR/.gpiodo_write_helper
+ALIAS_DI=$DIR/.alias_di
+tALIAS_DI=$DIR/.alias_di_pepogpioctld
+GPIOGPIO_INIT_FLAG=YES
+BME680_RD=$DIR/.pepobme680
+error(){
+  [ -e $tGPIOGPIORD ] && rm -f $tGPIORD
+  [ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
+  [ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
+  pkill -f $GPIOCTL_I2CBME680
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT SIGQUIT
+[ -e $tGPIOGPIORD ] && rm -f $tGPIOGPIORD
+[ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
+[ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
+[ -e $tGPIOGPIOWD ] && rm -f $tGPIOGPIOWD
+LOOPDO=${LOOPDOCT}
+LOOPI2C=${LOOPI2CT}
+pkill -f $GPIOCTL_I2CBME680
+i=0
+while [ $i -lt $BASECT ];do
+  GAS[$i]=0
+  tGAS[$i]=0
+  i=$(($i + 1))
+done
+GAS[$i]=0
+while true;do
+  unset DI_TTY
+  [ -e $ALIAS_DI ] && . $ALIAS_DI
+  if [ "$DI_TTY" = "piface" -o  "$DI_TTY" = "none" ];then
+    [ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
+    [ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
+    GPIOGPIO_INIT_FLAG=YES
+    LOOPTIME=$LOOPSLEEP
+    msleep $LOOPTIME
+    pkill -f $GPIOCTL_I2CBME680
+    continue
+  fi
+  unset piface_ip di do DO
+  for i in 0 1 2 3 4 5 6 7; do old[$i]="-1" ;done
+  LOOPTIME=$LOOPSLEEP
+# gpio_do initialize
+  if [ $GPIOGPIO_INIT_FLAG = YES ];then
+    RD=`$GPIOINT 2>&1`
+    GPIOGPIO_INIT_FLAG=NO
+    $GPIOCTL_I2CBME680 &
+  fi
+#DO write
+  if [ -e $DOWDHELP ];then
+    if [ $LOOPDO = 0 ];then
+      LOOPDO=${LOOPDOCT}
+      unset DO
+      . $DOWDHELP
+      BDO=0
+      for i in 0 1 2 3; do
+      if [ ! -z ${DO[$i]} ];then
+        case "$i" in
+          0) BDO=$((${DO[i]} * 1 + $BDO)) ;;
+          1) BDO=$((${DO[i]} * 2 + $BDO)) ;;
+          2) BDO=$((${DO[i]} * 4 + $BDO)) ;;
+          3) BDO=$((${DO[i]} * 8 + $BDO)) ;;
+        esac
+      fi
+      done
+      RD=`$GPIOCTL_DO b $BDO 2>&1`
+    else
+      LOOPDO=$(($LOOPDO - 1))
+    fi
+  fi
+  if [ $LOOPI2C = 0 ];then
+    LOOPI2C=$LOOPI2CT
+    if [ -e $BME680_RD ];then
+      LOOPI2C=$LOOPI2CT_BME680
+      gpio_i2c=`cat $BME680_RD | awk 'BEGIN{FS=","};{split($1,I,"/");split($4,J,".");printf("%s,%s,%s,%s,%s",I[4],$2,$3,J[1],$5)}'`
+      BME680TEMP=`cat $BME680_RD | awk 'BEGIN{FS=","};{printf("%s",$2)}'`
+      BME680TEMP=`echo -en $BME680TEMP | awk 'BEGIN{FS="."};{printf("%s",$1)}'`
+      BME680HUM=`cat $BME680_RD | awk 'BEGIN{FS=","};{printf("%s",$3)}'`
+      BME680HUM=`echo -en $BME680HUM | awk 'BEGIN{FS="."};{printf("%s",$1)}'`
+      BME680GAS=`cat $BME680_RD | awk 'BEGIN{FS=","};{printf("%s",$5)}'`
+      BME680GAS=`echo -en $BME680GAS | awk 'BEGIN{FS="."};{printf("%s",$1)}'`
+      HUM_BASELOW=40
+      HUM_BASEHIGH=70
+      HUM_SCORE=0
+      TEMP_BASELOW=17
+      TEMP_BASEHIGH=28
+      TEMP_SCORE=0
+      GAS_SCORE=0
+      HUM_WEIGHT=10
+      HUM_WEIGHT=$(($HUM_WEIGHT * 5))
+      TEMP_WEIGHT=10
+      TEMP_WEIGHT=$(($TEMP_WEIGHT * 5))
+      GAS_WEIGHT=80
+      GAS_WEIGHT=$(($GAS_WEIGHT * 5))   
+      GAS_BASE_CONF=${slice_ai[24]}
+      GAS_BASE_AUTO_FIX=${slice_ai[25]}
+      [ -z $GAS_BASE_AUTO_FIX ] && GAS_BASE_AUTO_FIX="Auto"
+      if [ ! -z $GAS_BASE_CONF ];then
+        GAS_BASE=$GAS_BASE_CONF
+      else
+        GAS_BASE=3000000
+      fi
+      EPOCHNOW=`date -ud "0 second ago" +%s`
+      if [ $(($EPOCHNOW - $EPOCHOLD)) -gt $EPOC5MIN ];then
+        EPOCHOLD=$EPOCHNOW
+        i=0
+        j=0
+        GAS_SUM=0
+        GAS[$i]=$BME680GAS
+        while [ $i -lt $BASECT ];do
+          if [ ${GAS[$i]} -ne 0 ];then
+            GAS_SUM=$(($GAS_SUM + ${GAS[$i]}))
+            j=$(($j + 1))
+            tGAS[$(($i + 1))]=${GAS[$i]}
+            i=$(($i + 1))
+          else
+            break
+          fi
+        done
+        i=1
+        while [ $i -lt $BASECT ];do
+          if [ ${tGAS[$i]} -ne 0 ];then
+            GAS[$i]=${tGAS[$i]}
+            i=$(($i + 1))
+          else
+            break
+          fi
+        done
+        if [ $j -eq $BASECT -a "$GAS_BASE_AUTO_FIX" = "Auto" ];then
+          GAS_BASE=$(($GAS_SUM / $j))
+          if [ -e $ALIAS_DI ];then
+            cat $ALIAS_DI | grep -v "slice_ai\[24\]" >$tALIAS_DI
+            echo "slice_ai[24]=$GAS_BASE" >> $tALIAS_DI
+            mv $tALIAS_DI $ALIAS_DI
+          fi
+        fi
+      fi 
+      if [ $BME680TEMP -gt $TEMP_BASEHIGH ];then
+        TEMP_OFFSET=$(($BME680TEMP - $TEMP_BASEHIGH))
+        TEMP_SCORE=$(($(($TEMP_OFFSET * $TEMP_WEIGHT)) / $((50 - $TEMP_BASEHIGH))))
+      elif [ $BME680TEMP -lt $TEMP_BASELOW ];then
+        TEMP_OFFSET=$(($TEMP_BASELOW - $BME680TEMP))
+        TEMP_SCORE=$(($(($TEMP_OFFSET * $TEMP_WEIGHT)) / $TEMP_BASELOW))
+      fi
+      if [ $BME680HUM -gt $HUM_BASEHIGH ];then
+        HUM_OFFSET=$(($BME680HUM - $HUM_BASEHIGH))
+        HUM_SCORE=$(($(($HUM_OFFSET * $HUM_WEIGHT)) / $((100 - $HUM_BASEHIGH))))
+      elif [ $BME680HUM -lt $HUM_BASELOW ];then
+        HUM_OFFSET=$(($HUM_BASELOW - $BME680HUM))
+        HUM_SCORE=$(($(($HUM_OFFSET * $HUM_WEIGHT)) / $HUM_BASELOW))
+      fi
+      if [ $BME680GAS -gt $GAS_BASE ];then
+        GAS_OFFSET=$(($BME680GAS - $GAS_BASE))
+        GAS_SCORE=$(($(($GAS_OFFSET * $GAS_WEIGHT)) / $GAS_BASE))
+      else
+        GAS_OFFSET=$(($GAS_BASE - $BME680GAS))
+        GAS_SCORE=$(($(($GAS_OFFSET * $GAS_WEIGHT)) / $GAS_BASE))
+      fi
+      IAQ=$(($TEMP_SCORE + $HUM_SCORE + $GAS_SCORE))
+      [ $IAQ -gt 500 ] && IAQ=500
+      gpio_i2c=`echo -en $gpio_i2c,$IAQ`
+    else
+      RD=`$GPIOCTL_I2C 2>&1`
+      NUM=`echo -en $RD | awk 'BEGIN{I="YES"};{if(/[a-z|A-Z]+/){I="NO"};printf I}'`
+echo NUM:$NUM
+      if [ $NUM = "YES" ];then
+        NOWDATE=`date '+%H:%M'|awk '{printf("%s",$1)}'`
+        gpio_i2c=`echo -en ${NOWDATE} ${RD}|awk '{printf("%s,%s,%s",$1,$2,$3)}'`
+echo gpio_i2c:$gpio_i2c
+      fi
+    fi
+  else
+    LOOPI2C=$(($LOOPI2C - 1))
+  fi  
+  RD="-1"
+  RD=`$GPIOCTL 2>&1`
+  LEN=`echo $RD|awk '{print(length($0))}'`
+  if [ "$RD" != "-1" -o "LEN" = 2 ];then
+    GPIOGPIO_INIT_FLAG=NO
+    for i in 1 2 4 8 16 32 64 128; do
+      case "$i" in
+        1) tRD="$(($((0x$RD & 1)) / 1))" ;j=0 ;;
+        2) tRD="$(($((0x$RD & 2)) / 2))" ;j=1 ;;
+        4) tRD="$(($((0x$RD & 4)) / 4))" ;j=2 ;;
+        8) tRD="$(($((0x$RD & 8)) / 8))" ;j=3 ;;
+        16) tRD="$(($((0x$RD & 16)) / 16))" ;j=4 ;;
+        32) tRD="$(($((0x$RD & 32)) / 32))" ;j=5 ;;
+        64) tRD="$(($((0x$RD & 64)) / 64))" ;j=6 ;;
+        128) tRD="$(($((0x$RD & 128)) / 128))" ;j=7 ;;
+      esac
+    old[$j]=$tRD
+    done
+  else
+    GPIOGPIO_INIT_FLAG=YES
+    rm -f $GPIOGPIORD $GPIOGPIOWD
+  fi
+  cat>$tGPIOGPIORD<<END
+di[0]=${old[4]}
+di[1]=${old[5]}
+di[2]=${old[6]}
+di[3]=${old[7]}
+gpio_i2c=${gpio_i2c}
+END
+cat>$tGPIOGPIOWD<<END
+do[0]=${old[0]}
+do[1]=${old[1]}
+do[2]=${old[2]}
+do[3]=${old[3]}
+END
+  chown www-data.www-data $tGPIOGPIORD $tGPIOGPIOWD
+  mv $tGPIOGPIORD $GPIOGPIORD ; mv $tGPIOGPIOWD $GPIOGPIOWD
+  msleep $LOOPTIME
+done
+

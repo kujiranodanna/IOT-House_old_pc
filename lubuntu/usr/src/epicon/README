@@ -1,0 +1,89 @@
+
+                            epicon
+
+           Copyright 2011.9.27,Isamu.Yamauchi
+                   All rights reserved.
+
+epicon is console terminal software.epicon is named Easy Personal
+Interface  CoNsole.  However it is a lie though it is that a name
+doesn't matter.  As a matter of fact, it is my wife's  nickname..
+My  wife's name is Emiko so epicon is that female fox Hi.  epicon
+is designed for router configuration  tool,  be  small,  portable
+,simple.   epicon  is  a serial line or a TCP/IP connection which
+works on the pepolinux.  epicon call protocol of Zmodem,  Xmodem,
+kermit  from  the  inside.  Use gkermit together with epicon that
+the patch of indicating a counter was made because it is a little
+gentle.
+
+This  program  is  free  software; you can redistribute it and/or
+modify it under the terms of the GNU General  Public  License  as
+published  by  the  Free Software Foundation; either version 2 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will  be  useful,
+but  WITHOUT  ANY  WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software Foun-
+dation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+After  you  have unpacked your kit, you should have some files
+listed in README.
+
+     README                      this files
+     epicon.h                    header file
+     epicon.c                    epicon command interface
+     epicon_main.c               epicon main process
+     epicon_uty.c                epicon utility
+     sample.scr                  sample batch script
+     patch-gkermit1.0+counter1.2.1 patch for indicating a counter
+     configure                   create of Makefile script
+     Makefile.am                 source of Makefile.in
+     Makefile.in                 source of Makefile
+     etc..
+
+Installation
+1) Detailed instructions are in the file after
+   INSTALL which you should read.In brief, the following should
+   work on most systems:
+   ncurses-devel.i386 is necessary for make. 
+   * ncurses-devel.i386 : Development files for the ncurses library
+      ./configure
+      make
+      make install       
+
+2)epicon  UNINSTALL
+      make  uninstall        
+
+3)epicon object CLEAN
+      make clean
+ 
+4)Read the manual entries before running epicon.
+      man epicon
+
+5)before running epicon
+  If a thing to prepare for is said, the rest is the skill which
+  can cook router connected to the cable.
+
+6)after running epicon
+  This software may still keep containing many bugs by the 
+  un-maturity.
+  There probably are some, but I don't know what they are yet.
+  It  is lucky if I can have a report and advice by mail if a bug
+  is found.
+  If possible, send in patches such that the patch  program  will
+  apply them.
+  Context diffs are the best, then normal diffs.
+  The  thing that the version of epicon which if you have is won-
+  derful changes mine.
+
+7)Known bug
+  Any file transfers other than automatic reception of ZMODEM
+  binary mode not supported.(TCP/IP)
+
+AUTHOR Isamu.Yamauchi ;in Japan 2002.9.20 1st release
+  Web:   http://pepolinux.sourceforge.jp/
+  Email: pepolinux@users.sourceforge.jp
+

@@ -1,0 +1,77 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2010.12.12 update 2018.2.24
+# get pepopodcastget mp3
+# XMLにpodcastのURLを登録
+#XML=http://podcast.1242.com/ps/index.xml
+#XML=http://podcasts.voanews.com/podcastxml_local.cfm?id=1631
+#XML=http://www3.nhk.or.jp/rj/podcast/rss/english.xml
+#XML=http://www.cnn.com/services/podcasting/newscast/rss.xml
+# CTは保存世代数（古い順に消去）
+# DEVはMP3プレーヤーのデバイス名
+if [ $# = 0 ];then
+  echo "usage :$0 http://XXX.XXX/mp3.xml count podcasts_dev podcasts_dir"
+  exit
+fi
+XML=$1
+CT=$2
+DEV=$3
+TDIR=$4
+MNT=/mnt/music
+MDIR=$MNT/$TDIR
+DIR=/www/remote-hand/tmp/music
+RAND=`echo -e $RANDOM`
+TMP=$DIR/${RAND}.xml
+[ ! -e $DIR ] && mkdir -p $DIR
+wget $XML -O $TMP
+URL=`cat $TMP |awk '/enclosure/{split($0,I,"\"")
+  for ( J in I ) {
+    if (I[J] ~ /\.mp3$/) {
+      printf I[J]" "
+    }
+  }
+}'`
+for FIL in $URL
+do
+  MP3=`echo $FIL |awk '{s=split($0,I,"/"); printf I[s]}'`
+  [ -f $DIR/$MP3 ] && continue
+  wget $FIL -O $DIR/$MP3
+  [ ! -s $DIR/$MP3 ] && rm -f $DIR/$MP3
+done
+rm -f $TMP
+MFIL=`ls -tr $DIR`
+MCT=`echo $MFIL | wc -w`
+if [ $MCT -gt $CT ];then
+  I=`expr $MCT - $CT`
+  for J in $MFIL
+  do
+    rm -f $DIR/$J
+    I=`expr $I - 1`
+    [ $I -eq 0 ] && break
+  done
+fi
+[ ! -e $MNT ] && mkdir -p $MNT
+mount $DEV $MNT -t vfat >/dev/null 2>&1
+[ `mount |grep $DEV |wc -l` -eq 1 ] && MDEV=OK || MDEV=NG
+if [ $MDEV = "OK" ];then
+  [ ! -e $MDIR ] && mkdir -p $MDIR
+  MFIL=`ls -tr $DIR`
+  for MM in $MFIL
+  do
+    if [ -s $DIR/$MM ];then
+      mv -f $DIR/$MM $MDIR
+    fi
+  done
+  MFIL=`ls -tr $MDIR`
+  MCT=`echo $MFIL | wc -w`
+  if [ $MCT -gt $CT ];then
+    I=`expr $MCT - $CT`
+    for J in $MFIL
+    do
+      rm -f $MDIR/$J
+      I=`expr $I - 1`
+      [ $I -eq 0 ] && break
+    done
+  fi
+fi
+[ $MDEV = "OK" ] && umount $DEV

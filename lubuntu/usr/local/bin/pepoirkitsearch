@@ -1,0 +1,40 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2014.9.14 update 2018.2.24
+# pepoirkitsearch is a tool to find the IRKit in rasberry_pi
+WORKFILE=/www/remote-hand/tmp/irkit_out_document
+prog=pepoirkitsearch
+pidfile=/var/run/$prog.pid
+error(){
+  [ -e $pidfile ] && rm -f $pidfile
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+while [ -e ${pidfile} ]
+do
+  msleep 1000
+  kill -HUP `cat ${pidfile}`
+done
+echo -en $$ > ${pidfile}
+LAN=`/sbin/ip addr |awk  '/192.168./{gsub("addr:","");split($2,I,".");printf("%s.%s.%s",I[1],I[2],I[3])}'`
+if [ -z $LAN ];then
+  echo -n 0
+  exit
+else
+  CT=2
+  while [ $CT -lt 255 ]
+  do
+#    echo ${LAN}.${CT}
+    wget http://${LAN}.${CT}/messages --header="X-Requested-With: PepoLinux" --save-headers --output-document=${WORKFILE} --tries=1 --connect-timeout=0.2 >/dev/null 2>&1
+    if [ `cat ${WORKFILE} | grep "IRKit"| wc -c` != 0 ];then
+      break
+    fi
+    CT="$(($CT + 1))"
+  done
+fi
+if  [ $CT != 255 ];then
+  echo -n $LAN.${CT}
+else 
+  echo -n 0
+fi
+[ -e ${pidfile} ] && rm ${pidfile}

@@ -1,0 +1,26 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2010.8.15 update 2020.6.29
+# ping watch of phone-call
+PING_HOST=$1
+CALL_NUM=$2
+PING_LOCK=/var/www/html/remote-hand/tmp/"$PING_HOST"_tel_lock
+PING_LOG=/var/www/html/remote-hand/tmp/"$PING_HOST"_tel_log
+FAIL_DONE=/var/www/html/remote-hand/tmp/"$PING_HOST"_tel_lock.done
+if [ $# -ne 2 ]; then
+  echo usage: $0 ip_addres phone_number
+  exit
+fi
+if ! ping -c 1 $1 2>&1 >$PING_LOG; then
+  sleep 1
+  if ! ping -c 1 $1 2>&1 >> $PING_LOG; then
+    if [ ! -f "$PING_LOCK" ] && [ ! -f "$PING_DONE" ]; then
+      echo -en $CALL_NUM >$PING_LOCK
+      date +"%Y/%m/%d %T" >> $PING_LOG
+    fi
+  fi
+else
+  if [ -f $FAIL_DONE ]; then
+    rm -f $PING_LOCK $FAIL_DONE 
+  fi
+fi

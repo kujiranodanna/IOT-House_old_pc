@@ -1,0 +1,66 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2007.3.18 ; update 2017.7.13
+# This scripts sample for ppp chat 
+# usage /usr/local/bin/epicon -l /dev/ttyACM0 -c /usr/local/bin/pepop2pchat
+CLR="\x1b[2J"
+RED="\x1b[41m"
+BULE="\x1b[44m"
+NORC="\x1b[39m"
+NORB="\x1b[49m"
+CR="\n"
+LF="\r"
+HOME="\x1b[r"
+POS="\x1b[20C\x1b[10B"
+MSG1="
+#######################################$LF
+#                                     #$LF
+#     FOMA Cellular Phone Detected!   #$LF
+#     Now Daial-in Server Ready       #$LF
+#                                     #$LF
+#######################################$LF
+"
+MSG2="
+#######################################$LF
+#                                     #$LF
+#    Just now Remote Host Calling!    #$LF
+#    Going to PPP Negotiation         #$LF
+#                                     #$LF
+#######################################$LF
+"
+
+I=""
+G=""
+sleep 1
+while [ "X$G" != "XOK" ]
+do
+	echo -en "AT&F\r\n" || exit 0
+#	sleep 5
+	read -s -n 3 -t 2 I || exit 0
+	J=`echo $I|awk '/OK/{print "OK"}'`
+	if [ "X$J" = "XOK" ]; then
+		{
+		echo -en "$CLR$HOME$BULE" >/dev/tty1
+		echo -en "$MSG1$CR$LF$NORC$NORB" >/dev/tty1
+		G=$J
+		}
+	fi
+done
+G=""
+while [ "X$G" != "XRING" ]
+do
+        sleep 5
+	read -s -n 5 -t 604800 I || exit 0
+	J=`echo $I|awk '/RING/{print "RING"}'`
+	if [ "X$J" = "XRING" ]; then
+		{
+		echo -en "$CRLF$RED" >/dev/tty1
+		echo -en "$MSG2$CR$LF$NORC$NORB" >/dev/tty1
+		G=$J
+		}
+	fi
+done
+echo -en "ATA\r\n" || exit 0
+sleep 2
+exec /usr/sbin/pppd $1
+

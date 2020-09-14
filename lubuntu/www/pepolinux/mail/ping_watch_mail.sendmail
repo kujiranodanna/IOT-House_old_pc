@@ -1,0 +1,48 @@
+#!/bin/bash
+# licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.4.19 update 2013.7.24
+# ping watch of mail for rasberry pi
+PING_HOST=$1
+MAIL_ADDRES=$2
+DO_ACT=$3
+CMD=/www/remote-hand/tmp/"$1"_mail.pepocmd
+PING_LOCK=/www/remote-hand/tmp/"$PING_HOST"_mail.lock
+PING_LOG=/www/remote-hand/tmp/"$PING_HOST"_mail.log
+PING_MSG=/www/remote-hand/tmp/"$PING_HOST"_mail.msg
+if [ $# != 2 ]; then
+  echo usage: $0 ip_addres mail_address
+  exit
+fi
+
+if ! ping -c 1 $1 2>&1 >$PING_LOG; then
+  msleep 1000
+  if ! ping -c 1 $1 2>&1 >> $PING_LOG; then
+    date +"%Y/%m/%d %T" >> $PING_LOG
+    if [ ! -f $PING_LOCK ]; then
+cat >$PING_MSG<<END
+To:$MAIL_ADDRES
+Subject:host $1 ping faild!
+END
+    cat $PING_LOG >>$PING_MSG
+    echo '.' >>$PING_MSG
+cat >$CMD<<EOF
+#!/bin/bash
+/usr/sbin/sendmail -i $2 <$PING_MSG
+EOF
+      touch $PING_LOCK
+    fi
+  fi
+else
+  if [ -f $PING_LOCK ]; then
+cat >$PING_MSG<<END
+To:$MAIL_ADDRES
+Subject:host $1 ping up!
+END
+    cat $PING_LOG >>$PING_MSG
+    echo '.' >>$PING_MSG
+cat >$CMD<<EOF
+#!/bin/bash
+/usr/sbin/sendmail -i $2 <$PING_MSG
+rm -f $PING_LOCK $PING_LOG $PING_MSG
+EOF
+  fi
+fi

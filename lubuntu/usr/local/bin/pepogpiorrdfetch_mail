@@ -1,0 +1,27 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.7.18 update 2019.9.3
+# pepogpiorrdfetch_mail ; Get the GPIO rrdtool last hour csv date & send mail
+# pepogpiorrdfetch_maill mail_to subject message
+MAILFROM=$1
+SUBJECT=$2
+MSG=$3
+WORKDIR=/www/remote-hand/tmp
+MUA=/usr/local/bin/peposendmail
+DSFILE=${WORKDIR}/.gpio_temp_hum.rrd
+FETCHDATA=${WORKDIR}/gpio_rrdfetch.txt
+IMG=/gpio_rrdfetch.txt
+CMD=${WORKDIR}/pepogpiorrdfetch_maill.pepocmd
+if [ -e ${DSFILE} ];then
+cat >${CMD}<<EOF
+#!/bin/bash
+[ -e $FETCHDATA ] && rm -f $FETCHDATA
+rrdtool fetch ${DSFILE} MAX -r 60 -s -1h | awk 'BEGIN{print "Date,Temp,Hum,Pres,Gas,IAQ"};!/nan|gpio/{if(length(\$0)==0){next};gsub(/:/,"",\$0);printf("%s,%2.1f,%2.1f,%d,%d,%d\\n",strftime("%Y/%m/%d %H:%M:%S",\$1),\$2,\$3,\$4,\$5,\$6)}' > ${FETCHDATA}
+EOF
+else
+  exit
+fi
+msleep 10000
+if [ -e $FETCHDATA ];then
+  ${MUA} ${MAILFROM} ${SUBJECT} ${MSG} $IMG
+fi

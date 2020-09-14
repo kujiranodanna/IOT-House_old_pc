@@ -1,0 +1,40 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.5.3 update 2020.7.4
+# pepoi2crrdtool ; For raspberry pi or Iubuntu, and scripts to run the I2C Temperature&Humidity Data Base Create and Update.
+# That to run a cron of 300 seconds interval.
+# add following 2 lines --> /etc/cron.d/pepoi2crrdtool
+#MAILTO=""
+# */5 * * * * root /usr/local/bin/pepoi2crrdtool
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+WORKDIR=/www/remote-hand
+DSFILE=${WORKDIR}/tmp/.i2c_temp_hum.rrd
+RRDSTART=${WORKDIR}/tmp/.i2c_start_time
+DIREADJSON=${WORKDIR}/.di_read_data.json
+[ ! -e $DIREADJSON ] && exit
+TEMP=`cat ${DIREADJSON} | jq  -r .i2ctemp.temp | awk '{gsub(/℃/,"",$0);printf $0}'`
+HUM=`cat ${DIREADJSON} | jq  -r .i2ctemp.hum | awk '{gsub(/％/,"",$0);printf $0}'`
+VAI1=`cat ${DIREADJSON} |awk '/vai1/{gsub(/"|vai1|,|:/,"",$0);printf $0}'`
+VAI2=`cat ${DIREADJSON} |awk '/vai2/{gsub(/"|vai2|,|:/,"",$0);printf $0}'`
+VAI3=`cat ${DIREADJSON} |awk '/vai3/{gsub(/"|vai3|,|:/,"",$0);printf $0}'`
+VAI4=`cat ${DIREADJSON} |awk '/vai4/{gsub(/"|vai4|,|:/,"",$0);printf $0}'`
+I2_YESNO=`echo ${HUM} ${TEMP} ${VAI1} ${VAI2} ${VAI3} ${VAI4} | awk 'BEGIN{YESNO="NO"};/none/{YESNO="YES"};END{printf("%s",YESNO)}'`
+[ "${I2_YESNO}" = "YES" ] && exit
+[ -z "${HUM}" -o -z "${TEMP}" -o -z "${VAI1}" -o  -z "${VAI2}" -o -z "${VAI3}" -o -z "${VAI4}" ] && exit
+if [ ! -e ${DSFILE} ];then
+# db create
+  START=`date "+%Y%m%d %H:%M:00"`
+  START=`date -d "${START}" +%s`
+  echo -en "START=${START}" > ${RRDSTART}
+  rrdtool create ${DSFILE} --start ${START} --step 300 DS:i2c_temp:GAUGE:600:U:U DS:i2c_hum:GAUGE:600:U:U DS:vai1:GAUGE:600:U:U DS:vai2:GAUGE:600:U:U DS:vai3:GAUGE:600:U:U DS:vai4:GAUGE:600:U:U RRA:MAX:0.5:1:2016 RRA:MAX:0.5:1:2016 RRA:MAX:0.5:1:2016 RRA:MAX:0.5:1:2016 RRA:MAX:0.5:1:2016 RRA:MAX:0.5:1:2016
+  UPTIME=`date "+%Y%m%d %H:%M:00"`
+  UPTIME=`date -d "${UPTIME}" +%s`
+# db update
+  rrdtool update ${DSFILE} --template i2c_temp:i2c_hum:vai1:vai2:vai3:vai4 ${UPTIME}:${TEMP}:${HUM}:${VAI1}:${VAI2}:${VAI3}:${VAI4}
+else
+  UPTIME=`date "+%Y%m%d %H:%M:00"`
+  UPTIME=`date -d "${UPTIME}" +%s`
+# db update
+  rrdtool update ${DSFILE} --template i2c_temp:i2c_hum:vai1:vai2:vai3:vai4 ${UPTIME}:${TEMP}:${HUM}:${VAI1}:${VAI2}:${VAI3}:${VAI4}
+fi
+

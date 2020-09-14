@@ -1,0 +1,31 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2010.7.31 update 2015.4.10
+# FOMA cellular phone dial
+PING_FAIL=/www/remote-hand/tmp/phone_dial_lock
+INIT_CMD="at+cbst=134,1,0"
+[ ! -e "$PING_FAIL" ] && exit 1
+msleep 100
+[ `cat "$PING_FAIL" | wc -c` = "0" ] && exit 1
+CALL_NUM=`cat "$PING_FAIL"`
+RESULT=""
+while [ "X$RESULT" != "XOK" ]
+do
+  echo -en "AT&F\r\n" || exit 1
+  msleep 2000
+#  echo -en "$INIT_CMD\r\n" || exit 1
+#  msleep 2000
+  if [ $? != "0" ]; then
+    exit
+  fi
+  msleep 1000
+  read -s -n 3 -t 2 IN || exit 1
+  if [ $? != "0" ]; then
+    exit
+  fi
+  RESULT=`echo $IN | awk '/OK/{print "OK"}'`
+done
+echo -en "ATDT${CALL_NUM};\r\n" || exit 1
+msleep 20000
+echo -en "ATH\r\n" || exit 1
+exit 0

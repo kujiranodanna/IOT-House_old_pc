@@ -1,0 +1,75 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.4.10 update 2019.9.18
+# FOMA cellular phone or modem dial management for rasberry pi
+DIALDIR=/www/remote-hand/tmp
+CALL=/www/pepolinux/phone/phone_call
+DIALMODE=/etc/ppp/ppp-dailer-mode
+PING_FAIL=/www/remote-hand/tmp/phone_dial_lock
+MODEM_DEV=/www/remote-hand/tmp/.modem
+
+check_foma() {
+  FOMA_CK=`ls /dev/|awk 'BEGIN{I="NO"};/ttyACM0/{I="YES"};END{print I}'`
+  DRV=`lsmod |awk 'BEGIN{I="NO"};/acm_FOMA/{I="YES"};END{print I}'`
+  MODEM_CK="NO"
+  unset modem_dev
+  if [ "$FOMA_CK" != "YES" ];then
+    if [ -e $MODEM_DEV ];then
+      . $MODEM_DEV
+      if [ -e /dev/$modem_dev ];then
+        MODEM=/dev/$modem_dev
+        MODEM_CK="YES"
+      fi
+    fi
+  else 
+    MODEM=/dev/ttyACM2
+  fi
+}
+
+check_pppchat() {
+  PPPCHAT=`ps ax |awk 'BEGIN{I="NO"};/pppchat$/{I="YES"};END{printf I}'`
+  PPPCHAT2=`ps ax |awk 'BEGIN{I="NO"};/pppchat2$/{I="YES"};END{printf I}'`
+}
+stop_ppp() {
+  svc -d /pepolinux/ppp-foma
+  msleep 1000
+}
+
+run_ppp() {
+  svc -u /pepolinux/ppp-foma
+  msleep 1000
+}
+
+while true
+  do
+  check_foma
+    CT=`ls -a "$DIALDIR" | grep -E "tel_lock$"`
+    if [ `echo -n "$CT" | wc -w` != 0 ]; then
+      for I in $CT ; do
+        [ -e ${DIALDIR}/${I}.done ] && rm -f ${DIALDIR}/${I}.done
+        [ -e "$PING_FAIL" ] && rm -f "$PING_FAIL"
+        if [ "$FOMA_CK" == "NO" -a "$MODEM_CK" == "NO" ];then
+          rm -f ${DIALDIR}/${I}
+        else
+          echo -en `cat ${DIALDIR}/${I}` > "$PING_FAIL"
+          check_pppchat
+          if [ "$PPPCHAT" == "YES" -o  "$PPPCHAT2" == "YES" ];then
+            stop_ppp
+            killall pppd
+            killps pppchat
+            msleep 2000
+          fi
+          check_pppchat
+          if [ "$PPPCHAT" == "NO" -a "$PPPCHAT2" == "NO" ];then
+            /usr/local/bin/epicon -l $MODEM -c "$CALL"
+            msleep 30000
+            /usr/local/bin/epicon -l $MODEM -c "$CALL"
+            rm -f "$PING_FAIL"
+            mv ${DIALDIR}/${I} ${DIALDIR}/${I}.done
+            run_ppp
+          fi
+        fi
+      done
+    fi
+  msleep 10000
+done

@@ -1,0 +1,181 @@
+#!/bin/bash
+# licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.11.6 update 2013.7.24
+# foma Cellular phone detect  for rasberry pi
+PPPMODE=/etc/ppp/ppp-dialer-mode
+OPTACM=/etc/ppp/options.ttyACM0
+tOPTACM=/etc/ppp/options.ttyACM0.old
+PPPOPT=/etc/ppp/options
+tPPPOPT=/etc/ppp/options.old
+RESOLV=/etc/resolv.conf
+tRESOLV=/etc/resolv.conf.old
+PPPGW=/etc/ppp/default_gateway
+DNS1="nameserver 220.159.212.200"
+DNS2="nameserver 220.159.212.201"
+PING_FAIL=/www/remote-hand/tmp/*tel_lock
+DEMAND=/etc/ppp/options.demand
+LOCKFILE="/www/remote-hand/tmp/LCK..pppchat"
+
+error(){
+# Maybe SIGHUP received trap, svc -d|u send SIGHUP
+  if [ -e $LOCKFILE ];then
+    PID=`cat $LOCKFILE`
+    if [ `ps ax|grep -c $PID` -gt 1 ];then
+      kill -KILL `cat $LOCKFILE`
+    fi
+    rm -f $LOCKFILE
+  fi
+  exit 0
+}
+trap error SIGHUP SIGINT SIGQUIT SIGTERM
+
+check_foma () {
+  FOMA_CK=`ls /dev/|awk 'BEGIN{I="NO"};/ttyACM0/{I="YES"};END{print I}'`
+  DRV=`lsmod |awk 'BEGIN{I="NO"};/acm_FOMA/{I="YES"};END{print I}'`
+  DI64K=`cat /etc/ppp/ppp-dialer-mode | awk 'BEGIN{I="NONE"};/64k=no/{I="NO"}/64k=yes/{I="YES"};END{print I}'`
+}
+
+check_pppchat () {
+  PPPCHAT=`ps ax |awk 'BEGIN{I="NO"};/pppchat$/{I="YES"};END{printf I}'`
+  PPPCHAT2=`ps ax |awk 'BEGIN{I="NO"};/pppchat2$/{I="YES"};END{printf I}'`
+  PPPRUN=`ps ax |awk 'BEGIN{I="NO"};/pppd$/{I="YES"};END{printf I}'`
+}
+
+wait_ppp_resolv () {
+  [ -e "$PPP_RESOLV" ] && rm -f "$PPP_RESOLV"
+  until [ -e "$PPP_RESOLV" ]
+  do
+    msleep 1000
+  done
+  msleep 1000
+}
+
+stop_pppchat(){
+  if [ -e $LOCKFILE ];then
+    PID=`cat $LOCKFILE`
+    if [ `ps ax|grep -c $PID` -gt 1 ];then
+      kill -KILL $PID
+    fi
+    rm -f $LOCKFILE
+  fi
+}
+
+pppchat () {
+# for 64k
+  check_pppchat
+  if [ "$PPPCHAT2" = "YES" -o "$PPPRUN" = "YES" ];then
+    stop_pppchat
+  fi
+  until [ "$PPPCHAT2" = "NO" ]
+  do
+    check_pppchat
+    msleep 1000
+  done
+  [ -e "$PPP_RESOLV" ] && rm -f "$PPP_RESOLV"
+  (epicon -l /dev/ttyACM0 -c /pepolinux/ppp-foma/pppchat &)
+  echo 'starting..... pppchat(64k)'
+}
+
+pppchat2 () {
+# for paket
+  check_pppchat
+  if [ "$PPPCHAT" = "YES" -o "$PPPRUN" = "YES" ];then
+   stop_pppchat
+  fi
+  until [ "$PPPCHAT" = "NO" -o "$PPPRUN" = "YES" ]
+  do
+    check_pppchat
+    msleep 1000
+  done
+  [ -e "$PPP_RESOLV" ] && rm -f "$PPP_RESOLV"
+  (exec epicon -l /dev/ttyACM0 -c /pepolinux/ppp-foma/pppchat2 &)
+  echo 'starting..... pppchat2(packet)'
+}
+
+pppchat3 (){
+# for demand
+  check_pppchat
+  if [ "$PPPCHAT" = "YES" -o "$PPPCHAT2" = "YES" -o "$PPPRUN" = "YES" ];then
+    stop_pppchat
+  fi
+  while [ "$PPPCHAT" = "YES" -o "$PPPCHAT2" = "YES" -o "$PPPRUN" = "YES" ]
+  do
+    check_pppchat
+    msleep 1000
+  done
+  echo 'starting..... pppchat3(ondemand)'
+  /pepolinux/ppp-foma/pppchat3
+}
+
+if [ -e $LOCKFILE ];then
+  PID=`cat $LOCKFILE`
+    if [ `ps ax|grep -c $PID` -gt 1 ];then
+      kill -KILL `cat $LOCKFILE`
+    fi
+  rm -rf $LOCKFILE
+fi
+
+while true
+do
+  if [ -e "$tDNS_RESOLV" ];then
+    mv -f "$tDNS_RESOLV" "$DNS_RESOLV"
+  fi
+  [ -e "$PPP_RESOLV" ] && rm -f "$PPP_RESOLV"
+  check_foma
+  if [ "$FOMA_CK" = "NO" ] && [ "$DRV" = "YES" ];then
+    (exec /sbin/rmmod -fw acm-FOMA 1 2>/dev/null ; exit 0)
+  fi
+  while [ "$FOMA_CK" = "YES" ]
+  do
+    check_foma
+    if [ ! -e "$PING_FAIL" ]; then
+      if [ "$DI64K" = "NO" ];then
+        if [ -e "$PPP_OPT" ];then
+          mv -f "$PPP_OPT" "$tPPP_OPT"
+        fi
+        GW_YES=`ip route|awk 'BEGIN{I="NO"};/default/{I="YES"};END{printf I}'`
+        GW=`ip route|awk '/default/{printf $3}'`
+        check_pppchat
+        if [ "$PPPCHAT2" = "NO" ];then
+          if [ "$GW_YES" = "YES"  ];then
+            (ip route del default via $GW)
+          fi
+          pppchat2
+        fi
+      fi
+      if [ "$DI64K" = "YES" ];then
+        if [ -e "$tPPP_OPT" ];then
+          mv -f "$tPPP_OPT" "$PPP_OPT"
+        fi
+        check_pppchat
+        if [ "$PPPCHAT" = "NO" ];then
+          pppchat
+        fi
+      fi
+      if [ "$DI64K" = "NONE" ];then
+        check_pppchat
+        if [ "$PPPRUN" = "NO" ];then
+          if [ "$GW_YES" = "YES" ];then
+            echo -n $GW > $PPPGW
+            (ip route del default via $GW)
+          fi
+          if [ ! -e $tRESOLV ];then
+            mv $RESOLV $tRESOLV
+          fi
+          echo $DNS1 > $RESOLV
+          echo $DNS2 >> $RESOLV
+          pppchat3
+        fi
+      fi  
+    fi
+  done
+  msleep 10000
+    [ -e $LOCKFILE ] && rm -f $LOCKFILE
+  if [ -e $tRESOLV ];then
+    mv $tRESOLV $RESOLV
+  fi
+  if [ -e $PPPGW ];then
+    GW=`cat $PPPGW`
+    ip route add default via $GW
+    rm $PPPGW
+  fi
+done

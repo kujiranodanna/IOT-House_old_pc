@@ -1,0 +1,24 @@
+--- src/piface/pfio.c	2013-07-20 08:03:57.198109677 +0900
++++ src.new/piface/pfio.c	2013-07-20 08:23:33.822083227 +0900
+@@ -64,16 +64,16 @@
+     // fixed SPI addresses so that we don't have that annoying
+     // LED flashing when initializing pfio.
+     spi_write(IOCON,  8); // enable hardware addressing
+-    spi_write(GPIOA, 0x00); // turn on port A
++//    spi_write(GPIOA, 0x00); // turn on port A
+     spi_write(IODIRA, 0); // set port A as an output
+     spi_write(IODIRB, 0xFF); // set port B as an input
+     spi_write(GPPUB, 0xFF); // turn on port B pullups
+ 
+     // initialise all outputs to 0
+-    int i;
+-    for (i = 1; i <= 8; i++)
+-        pfio_digital_write(i, 0);
+-
++//    int i;
++//    for (i = 1; i <= 8; i++)
++//        pfio_digital_write(i, 0);
++//
+     return 0;
+ }
+ 

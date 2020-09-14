@@ -1,0 +1,12 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.12.28 update 2018.5.26
+# pepodaily_backup ; For raspberry pi logs daily backup.
+# That to run a cron of every 1 week interval.
+# 11 11 * * 1 root /usr/local/bin/pepodaily_backup --> /etc/cron.d/pepodaily_backup
+cd /www/remote-hand/tmp
+rm -f *.jpg *.png *.webm *.mp4
+cd /www/remote-hand
+tar cfz /usr/src/pepolinux/back_up.tar.gz ./
+#cd /var/log
+#tar cfz /usr/src/pepolinux/back_up_log.tar.gz ./

@@ -1,0 +1,28 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.7.18 update 2019.7.18
+# pepogpioiaq_graph_mail ; Get the GPIO pepogpioiaq_graph_mail graph & send mail
+# pepogpioiaq_graph_mail mail_to subject message
+MAILFROM=$1
+SUBJECT=$2
+MSG=$3
+WORKDIR=/www/remote-hand/tmp
+MUA=/usr/local/bin/peposendmail
+DSFILE=${WORKDIR}/.gpio_temp_hum.rrd
+RRDSTART=${WORKDIR}/.gpio_temp_hum_start_time
+GRAP_TEMPFILE=${WORKDIR}/gpio_iaq.png
+IMG=gpio_iaq.png
+END=`date "+%Y%m%d %H:%M:00" -d "-10 minute"`
+END=`date -d "${END}" +%s`
+if [ -e ${DSFILE} ];then
+  [ -e ${RRDSTART} ] && . ${RRDSTART}
+  TEMPSTART=`date "+%Y%m%d %H:%M:00" -d "-1 days"`
+  TEMPSTART=`date -d "${TEMPSTART}" +%s`
+  if [ ${TEMPSTART} -gt ${START} ];then
+    START=${TEMPSTART}
+  fi
+  rrdtool graph ${GRAP_TEMPFILE} --width 600 --height 120 --start ${START} --end ${END} --upper-limit 500 --lower-limit 0 DEF:a=${DSFILE}:gpio_iaq:MAX LINE1:a#FF0000:"GPIO IAQ"
+  if [ -e  ${GRAP_TEMPFILE} ];then
+    ${MUA} ${MAILFROM} ${SUBJECT} ${MSG} ${IMG}
+  fi
+fi

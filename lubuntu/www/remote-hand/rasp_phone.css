@@ -1,0 +1,26 @@
+/* pepo update 2016.8.17 */
+html {
+  font-size: 62.5%; /* sets the base font to 10px for easier math */
+}
+ 
+h1 {
+  font-size: 14px;
+}
+textarea, input {
+//width: 300px;
+//appearance: none;
+height: 1.6em;
+}
+input {
+//  font-size: 52px;
+  font-size: 4.2rem;
+}
+body {
+    margin:10px 0;
+    font-family:arial,sans-serif;
+    color:#000;
+    line-height:100%;
+    text-align:center;
+    background:#e0ffff;
+    }
+

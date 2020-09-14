@@ -1,0 +1,141 @@
+#!/bin/bash
+# licence GPLv2 ; this scripts designed by Isamu.Yamauchi 2018.1.8 update 2018.10.29
+# Scan CP2112GPIO for i386.
+# pepocp2112ctld
+GPIOCTL="/usr/local/bin/pepocp2112ctl 8"
+GPIOCTL_I2C="/usr/local/bin/pepocp2112ctl 5"
+GPIOCTL_0="/usr/local/bin/pepocp2112ctl 0 0"
+GPIOCTL_1="/usr/local/bin/pepocp2112ctl 1 0"
+GPIOCTL_2="/usr/local/bin/pepocp2112ctl 2 0"
+GPIOCTL_3="/usr/local/bin/pepocp2112ctl 3 0"
+GPIOCTL_DO="/usr/local/bin/pepocp2112ctl"
+WAIT=5
+LOOPSLEEP=1000
+LOOPDOCT=2
+LOOPI2CT=30
+gpio_i2c="-1"
+DIR=/www/remote-hand/tmp
+CP2112GPIORD=$DIR/.cp2112di_read_data
+tCP2112GPIORD=$DIR/.cp2112di_read_data.tmp
+CP2112GPIOWD=$DIR/.cp2112do_write_data
+tCP2112GPIOWD=$DIR/.cp2112do_write_data.tmp
+DOWDHELP=$DIR/.do_write_cp2112_helper
+ALIAS_DI=$DIR/.alias_di
+CP2112GPIO_INIT_FLAG=$DIR/.cp2112dio_init_flag
+echo -en "YES" >$CP2112GPIO_INIT_FLAG
+error(){
+  [ -e $tCP2112GPIORD ] && rm -f $tGPIORD
+  [ -e $CP2112GPIORD ] && rm -f $CP2112GPIORD
+  [ -e $CP2112GPIOWD ] && rm -f $CP2112GPIOWD
+  [ -e $CP2112GPIO_INIT_FLAG ] && rm -f $CP2112GPIO_INIT_FLAG
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+[ -e $tCP2112GPIORD ] && rm -f $tCP2112GPIORD
+[ -e $CP2112GPIORD ] && rm -f $CP2112GPIORD
+[ -e $CP2112GPIOWD ] && rm -f $CP2112GPIOWD
+[ -e $tCP2112GPIOWD ] && rm -f $tCP2112GPIOWD
+LOOPDO=${LOOPDOCT}
+LOOPI2C=${LOOPI2CT}
+while true;do
+  unset DI_TTY
+  [ -e $ALIAS_DI ] && . $ALIAS_DI
+  if [ "$DI_TTY" != "cp2112" ];then
+    [ -e $CP2112GPIORD ] && rm -f $CP2112GPIORD
+    [ -e $CP2112GPIOWD ] && rm -f $CP2112GPIOWD
+    if [ -e $CP2112GPIO_INIT_FLAG ];then
+      [ `cat $CP2112GPIO_INIT_FLAG` = "NO" ] && echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    else
+      echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    fi
+    LOOPTIME=$LOOPSLEEP
+    msleep $LOOPTIME
+    continue
+  fi
+  unset piface_ip di do DO
+  for i in 0 1 2 3 4 5 6 7;do old[$i]="-1" ;done
+  LOOPTIME=$LOOPSLEEP
+# usb gpio_do initialize
+  if [ `cat $CP2112GPIO_INIT_FLAG` != "NO" ];then
+    RD=`$GPIOCTL 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$CP2112GPIO_INIT_FLAG || echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$GPIOCTL_0 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$CP2112GPIO_INIT_FLAG || echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$GPIOCTL_1 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$CP2112GPIO_INIT_FLAG || echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$GPIOCTL_2 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$CP2112GPIO_INIT_FLAG || echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    msleep $WAIT
+    RD=`$GPIOCTL_3 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$CP2112GPIO_INIT_FLAG || echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    msleep $WAIT
+  fi
+#DO write
+  if [ -e $DOWDHELP ];then
+    if [ $LOOPDO = 0 ];then
+      LOOPDO=${LOOPDOCT}
+      unset DO
+      . $DOWDHELP
+      for i in 0 1 2 3 4 5 ;do
+      if [ ! -z ${DO[$i]} ];then
+        case "$i" in
+          0) RD=`$GPIOCTL_DO 0 ${DO[0]} 2>&1 ;msleep $WAIT` ;;
+          1) RD=`$GPIOCTL_DO 1 ${DO[1]} 2>&1 ;msleep $WAIT` ;;
+          2) RD=`$GPIOCTL_DO 2 ${DO[2]} 2>&1 ;msleep $WAIT` ;;
+          3) RD=`$GPIOCTL_DO 3 ${DO[3]} 2>&1 ;msleep $WAIT` ;;
+        esac
+      fi
+      done
+    else
+      LOOPDO=$(($LOOPDO - 1))
+    fi
+  fi
+  if [ $LOOPI2C = 0 ];then
+    LOOPI2C=$LOOPI2CT
+    RD=`$GPIOCTL_I2C 2>&1`
+    LEN=`echo $RD|awk '{print(length($0))}'`
+    if [ $LEN = 9 ];then
+      NOWDATE=`date '+%H:%M'|awk '{printf("%s",$1)}'`
+      gpio_i2c=`echo -en ${NOWDATE} ${RD}|awk '{printf("%s,%s℃,%s％",$1,$2,$3)}'`
+    fi
+  else
+    LOOPI2C=$(($LOOPI2C - 1))
+  fi  
+  RD="-1"
+  RD=`$GPIOCTL 2>&1`
+  LEN=`echo $RD|awk '{print(length($0))}'`
+  if [ "$RD" != "-1" -o "LEN" = 2 ];then
+    echo -en "NO" >$CP2112GPIO_INIT_FLAG
+    for i in 1 2 4 8 16 32 64 128; do
+      case "$i" in
+        1) tRD="$(($((0x$RD & 1)) / 1))" ;j=0 ;;
+        2) tRD="$(($((0x$RD & 2)) / 2))" ;j=1 ;;
+        4) tRD="$(($((0x$RD & 4)) / 4))" ;j=2 ;;
+        8) tRD="$(($((0x$RD & 8)) / 8))" ;j=3 ;;
+        16) tRD="$(($((0x$RD & 16)) / 16))" ;j=4 ;;
+        32) tRD="$(($((0x$RD & 32)) / 32))" ;j=5 ;;
+        64) tRD="$(($((0x$RD & 64)) / 64))" ;j=6 ;;
+        128) tRD="$(($((0x$RD & 128)) / 128))" ;j=7 ;;
+      esac
+    old[$j]=$tRD
+    done
+  else
+    echo -en "YES" >$CP2112GPIO_INIT_FLAG
+    rm -f $CP2112GPIORD $CP2112GPIOWD
+  fi
+  cat>$tCP2112GPIORD<<END
+di[0]=${old[4]}
+di[1]=${old[5]}
+di[2]=${old[6]}
+di[3]=${old[7]}
+gpio_i2c=${gpio_i2c}
+END
+cat>$tCP2112GPIOWD<<END
+do[0]=${old[0]}
+do[1]=${old[1]}
+do[2]=${old[2]}
+do[3]=${old[3]}
+END
+  chown www-data.www-data $tCP2112GPIORD $tCP2112GPIOWD
+  mv $tCP2112GPIORD $CP2112GPIORD ; mv $tCP2112GPIOWD $CP2112GPIOWD
+  msleep $LOOPTIME
+done
+

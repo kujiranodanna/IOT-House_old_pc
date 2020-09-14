@@ -1,0 +1,85 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 2017.7.27 update 2020.1.14
+# pepoipdio ; For raspberry pi , and scripts to run the Remote DIO and Twelite.
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+RETRYTIME=20
+RETRY=1
+WAIT=5000
+PORT=443
+LOCAL_DIR=/www/remote-hand/tmp
+REMOTE_CGI=remote-hand/ip_do_ajax.cgi
+SERVERCONF=$LOCAL_DIR/.startup.s.tmp
+WORK=$LOCAL_DIR/.pepoipdio
+tWORK=$LOCAL_DIR/.pepoipdio_tmp
+ALIAS_DI=$LOCAL_DIR/.alias_di
+USERAGENT="Chrome/77.0.386590"
+ALIAS_DI=$LOCAL_DIR/.alias_di
+GETSIZE="1024"
+usage(){
+  echo "usage $0  write->chno:0-17 [DO:0|1] [timer->1 to 300000ms]" >/dev/stderr
+  exit
+}
+if [ $# -eq 0  -o $# -eq 1 ];then
+  usage
+elif [ $# -eq 3 ];then
+  if [ "$2" -lt 0 -a "$2" -gt 1 -o "$3" -gt 300000 -o "$3" -lt 1 ];then
+    usage
+  fi
+fi
+[ ! -e $ALIAS_DI -o ! -e $SERVERCONF ] && exit
+[ -e $ALIAS_DI ] && . $ALIAS_DI
+[ -e $SERVERCONF ] && . $SERVERCONF
+PASSWORD=$vWEBPASSWORD
+USER=$vWEBUSER
+TOCOS_IP=$tocos_ip
+Piface_IP=$piface_ip
+prog=$0
+TOCOS=`echo $prog|grep "pepotocoshelp"|wc -w`
+PIFACE=`echo $prog|grep "pepopiface"|wc -w`
+ch=$1
+val=$2
+time=$3
+rm -if $WORK
+if [ $ch -gt 7 -a $ch -lt 13 ];then
+  ch=$(($ch - 7))
+  pepoirkitpost $ch $val $time  
+elif [ $ch -gt 13 -a $ch -lt 17 ];then
+  if [ "$TOCOS_TTY" != "none" ];then
+    ch=$(($ch - 13))
+    pepotocoshelp_local $ch $val $time
+  else
+    data='ch='${ch}'&val='$val'&time='${time}
+    [ -z $TOCOS_IP ] && exit
+    RM_HOST=$TOCOS_IP
+    curl -s --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --user-agent ${USERAGENT} --tlsv1 -k -u ${USER}:${PASSWORD} -X POST $data https://$RM_HOST:$PORT/$REMOTE_CGI >${WORK}
+#    wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$REMOTE_CGI --http-user=${USER} --http-password=${PASSWORD} --post-data=$data --output-document=${WORK}
+  fi
+elif [ $ch -lt 8 ];then
+  if [ $TOCOS != 0 ];then
+    ch=$(($ch + 13))
+    data='ch='${ch}'&val='$val'&time='${time}
+    [ -z $TOCOS_IP ] && exit
+    RM_HOST=$TOCOS_IP
+    curl -s --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --user-agent ${USERAGENT} --tlsv1 -k -u ${USER}:${PASSWORD} -X POST -d $data https://$RM_HOST:$PORT/$REMOTE_CGI >${WORK}
+#    wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$REMOTE_CGI --http-user=${USER} --http-password=${PASSWORD} --post-data=$data --output-document=${WORK}
+    exit
+  elif [ "$DI_TTY" != "none" ];then
+    pepopiface_local $ch $val $time
+  else
+    [ -z $Piface_IP ] && exit
+    RM_HOST=$Piface_IP
+    data='ch='${ch}'&val='$val'&time='${time}
+    curl -s --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --user-agent ${USERAGENT} --tlsv1 -k -u ${USER}:${PASSWORD} -X POST -d $data https://$RM_HOST:$PORT/$REMOTE_CGI >${WORK}
+#    wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$REMOTE_CGI --http-user=${USER} --http-password=${PASSWORD} --post-data=$data --output-document=${WORK}
+  fi
+fi
+if [ -e $WORK ];then
+  LEN=`cat $WORK |wc -l`
+  if [ $LEN -gt 2 ];then
+    rm -if $WORK
+    exit 0
+  fi
+else
+  exit -1
+fi

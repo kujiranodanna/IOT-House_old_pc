@@ -1,0 +1,238 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.11.5 update 2019.9.19
+# pepousbttyck for detect ANDDIO,TOCOS,MODEM,CP2112
+prog=pepousbttyck
+DIR=/www/remote-hand/tmp
+ALIAS_DI=$DIR/.alias_di
+tALIAS_DI=$DIR/.alias_di.tmp
+MODEM_DEV=$DIR/.modem
+CMD=$DIR/.$prog.cmd
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+[ -e "$ALIAS_DI" ] && . "$ALIAS_DI"
+tDI_TTY="none"
+tTOCOS_TTY="none"
+tmodem="none"
+WAIT=50
+TRY=5
+
+modem_ck(){
+  local RD DEV RESULT
+  DEV=/dev/$1
+  tDEV=$1
+  CMD_MODEM="/usr/local/bin/epicon -s 9600 -d 5 -D 5 -ql ${DEV} -c ${CMD}"
+  RETRY=$TRY
+  LOCK=/var/lock/LCK..${1}
+  while [ -e $LOCK ];do
+    retry_time=`echo -en $RANDOM |cut -c 1-3`
+    msleep $retry_time
+    RETRY=$(($RETRY - 1))
+    if [ $RETRY -eq 0 ];then
+      echo -en "-1" >/dev/stderr
+      return
+    fi
+  done
+  cat >$CMD<<END
+#!/bin/bash
+RESULT=""
+RETRY=3
+while [ "X\${RESULT}" != "XOK" ]
+do
+  echo -en "AT&F\\r\\n" || exit 1
+  if [ \$? != "0" ];then
+    exit
+  fi
+  msleep 1000
+  read -s -n 4 -t 2 IN || exit 1
+  read -s -n 3 -t 2 IN || exit 1
+  if [ \$? != "0" ];then
+    exit
+  fi
+#  echo \${IN}>/dev/stderr
+  RESULT=\`echo \$IN | awk '/OK/{print "OK"}'\`
+  if [ \${RETRY} = 0 ];then
+    break
+  else
+    RETRY=\$((\$RETRY - 1))
+  fi
+done
+  echo \${RESULT}>/dev/stderr
+END
+  chmod +x $CMD
+  RD=`${CMD_MODEM} 2>&1`
+  rm -f ${CMD}
+  RESULT=`echo $RD | awk '/OK/{print "OK"}'`
+  if [ "${RESULT}" = "OK" ];then
+    tmodem=${tDEV}
+    echo -en "modem_dev=${tmodem}" >$MODEM_DEV
+  else
+    tmodem="none"
+    echo -en "modem_dev=${tmodem}" >$MODEM_DEV
+  fi
+}
+
+anddio_ck(){
+  local RESULT
+  DEV=/dev/$1
+  DIOWD="ARA"
+  CMD_DIO="/usr/local/bin/epicon -s 9600 -d 5 -D 5 -ql ${DEV} -c ${CMD}"
+  RETRY=$TRY
+  LOCK=/var/lock/LCK..${1}
+  while [ -e $LOCK ];do
+    retry_time=`echo -en $RANDOM |cut -c 1-3`
+    msleep $retry_time
+    RETRY=$(($RETRY - 1))
+    if [ $RETRY -eq 0 ];then
+      echo -en "-1" >/dev/stderr
+      return
+    fi
+  done
+  cat >$CMD<<END
+#!/bin/bash 
+RETRY=$TRY
+while [ \${RETRY} -ne 0 ];do
+  IN="-1"
+  retry_time=\`echo -en \$RANDOM |cut -c 1-3\`
+  echo -en "$DIOWD\r"
+  if [ \$? != "0" ];then
+    RETRY=\$((\${RETRY} - 1))
+    msleep \$retry_time
+    continue
+  fi
+  read -s -n 4 -t 2 IN || IN="-1"
+  if [ \$? != "0" ];then
+    RETRY=\$((\${RETRY} - 1))
+    msleep \$retry_time
+    continue
+  fi
+  RESULT=\`echo \$IN | awk 'BEGIN{ANS="NG"};/(AAH|AAL)/{ANS="OK"};END{print ANS}'\`
+  if [ \$RESULT = "NG" ];then
+    RETRY=\$((\${RETRY} - 1))
+    msleep \$retry_time
+    continue
+  fi
+  break
+done
+echo -en \$RESULT >/dev/stderr
+END
+  chmod +x $CMD
+  RD=`${CMD_DIO} 2>&1`
+  rm -f ${CMD}
+  if [ "$RD" = "OK" ];then
+    tDI_TTY=$dev
+    [ $DI_TTY = RM_piface -o $DI_TTY = RW_piface ] && return
+    if [ -e "$ALIAS_DI" ];then
+      cat "$ALIAS_DI"|grep -v "DI_TTY" >${tALIAS_DI}
+      echo "DI_TTY="${dev} >>${tALIAS_DI}
+      mv "$tALIAS_DI" "$ALIAS_DI" 
+    else
+      echo "DI_TTY="${dev} >${ALIAS_DI}
+    fi
+  else
+    if [ -e "$ALIAS_DI" ];then
+      cat "$ALIAS_DI"|grep -v "DI_TTY" >${tALIAS_DI}
+      echo "DI_TTY=none" >>${tALIAS_DI}
+      mv "$tALIAS_DI" "$ALIAS_DI" 
+    else
+      echo "DI_TTY=none" >${ALIAS_DI}
+    fi   
+  fi
+}
+
+tocos_ck(){
+local send d4of d4on tmp SD RD retry_time
+DEV=/dev/$1
+CMD_TOCOS="/usr/local/bin/epicon -s 115200 -ql ${DEV} -c ${CMD}"
+send=":78800100080000000000000000X"
+d4on=":78800108080000000000000000X"
+d4of=":78800100080000000000000000X"
+RETRY=$TRY
+READCT=49
+READTM=1
+LOCK=/var/lock/LCK..${1}
+while [ -e $LOCK ];do
+  retry_time=`echo -en $RANDOM |cut -c 1-3`
+  msleep $retry_time
+  RETRY=$(($RETRY - 1))
+  if [ $RETRY -eq 0 ];then
+    echo -en "-1" >/dev/stderr
+    return
+  fi
+done
+  cat >${CMD}<<END
+#!/bin/bash
+RETRY=$TRY
+while [ \${RETRY} -ne 0 ];do
+  retry_time=\`echo -en \$RANDOM |cut -c 1-2\`
+  echo -en "${send}\\r\\n"
+  msleep $WAIT
+  echo -en "${d4on}\\r\\n"
+  msleep $WAIT
+  read -s -n ${READCT} -t ${READTM} RD || RD="-1"
+  echo -en "${d4of}\\r\\n"
+  TMP=\`echo -en \${RD} | wc -c\`
+  [ \${TMP} -eq ${READCT} ] && break
+  RETRY=\$((\${RETRY} - 1))
+  msleep \$retry_time
+  RD="-1"
+done
+  echo -en \${RD} >/dev/stderr
+END
+  msleep ${WAIT}
+  chmod +x ${CMD}
+  RD=`${CMD_TOCOS} 2>&1`
+  rm -f ${CMD}
+  RDCT=`echo -en $RD | wc -c`
+  if [ "${RDCT}" -eq $READCT ];then
+    [ $TOCOS_TTY = "none" ] && return
+    tTOCOS_TTY=$dev
+    if [ -e "$ALIAS_DI" ];then
+      cat "$ALIAS_DI"|grep -v "TOCOS_TTY" >${tALIAS_DI}
+      echo "TOCOS_TTY="${dev} >>${tALIAS_DI}
+      mv "$tALIAS_DI" "$ALIAS_DI" 
+    else
+      echo "TOCOS_TTY="${dev} >${ALIAS_DI}
+    fi
+  else
+    if [ -e "$ALIAS_DI" ];then
+      cat "$ALIAS_DI"|grep -v "TOCOS_TTY" >${tALIAS_DI}
+      echo "TOCOS_TTY=none" >>${tALIAS_DI}
+      mv "$tALIAS_DI" "$ALIAS_DI" 
+    else
+      echo "TOCOS_TTY=none" >${ALIAS_DI}
+    fi   
+  fi
+}
+
+for dev in ttyUSBMODEM ttyUSBTWE-Lite ttyUSB0 ttyUSB1 ttyUSB2 ttyUSB3 ;do
+  if [ -e /dev/${dev} ];then
+    if [ $tTOCOS_TTY = "none" -a -z "$tocos_ip" ];then
+      tocos_ck $dev
+      if [ $tTOCOS_TTY != "none" ];then
+        continue
+      fi
+    fi
+    if [ $tDI_TTY = "none" -a $DI_TTY = "none" -a -z "$piface_ip" ];then
+      anddio_ck $dev
+      if [ $tDI_TTY != "none" ];then
+        continue
+      fi
+    fi
+    if [ $tmodem = "none" ];then
+      modem_ck $dev
+      if [ $tmodem != "none" ];then
+        continue
+      fi
+    fi
+  fi
+done
+if [ "$tDI_TTY" = "none" -a -z "$piface_ip" -a $dev = "ttyUSB3" ];then
+  dev="gpio"
+  if [ -e "$ALIAS_DI" ];then
+    cat "$ALIAS_DI"|grep -v "DI_TTY" >${tALIAS_DI}
+    echo "DI_TTY="${dev} >>${tALIAS_DI}
+    mv "$tALIAS_DI" "$ALIAS_DI"
+  else
+    echo "DI_TTY="${dev} >${ALIAS_DI}
+  fi
+fi

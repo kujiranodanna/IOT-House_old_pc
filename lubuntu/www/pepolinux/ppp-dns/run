@@ -1,0 +1,31 @@
+#!/bin/bash
+# licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.4.10
+# pppd dns resolve ; /etc/ppp/resolv.conf and /etc/resolv.conf
+
+DNS_RESOLV=/etc/resolv.conf
+tDNS_RESOLV=/etc/ppp/resolv.conf.dns
+PPP_RESOLV=/etc/ppp/resolv.conf
+
+check_pppchat () {
+  PPPCHAT=`ps ax |awk 'BEGIN{I="NO"};/pppchat$/{I="YES"};END{printf I}'`
+  PPPCHAT2=`ps ax |awk 'BEGIN{I="NO"};/pppchat2$/{I="YES"};END{printf I}'`
+}
+
+while true
+do
+   check_pppchat
+   if [ "$PPPCHAT2" = "YES" -o "$PPPCHAT2" = "YES" ];then
+     if [ -e "$PPP_RESOLV" ];then
+       msleep 1000
+       mv -f "$DNS_RESOLV" "$tDNS_RESOLV"
+       mv -f "$PPP_RESOLV" "$DNS_RESOLV"
+     fi
+   fi
+   if [ "$PPPCHAT2" = "NO" -a "$PPPCHAT2" = "NO" ];then
+     if [ -e "$tDNS_RESOLV" ];then
+       msleep 1000
+       mv -f "$tDNS_RESOLV" "$DNS_RESOLV"
+     fi
+   fi
+   msleep 5000
+done

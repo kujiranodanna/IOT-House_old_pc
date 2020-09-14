@@ -1,0 +1,4 @@
+set mbox_type=Mbox
+set copy=no
+set charset="utf-8"
+set send_charset="iso-2022-jp:utf-8"

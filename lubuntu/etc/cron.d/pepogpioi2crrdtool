@@ -1,0 +1,3 @@
+# 2018.5.4 add by pepo
+MAILTO=""
+*/5 * * * * root /usr/local/bin/pepogpioi2crrdtool

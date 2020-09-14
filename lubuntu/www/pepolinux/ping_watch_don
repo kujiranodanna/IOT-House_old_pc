@@ -1,0 +1,89 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.10.21update 2013.7.24
+# ping watch of dio on for rasberry pi 
+PING_HOST=$1
+DIO_ACT=$2
+DIO_TIM=$3
+PING_LOCK=/www/remote-hand/tmp/"$PING_HOST"_dio.lock
+PING_LOG=/www/remote-hand/tmp/"$PING_HOST"_dio.log
+FAIL_DONE=/www/remote-hand/tmp/"$PING_HOST"_dio.done
+FIL=/www/remote-hand/tmp/dio_write.pepocmd
+
+if [ $# -lt 3 ]; then
+        echo usage: $0 ip_addres dio_act [dio_high_time]
+        exit
+fi
+
+dio_write() {
+# dio_write dio_act timer
+  local file ch high_low time
+  DOWD=/www/remote-hand/tmp/.do_write_data
+  tDOWD=/www/remote-hand/tmp/.do_write_data.tmp
+  sDOWD=/www/remote-hand/tmp/.do_write_data.set
+  dio_act=$1
+  time=$2
+#  cmd=/usr/sbin/dioctl
+  cmd=/usr/local/bin/pepodioctl
+  case "$dio_act" in
+   "DON_0")
+    ARG1="0"
+    ARG2="1"
+    ARG3="$time"
+    ;;
+       "DOFF_0")
+    ARG1="0"
+    ARG2="0"
+    ARG3="$time"
+    ;;
+       "DON_1")
+    ARG1="1"
+    ARG2="1"
+    ARG3="$time"
+    ;;
+       "DOFF_1")
+    ARG1="1"
+    ARG2="0"
+    ARG3="$time"
+    ;;
+       "DON_2")
+    ARG1="2"
+    ARG2="1"
+    ARG3="$time"
+    ;;
+       "DOFF_2")
+    ARG1="2"
+    ARG2="0"
+    ARG3="$time"
+    ;;
+       "DON_3")
+    ARG1="3"
+    ARG2="1"
+    ARG3="$time"
+    ;;
+       "DOFF_3")
+    ARG1="3"
+    ARG2="0"
+    ARG3="$time"
+    ;;
+  esac
+  cat > $FILE <<EOF
+#!/bin/bash
+$cmd $ARG1 $ARG2 $ARG3
+EOF
+  chmod +x $FILE
+}
+
+
+if ! ping -c 1 $1 2>&1 >$PING_LOG; then
+  msleep 1000
+  if ! ping -c 1 $1 2>&1 >>$PING_LOG; then
+    if [ ! -f $PING_LOCK ] &&  [ ! -f $PING_DONE ]; then
+      dio_write $DIO_ACT $DIO_TIM
+      date +"%Y/%m/%d %T" >> $PING_LOG
+    fi
+  fi
+  if [ -f $FAIL_DONE ]; then
+    rm -f $PING_LOCK $FAIL_DONE
+  fi
+fi

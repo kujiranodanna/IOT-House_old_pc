@@ -1,0 +1,387 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2013.7.15 update 2020.6.30
+# pepojsond is for daemon make json data
+USR_BIN=/usr/bin/dio
+EXEC_CMD=/usr/local/bin/pepodiodexec
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+DIR=/www/remote-hand/tmp
+ALIAS_DI=$DIR/.alias_di
+ALIAS_DO=$DIR/.alias_do
+ALIAS_VDO=$DIR/.alias_vdo
+DIORD=$DIR/.di_read_data
+DIOWD=$DIR/.do_write_data
+GPIORD=$DIR/.gpiodi_read_data
+VOICEREQ=$DIR/.voice_req
+tVOICEREQ=$DIR/.voice_req.tmp
+JSONRD=/www/remote-hand/.di_read_data.json
+tJSONRD=/www/remote-hand/.di_read_data.json.tmp
+IRKIT_IP=$DIR/.IRKit_IP
+TEMPERFILE=$DIR/temperature
+TCOSWD=$DIR/.tocos_write_data
+TCOSRD=$DIR/.tocos_read_data
+SOUND_FILE_NAME=$DIR/.sound_file_name
+prog=pepojsond
+pidfile=/var/run/$prog.pid
+echo -en $$ >$pidfile
+WAIT=2000
+LWAIT=8000
+error(){
+  [ -e "$JSONRD" ] && rm -f $JSONRD
+  [ -e "$tJSONRD" ] && rm -f $tJSONRD
+  [ -e $pidfile ] && rm -f $pidfile
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+[ -e "$JSONRD" ] && rm -f $JSONRD
+[ -e "$tJSONRD" ] && rm -f $tJSONRD
+[ -e $pidfile ] && rm -f $pidfile
+
+# loop for gpio polling read 
+while true
+do
+  unset di do alias_di alias_do alias_vdo sound_file piface_ip tocos_ip 
+  [ -e $ALIAS_DI ] && . $ALIAS_DI
+  [ -e $ALIAS_DO ] && . $ALIAS_DO
+  if [ ! -z  $piface_ip ];then
+    POLLTIME=$LWAIT
+  elif [ ! -z  $tocos_ip ];then
+    POLLTIME=$LWAIT
+  else
+    POLLTIME=$WAIT
+  fi
+  for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23; do
+    [ ! -z "${di[$i]}" ] && old[$i]=${di[$i]} || old[$i]="-1"
+  done
+  [ -e $DIORD ] && . $DIORD
+  [ -e $DIOWD ] && . $DIOWD
+  [ -e $ALIAS_VDO ] && . $ALIAS_VDO
+  for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23; do
+    case "$n" in
+      0) [ "${di[$n]}" = "1" ] && di0="high" ; [ "${di[$n]}" = "0" ] && di0="low" ; [ "${di[$n]}" = "-1" ] && di0="none"
+         [ "${do[$n]}" = "1" ] && do0="high" ; [ "${do[$n]}" = "0" ] && do0="low" ; [ "${do[$n]}" = "-1" ] && do0="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di0="${alias_di[$n]}" || alias_di0="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do0="${alias_do[$n]}" || alias_do0="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do21="${alias_vdo[$n]}" || alias_do21="none" ;;
+      1) [ "${di[$n]}" = "1" ] && di1="high" ; [ "${di[$n]}" = "0" ] && di1="low" ; [ "${di[$n]}" = "-1" ] && di1="none"
+         [ "${do[$n]}" = "1" ] && do1="high" ; [ "${do[$n]}" = "0" ] && do1="low" ; [ "${do[$n]}" = "-1" ] && do1="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di1="${alias_di[$n]}" || alias_di1="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do1="${alias_do[$n]}" || alias_do1="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do22="${alias_vdo[$n]}" || alias_do22="none" ;;
+      2) [ "${di[$n]}" = "1" ] && di2="high" ; [ "${di[$n]}" = "0" ] && di2="low" ; [ "${di[$n]}" = "-1" ] && di2="none"
+         [ "${do[$n]}" = "1" ] && do2="high" ; [ "${do[$n]}" = "0" ] && do2="low" ; [ "${do[$n]}" = "-1" ] && do2="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di2="${alias_di[$n]}" || alias_di2="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do2="${alias_do[$n]}" || alias_do2="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do23="${alias_vdo[$n]}" || alias_do23="none" ;;
+      3) [ "${di[$n]}" = "1" ] && di3="high" ; [ "${di[$n]}" = "0" ] && di3="low" ; [ "${di[$n]}" = "-1" ] && di3="none"
+         [ "${do[$n]}" = "1" ] && do3="high" ; [ "${do[$n]}" = "0" ] && do3="low" ; [ "${do[$n]}" = "-1" ] && do3="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di3="${alias_di[$n]}" || alias_di3="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do3="${alias_do[$n]}" || alias_do3="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do24="${alias_vdo[$n]}" || alias_do24="none" ;;
+      4) [ "${di[$n]}" = "1" ] && di4="high" ; [ "${di[$n]}" = "0" ] && di4="low" ; [ "${di[$n]}" = "-1" ] && di4="none"
+         [ "${do[$n]}" = "1" ] && do4="high" ; [ "${do[$n]}" = "0" ] && do4="low" ; [ "${do[$n]}" = "-1" ] && do4="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di4="${alias_di[$n]}" || alias_di4="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do4="${alias_do[$n]}" || alias_do4="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do25="${alias_vdo[$n]}" || alias_do25="none" ;;
+      5) [ "${di[$n]}" = "1" ] && di5="high" ; [ "${di[$n]}" = "0" ] && di5="low" ; [ "${di[$n]}" = "-1" ] && di5="none"
+         [ "${do[$n]}" = "1" ] && do5="high" ; [ "${do[$n]}" = "0" ] && do5="low" ; [ "${do[$n]}" = "-1" ] && do5="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di5="${alias_di[$n]}" || alias_di5="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do5="${alias_do[$n]}" || alias_do5="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do26="${alias_vdo[$n]}" || alias_do26="none" ;;
+      6) [ "${di[$n]}" = "1" ] && di6="high" ; [ "${di[$n]}" = "0" ] && di6="low" ; [ "${di[$n]}" = "-1" ] && di6="none"
+         [ "${do[$n]}" = "1" ] && do6="high" ; [ "${do[$n]}" = "0" ] && do6="low" ; [ "${do[$n]}" = "-1" ] && do6="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di6="${alias_di[$n]}" || alias_di6="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do6="${alias_do[$n]}" || alias_do6="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do27="${alias_vdo[$n]}" || alias_do27="none" ;;
+      7) [ "${di[$n]}" = "1" ] && di7="high" ; [ "${di[$n]}" = "0" ] && di7="low" ; [ "${di[$n]}" = "-1" ] && di7="none"
+         [ "${do[$n]}" = "1" ] && do7="high" ; [ "${do[$n]}" = "0" ] && do7="low" ; [ "${do[$n]}" = "-1" ] && do7="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di7="${alias_di[$n]}" || alias_di7="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do7="${alias_do[$n]}" || alias_do7="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do28="${alias_vdo[$n]}" || alias_do28="none" ;;
+      8) [ "${di[$n]}" = "1" ] && di8="high" ; [ "${di[$n]}" = "0" ] && di8="low" ; [ "${di[$n]}" = "-1" ] && di8="none"
+         [ "${do[$n]}" = "1" ] && do8="high" ; [ "${do[$n]}" = "0" ] && do8="low" ; [ "${do[$n]}" = "-1" ] && do8="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di8="${alias_di[$n]}" || alias_di8="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do8="${alias_do[$n]}" || alias_do8="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do29="${alias_vdo[$n]}" || alias_do29="none" ;;
+      9) [ "${di[$n]}" = "1" ] && di9="high" ; [ "${di[$n]}" = "0" ] && di9="low" ; [ "${di[$n]}" = "-1" ] && di9="none"
+         [ "${do[$n]}" = "1" ] && do9="high" ; [ "${do[$n]}" = "0" ] && do9="low" ; [ "${do[$n]}" = "-1" ] && do9="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di9="${alias_di[$n]}" || alias_di9="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do9="${alias_do[$n]}" || alias_do9="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do30="${alias_vdo[$n]}" || alias_do30="none" ;;
+     10) [ "${di[$n]}" = "1" ] && di10="high" ; [ "${di[$n]}" = "0" ] && di10="low" ; [ "${di[$n]}" = "-1" ] && di10="none"
+         [ "${do[$n]}" = "1" ] && do10="high" ; [ "${do[$n]}" = "0" ] && do10="low" ; [ "${do[$n]}" = "-1" ] && do10="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di10="${alias_di[$n]}" || alias_di10="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do10="${alias_do[$n]}" || alias_do10="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do31="${alias_vdo[$n]}" || alias_do31="none" ;;
+     11) [ "${di[$n]}" = "1" ] && di11="high" ; [ "${di[$n]}" = "0" ] && di11="low" ; [ "${di[$n]}" = "-1" ] && di11="none"
+         [ "${do[$n]}" = "1" ] && do11="high" ; [ "${do[$n]}" = "0" ] && do11="low" ; [ "${do[$n]}" = "-1" ] && do11="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di11="${alias_di[$n]}" || alias_di11="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do11="${alias_do[$n]}" || alias_do11="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do32="${alias_vdo[$n]}" || alias_do32="none" ;;
+     12) [ "${di[$n]}" = "1" ] && di12="high" ; [ "${di[$n]}" = "0" ] && di12="low" ; [ "${di[$n]}" = "-1" ] && di12="none"
+         [ "${do[$n]}" = "1" ] && do12="high" ; [ "${do[$n]}" = "0" ] && do12="low" ; [ "${do[$n]}" = "-1" ] && do12="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di12="${alias_di[$n]}" || alias_di12="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do12="${alias_do[$n]}" || alias_do12="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do33="${alias_vdo[$n]}" || alias_do33="none" ;;
+     13) [ "${di[$n]}" = "1" ] && di13="high" ; [ "${di[$n]}" = "0" ] && di13="low" ; [ "${di[$n]}" = "-1" ] && di13="none"
+         [ "${do[$n]}" = "1" ] && do13="high" ; [ "${do[$n]}" = "0" ] && do13="low" ; [ "${do[$n]}" = "-1" ] && do13="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di13="${alias_di[$n]}" || alias_di13="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do13="${alias_do[$n]}" || alias_do13="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do34="${alias_vdo[$n]}" || alias_do34="none" ;;
+     14) [ "${di[$n]}" = "1" ] && di14="high" ; [ "${di[$n]}" = "0" ] && di14="low" ; [ "${di[$n]}" = "-1" ] && di14="none"
+         [ "${do[$n]}" = "1" ] && do14="high" ; [ "${do[$n]}" = "0" ] && do14="low" ; [ "${do[$n]}" = "-1" ] && do14="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di14="${alias_di[$n]}" || alias_di14="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do14="${alias_do[$n]}" || alias_do14="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do35="${alias_vdo[$n]}" || alias_do35="none" ;;
+     15) [ "${di[$n]}" = "1" ] && di15="high" ; [ "${di[$n]}" = "0" ] && di15="low" ; [ "${di[$n]}" = "-1" ] && di15="none"
+         [ "${do[$n]}" = "1" ] && do15="high" ; [ "${do[$n]}" = "0" ] && do15="low" ; [ "${do[$n]}" = "-1" ] && do15="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di15="${alias_di[$n]}" || alias_di15="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do15="${alias_do[$n]}" || alias_do15="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do36="${alias_vdo[$n]}" || alias_do36="none" ;;
+     16) [ "${di[$n]}" = "1" ] && di16="high" ; [ "${di[$n]}" = "0" ] && di16="low" ; [ "${di[$n]}" = "-1" ] && di16="none"
+         [ "${do[$n]}" = "1" ] && do16="high" ; [ "${do[$n]}" = "0" ] && do16="low" ; [ "${do[$n]}" = "-1" ] && do16="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di16="${alias_di[$n]}" || alias_di16="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do16="${alias_do[$n]}" || alias_do16="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do37="${alias_vdo[$n]}" || alias_do37="none" ;;
+     17) [ "${di[$n]}" = "1" ] && di17="high" ; [ "${di[$n]}" = "0" ] && di17="low" ; [ "${di[$n]}" = "-1" ] && di17="none"
+         [ "${do[$n]}" = "1" ] && do17="high" ; [ "${do[$n]}" = "0" ] && do17="low" ; [ "${do[$n]}" = "-1" ] && do17="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di17="${alias_di[$n]}" || alias_di17="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do17="${alias_do[$n]}" || alias_do17="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do38="${alias_vdo[$n]}" || alias_do38="none" ;;
+     18) [ "${di[$n]}" = "1" ] && di18="high" ; [ "${di[$n]}" = "0" ] && di18="low" ; [ "${di[$n]}" = "-1" ] && di18="none"
+         [ "${do[$n]}" = "1" ] && do18="high" ; [ "${do[$n]}" = "0" ] && do18="low" ; [ "${do[$n]}" = "-1" ] && do18="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di18="${alias_di[$n]}" || alias_di18="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do18="${alias_do[$n]}" || alias_do18="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do39="${alias_vdo[$n]}" || alias_do39="none" ;;
+     19) [ "${di[$n]}" = "1" ] && di19="high" ; [ "${di[$n]}" = "0" ] && di19="low" ; [ "${di[$n]}" = "-1" ] && di19="none"
+         [ "${do[$n]}" = "1" ] && do19="high" ; [ "${do[$n]}" = "0" ] && do19="low" ; [ "${do[$n]}" = "-1" ] && do19="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di19="${alias_di[$n]}" || alias_di19="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do19="${alias_do[$n]}" || alias_do19="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do40="${alias_vdo[$n]}" || alias_do40="none" ;;
+     20) [ "${di[$n]}" = "1" ] && di20="high" ; [ "${di[$n]}" = "0" ] && di20="low" ; [ "${di[$n]}" = "-1" ] && di20="none"
+         [ "${do[$n]}" = "1" ] && do20="high" ; [ "${do[$n]}" = "0" ] && do20="low" ; [ "${do[$n]}" = "-1" ] && do20="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di20="${alias_di[$n]}" || alias_di20="none"
+         [ ! -z "${alias_do[$n]}" ] && alias_do20="${alias_do[$n]}" || alias_do20="none"
+         [ ! -z "${alias_vdo[$n]}" ] && alias_do41="${alias_vdo[$n]}" || alias_do41="none" ;;
+     21) [ "${di[$n]}" = "1" ] && di21="high" ; [ "${di[$n]}" = "0" ] && di21="low" ; [ "${di[$n]}" = "-1" ] && di21="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di21="${alias_di[$n]}" || alias_di21="none" ;;
+     22) [ "${di[$n]}" = "1" ] && di22="high" ; [ "${di[$n]}" = "0" ] && di22="low" ; [ "${di[$n]}" = "-1" ] && di22="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di22="${alias_di[$n]}" || alias_di22="none" ;;
+     23) [ "${di[$n]}" = "1" ] && di23="high" ; [ "${di[$n]}" = "0" ] && di23="low" ; [ "${di[$n]}" = "-1" ] && di23="none"
+         [ ! -z "${alias_di[$n]}" ] && alias_di23="${alias_di[$n]}" || alias_di23="none" ;;
+    esac
+  done
+  for n in 21 22 23 24 25 26 27 28 29 30 31 32 33; do
+    case "$n" in
+      21) [ ! -z "${alias_vdo[$n]}" ] && alias_do42="${alias_vdo[$n]}" || alias_do42="none" ;;
+      22) [ ! -z "${alias_vdo[$n]}" ] && alias_do43="${alias_vdo[$n]}" || alias_do43="none" ;;
+      23) [ ! -z "${alias_vdo[$n]}" ] && alias_do44="${alias_vdo[$n]}" || alias_do44="none" ;;
+      24) [ ! -z "${alias_vdo[$n]}" ] && alias_do45="${alias_vdo[$n]}" || alias_do45="none" ;;
+      25) [ ! -z "${alias_vdo[$n]}" ] && alias_do46="${alias_vdo[$n]}" || alias_do46="none" ;;
+      26) [ ! -z "${alias_vdo[$n]}" ] && alias_do47="${alias_vdo[$n]}" || alias_do47="none" ;;
+      27) [ ! -z "${alias_vdo[$n]}" ] && alias_do48="${alias_vdo[$n]}" || alias_do48="none" ;;
+      28) [ ! -z "${alias_vdo[$n]}" ] && alias_do49="${alias_vdo[$n]}" || alias_do49="none" ;;
+      29) [ ! -z "${alias_vdo[$n]}" ] && alias_do50="${alias_vdo[$n]}" || alias_do50="none" ;;
+      30) [ ! -z "${alias_vdo[$n]}" ] && alias_do51="${alias_vdo[$n]}" || alias_do51="none" ;;
+      31) [ ! -z "${alias_vdo[$n]}" ] && alias_do52="${alias_vdo[$n]}" || alias_do52="none" ;;
+      32) [ ! -z "${alias_vdo[$n]}" ] && alias_do53="${alias_vdo[$n]}" || alias_do53="none" ;;
+      33) [ ! -z "${alias_vdo[$n]}" ] && alias_do54="${alias_vdo[$n]}" || alias_do54="none" ;;
+    esac
+  done
+  NOWDATE=`date +"%Y/%m/%d %T:%a"`
+  cat>$tJSONRD<<END
+{
+"di0":"$di0",
+"di1":"$di1",
+"di2":"$di2",
+"di3":"$di3",
+"di4":"$di4",
+"di5":"$di5",
+"di6":"$di6",
+"di7":"$di7",
+"ti1":"$di8",
+"ti2":"$di9",
+"ti3":"$di10",
+"ai2di1":"$di12",
+"ai2di2":"$di13",
+"ai2di3":"$di14",
+"ai2di4":"$di15",
+"ai2di5":"$di16",
+"ai2di6":"$di17",
+"ai2di7":"$di18",
+"ai2di8":"$di19",
+"ai2di9":"$di20",
+"ai2di10":"$di21",
+"ai2di11":"$di22",
+"ai2di12":"$di23",
+"do0":"$do0",
+"do1":"$do1",
+"do2":"$do2",
+"do3":"$do3",
+"do4":"$do4",
+"do5":"$do5",
+"do6":"$do6",
+"do7":"$do7",
+"to1":"$do8",
+"to2":"$do9",
+"to3":"$do10",
+"alias_di0":"$alias_di0",
+"alias_do0":"$alias_do0",
+"alias_di1":"$alias_di1",
+"alias_do1":"$alias_do1",
+"alias_di2":"$alias_di2",
+"alias_do2":"$alias_do2",
+"alias_di3":"$alias_di3",
+"alias_do3":"$alias_do3",
+"alias_di4":"$alias_di4",
+"alias_do4":"$alias_do4",
+"alias_di5":"$alias_di5",
+"alias_do5":"$alias_do5",
+"alias_di6":"$alias_di6",
+"alias_do6":"$alias_do6",
+"alias_di7":"$alias_di7",
+"alias_do7":"$alias_do7",
+"alias_di8":"$alias_di8",
+"alias_do8":"$alias_do8",
+"alias_di9":"$alias_di9",
+"alias_do9":"$alias_do9",
+"alias_di10":"$alias_di10",
+"alias_do10":"$alias_do10",
+"voice_mail":"$alias_di11",
+"alias_do11":"$alias_do11",
+"alias_di12":"$alias_di12",
+"alias_do12":"$alias_do12",
+"alias_di13":"$alias_di13",
+"alias_do13":"$alias_do13",
+"alias_di14":"$alias_di14",
+"alias_do14":"$alias_do14",
+"alias_di15":"$alias_di15",
+"alias_do15":"$alias_do15",
+"alias_di16":"$alias_di16",
+"alias_do16":"$alias_do16",
+"alias_di17":"$alias_di17",
+"alias_di18":"$alias_di18",
+"alias_di19":"$alias_di19",
+"alias_di20":"$alias_di20",
+"alias_do20":"$alias_do20",
+"alias_di21":"$alias_di21",
+"alias_do21":"$alias_do21",
+"alias_di22":"$alias_di22",
+"alias_do22":"$alias_do22",
+"alias_di23":"$alias_di23",
+"alias_do23":"$alias_do23",
+"alias_do24":"$alias_do24",
+"alias_do25":"$alias_do25",
+"alias_do26":"$alias_do26",
+"alias_do27":"$alias_do27",
+"alias_do28":"$alias_do28",
+"alias_do29":"$alias_do29",
+"alias_do30":"$alias_do30",
+"alias_do31":"$alias_do31",
+"alias_do32":"$alias_do32",
+"alias_do33":"$alias_do33",
+"alias_do34":"$alias_do34",
+"alias_do35":"$alias_do35",
+"alias_do36":"$alias_do36",
+"alias_do37":"$alias_do37",
+"alias_do38":"$alias_do38",
+"alias_do39":"$alias_do39",
+"alias_do40":"$alias_do40",
+"alias_do41":"$alias_do41",
+"alias_do42":"$alias_do42",
+"alias_do43":"$alias_do43",
+"alias_do44":"$alias_do44",
+"alias_do45":"$alias_do45",
+"alias_do46":"$alias_do46",
+"alias_do47":"$alias_do47",
+"alias_do48":"$alias_do48",
+"alias_do49":"$alias_do49",
+"alias_do50":"$alias_do50",
+"alias_do51":"$alias_do51",
+"alias_do52":"$alias_do52",
+"alias_do53":"$alias_do53",
+"alias_do54":"$alias_do54",
+END
+  CT=`ls -a $DIR/|egrep '.dio(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39)[low|high]+.count+$'`
+  if [ -n `echo $CT | wc -w` ];then
+    for DIO in $CT ; do
+      DIOCONT=$DIR/$DIO
+      tDIO=`echo -en $DIO |awk '{gsub("\\\.","");sub("count","");print $0}'`
+      echo -en \"$tDIO\":{ >>$tJSONRD
+      cat $DIOCONT |awk '
+  /^Reset/{printf("%creset%c:%c%s %s%c,",34,34,34,$2,$3,34)}
+  /^Update/{printf("%cupdate%c:%c%s %s%c,",34,34,34,$2,$3,34)}
+  /^#/{sub("#","");printf("%ccount%c:%c%s%c},\n",34,34,34,$1,34)}
+'    >>$tJSONRD
+    done
+  fi
+  echo -e \"date\":\"$NOWDATE\", >>$tJSONRD
+  if [ -e ${IRKIT_IP} ];then
+    IP=`cat ${IRKIT_IP}`
+    echo -e \"irkit_ip\":\"$IP\", >>$tJSONRD
+  fi
+  for J in 0 1 2 3 4 5 ; do
+    IRFILE=$DIR/.irdata_${J}
+    if [ -e $IRFILE ];then
+      IRDATA=`cat $IRFILE`
+      if [ `echo -n $IRDATA|wc -c` != 0 ];then
+        echo -e \"irdata_${J}\":\"Ready\", >>$tJSONRD
+      else
+        echo -e \"irdata_${J}\":\"none\", >>$tJSONRD
+      fi
+    else
+       echo -e \"irdata_${J}\":\"none\", >>$tJSONRD
+    fi
+  done
+  if [ -e $GPIORD ];then
+    unset gpio_i2c
+    . $GPIORD
+    if [ $gpio_i2c != "-1" ];then
+      gpio_i2c=`echo -en $gpio_i2c |awk '{gsub(","," ",$0);printf $0}'`
+      echo -e $gpio_i2c| awk '{J=split($0,I," ");if(J>3){printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%shPa\",\"gas\":\"%sΩ\",\"iaq\":\"%s\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}else{printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%snone\",\"gas\":\"%snone\",\"iaq\":\"%snone\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}}' >>$tJSONRD
+    else
+      echo -e \"gpio_i2c\":\"none\", >>$tJSONRD
+    fi
+  else
+    echo -e \"gpio_i2c\":\"none\", >>$tJSONRD
+  fi
+  if [ -e $TCOSRD ];then
+    unset i2c
+    . $TCOSRD
+    if [ ! -z "$i2c" ];then
+      i2ctemp=`echo -en $i2c |awk '{gsub(","," ",$0);printf $0}'`
+      echo  $i2ctemp| awk '{split($0,I," ");printf("\"i2ctemp\":{\"date\":\"%s\",\"temp\":\"%s\",\"hum\":\"%s\"},\n",I[1],I[2],I[3])}' >>$tJSONRD
+    else
+      echo -e \"i2ctemp\":\"none\", >>$tJSONRD
+    fi
+    [ ! -z "$VAI1" ] &&  echo -e \"vai1\":\"$VAI1\", >>$tJSONRD || echo -e \"vai1\":\"none\", >>$tJSONRD
+    [ ! -z "$VAI2" ] &&  echo -e \"vai2\":\"$VAI2\", >>$tJSONRD || echo -e \"vai2\":\"none\", >>$tJSONRD
+    [ ! -z "$VAI3" ] &&  echo -e \"vai3\":\"$VAI3\", >>$tJSONRD || echo -e \"vai3\":\"none\", >>$tJSONRD
+    [ ! -z "$VAI4" ] &&  echo -e \"vai4\":\"$VAI4\", >>$tJSONRD || echo -e \"vai4\":\"none\", >>$tJSONRD
+  else
+    echo -e \"i2ctemp\":\"none\", >>$tJSONRD
+  fi
+  [ -e $SOUND_FILE_NAME ] && . $SOUND_FILE_NAME
+  [ ! -z "${sound_file[0]}" ] && echo -e \"disp_sound_0\":\"${sound_file[0]}\", >>$tJSONRD || echo -e \"disp_sound_0\":\"none\", >>$tJSONRD
+  [ ! -z "${sound_file[1]}" ] && echo -e \"disp_sound_1\":\"${sound_file[1]}\", >>$tJSONRD || echo -e \"disp_sound_1\":\"none\", >>$tJSONRD
+  [ ! -z "${sound_file[2]}" ] && echo -e \"disp_sound_2\":\"${sound_file[2]}\", >>$tJSONRD || echo -e \"disp_sound_2\":\"none\", >>$tJSONRD
+  [ ! -z "${sound_file[3]}" ] && echo -e \"disp_sound_3\":\"${sound_file[3]}\", >>$tJSONRD || echo -e \"disp_sound_3\":\"none\", >>$tJSONRD
+  [ ! -z "${sound_file[4]}" ] && echo -e \"disp_sound_4\":\"${sound_file[4]}\", >>$tJSONRD || echo -e \"disp_sound_4\":\"none\", >>$tJSONRD
+  CPU_TEMP=`cat /sys/class/thermal/thermal_zone0/temp|awk '{printf(substr($1,1,2)"."substr($1,3,1)"℃")}'`
+  echo -e \"cpu_temp\":\"$CPU_TEMP\", >>$tJSONRD
+  voice_req="none"
+  if [ ! -e "${tVOICEREQ}" ];then
+    if [ -e ${VOICEREQ} ];then 
+      mv ${VOICEREQ} ${tVOICEREQ}
+      voice_req=`cat ${tVOICEREQ}`
+      [ -z "${voice_req}" ] && voice_req="none"
+    fi
+  else
+    voice_req=`cat ${tVOICEREQ}`
+  fi
+  echo -e \"voice_req\":\"${voice_req}\" >>$tJSONRD
+  echo "}" >>$tJSONRD
+  mv $tJSONRD $JSONRD
+  chown www-data.www-data $JSONRD
+  msleep ${POLLTIME}
+done

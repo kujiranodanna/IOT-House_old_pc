@@ -1,0 +1,71 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.2.10 update 2018.9.17
+# pepotocoshelp for helper TWE-Lite DIP(Tocos wireless engine) digital-IN/digital-OUT signal.
+# pepotocoshelp $1:ch[1-4] [$2:0 or 1] [$3: timer->1 to 300000ms]
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+usage(){
+  echo "usage $0 write->chno:1-4 [DO:0|1] [timer->1 to 300000ms]" >/dev/stderr
+  exit -1
+}
+if [ $# -eq 0 ];then
+  usage
+elif [ $# -eq 1 ];then
+  usage
+elif [ "$1" -gt 4 -o "$1" -lt 1 ];then
+  usage
+elif [ $# -eq 2 ];then
+  if [ "$2" -gt 1 ];then
+   usage
+  fi
+elif [ $# -eq 3 ];then
+  if [ "$2" -gt 0 -a "$2" -gt 1 -o "$3" -gt 300000 -o "$3" -lt 1 ];then
+    usage
+  fi
+fi
+CH=$1
+DATA=$2
+TIMER=$3
+prog=pepotocoshelp
+DIR=/www/remote-hand/tmp
+TCOSWD=$DIR/.tocos_write_data
+tTCOSWD=$DIR/.tocos_helper_tmp
+LOCK=/var/lock/${prog}
+writefile(){
+  local ch data
+  ch=$1
+  data=$2
+  case $ch in
+    1) DO=TO1 ;;
+    2) DO=TO2 ;;
+    3) DO=TO3 ;;
+    4) DO=TO4 ;;
+  esac
+  while true;do
+    lockfile -1 -r 1 ${LOCK} >/dev/null 2>&1
+    if [ $? = 0 ];then
+      if [ -e ${TCOSWD} ];then
+      cat ${TCOSWD} | grep -v $DO >${tTCOSWD}
+      echo -en "${DO}=${data}" >>${tTCOSWD}
+      mv ${tTCOSWD} ${TCOSWD}
+      else
+        echo -en "${DO}=${data}" >>${tTCOSWD}
+        mv ${tTCOSWD} ${TCOSWD}    
+      fi
+      chown www-data.www-data ${TCOSWD}
+      rm ${LOCK}
+      break
+    fi
+    msleep 1000
+    [ -e ${LOCK} ] && rm ${LOCK}
+  done
+}
+
+if [ ! -z "$TIMER" ];then
+  writefile $CH $DATA 
+  msleep $TIMER
+  [ $DATA != "0" ] && TMP="0" || TMP="1"
+  writefile $CH $TMP
+else
+  writefile $CH $DATA 
+fi

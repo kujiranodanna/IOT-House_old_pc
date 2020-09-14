@@ -1,0 +1,99 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
+<META NAME="Auther" content="yamauchi.isamu">
+<META NAME="Copyright" content="pepolinux.local">
+<META NAME="Build" content="2015.3.16">
+<META NAME="reply-to" content="pepo1@pepolinux.local">
+<script type="text/javascript">
+function mail_ck(str) {
+/* mailアドレスチェック */
+  var ck_pattern = /[!#-9A-~]+@+[0-9A-Za-z.-]+.+[^.]$/;
+  if( ! str.match(ck_pattern)) {
+    alert(str + "←" + "メールアドレスに誤りがあります。");
+    return -1;
+  }
+  return 1;
+}
+function num_alpha_ck(str) {
+/* 半角英数字チェック */
+  if( str.match( /[^A-Za-z0-9\s.\-_]/ ) ) {
+    alert(str + "←" + "半角英数字でのみ入力してください。");
+    return -1;
+  }
+  return 1;
+}
+
+function msg_ck(str) {
+/* メッセージ長さチェック */
+  var ck_size = str.length
+  if( ck_size > 255 ) {
+    alert("メッセージサイズオーバーです");
+    return -1;
+  }
+  return 1;
+}
+
+function sendmail_ck() {
+  var check = 0;
+  var error_ct = 0;
+  var ck_str = "";
+  ck_str = document.menu.mail_to.value;
+  if ( ck_str != "" ) {
+    check++;
+    if ( mail_ck(ck_str) == -1 ) {
+      error_ct++;
+    }
+  }
+  ck_str =  document.menu.msg.value;
+  if ( ck_str != "" ) {
+    check++;
+    if ( msg_ck(ck_str) == -1 ) {
+      error_ct++;
+    }
+  }
+  ck_str =  document.menu.subject.value;
+  if ( ck_str != "") {
+    check++;
+  }
+  ck_str =  document.menu.image_file;
+  if ( ck_str != "") check++;
+  if( error_ct == 0 && check == 3 || check == 4) {
+    document.menu.submit(ck_str);
+  }
+  if ( check < 3) {
+    alert("入力されていない項目があります")
+  }
+  return false;
+}
+
+function keypress() {
+/*  Enter キー無効 */
+    if(window.event.keyCode == 13){ 
+        return false; 
+    }   
+    return true;   
+}   
+window.document.onkeydown= keypress;
+
+</script>
+<TITLE>メール送信</TITLE>
+</HEAD>
+<BODY BGCOLOR="#E0FFFF">
+<!--Remote-Hand-->
+<DT><FONT SIZE="+1"><B>メールを送信します</B></FONT></DT>
+<FORM name="menu" ACTION="/remote-hand/pepomail_send.cgi" METHOD="GET">
+<FONT SIZE="-1">Ｍａｉｌ　ｔｏ：<INPUT TYPE="text" style="width:200px;text-align:left;" VALUE="" NAME="mail_to">
+<BR>
+<FONT SIZE="-1">Ｓｕｂｊｅｃｔ：<INPUT TYPE="text" style="width:240px;text-align:left;" VALUE="メールの送信テスト" NAME="subject">
+<BR>
+<textarea NAME="msg" rows="4" cols="40" >ここにメッセージを書いて送信してください</textarea><BR>
+<HR>
+<FONT SIZE="-1">イメージファイル：<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="" NAME="image_file">
+<BR>
+
+<INPUT style="text-align:center" TYPE="button" VALUE="実行" onClick="return sendmail_ck()" ;>
+<INPUT style="text-align:center" TYPE="reset" VALUE="クリア">
+</FORM>
+</BODY>
+</HTML>

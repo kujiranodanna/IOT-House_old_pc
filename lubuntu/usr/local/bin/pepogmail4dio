@@ -1,0 +1,446 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.11.28 update 2020.7.27
+# pepogmail4dio ; For raspberry pi zero, and scripts to run the GPIO and other instructions in the G-mail.
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+#LANG=ja_JP.UTF-8
+RETRYTIME=10
+RETRY=2
+PORT=443
+INIT_FLAG="YES"
+ALLOW_FROM="all@pepolinux.local"
+CGIDIR=/www/remote-hand
+WORKDIR=/www/remote-hand/tmp
+CONF="$WORKDIR/.pepogmail4dio.conf"
+USERAGENT="Chrome/83.0.4103.116"
+WORK=$WORKDIR/.wget_tmp
+tWORK=$WORKDIR/.wget_tmp.tmp
+tAWK=$WORKDIR/.wget_awk.tmp
+DIRD=$WORKDIR/.di_read_data
+DOWD=$WORKDIR/.do_write_data
+DIREADJSON=/www/remote-hand/.di_read_data.json
+ALIAS_DI=$WORKDIR/.alias_di
+ALIAS_DO=$WORKDIR/.alias_do
+DIOCTL="/usr/local/bin/pepopiface"
+DIOEXEC="/usr/local/bin/pepodiodexec"
+DIOCMD_DIO="$WORKDIR/pepogmail4dioexec"
+DIOCMD_MAIL="$WORKDIR/pepogmail4mailexec"
+GMAILIMAGE1="/usr/local/bin/pepogmail4pic video0"
+GMAILIMAGE2="/usr/local/bin/pepogmail4jpg video0"
+GMAILIMAGE3="/usr/local/bin/pepogmail4pic video1"
+GMAILIMAGE4="/usr/local/bin/pepogmail4jpg video1"
+GMAILIMAGE5="/usr/local/bin/pepogmail4pic video2"
+GMAILIMAGE6="/usr/local/bin/pepogmail4jpg video2"
+GMAILIMAGE7="/usr/local/bin/pepogmail4pic vchiq"
+GMAILIMAGE8="/usr/local/bin/pepogmail4jpg vchiq"
+WIREDIOCTL=/usr/local/bin/pepotocoshelp
+MUA=/usr/local/bin/peposendmail
+IRKITPOST=/usr/local/bin/pepoirkitpost
+IRFILE=$DIR/.irdata_${IRNUM}
+IRKIT_EXEC="$WORKDIR/.pepogmail4irkitexec"
+GMAILPIC_EXEC="$WORKDIR/.pepogmail4pic"
+MATCHDIO="dio"
+GETSIZE=1024
+# 2019.7.20 MAXCH:40
+MAXCH=40
+prog=pepogmail4dio
+pidfile=/var/run/$prog.pid
+echo -en $$ >$pidfile
+error(){
+  [ -e ${DIOCMD_DIO} ] && rm -f ${DIOCMD_DIO}
+  [ -e ${DIOCMD_MAIL} ] && rm -f ${DIOCMD_MAIL}
+  [ -e ${WORK} ] && rm -f ${WORK}
+  [ -e ${tWORK} ] && rm -f ${tWORK}
+  [ -e ${tAWK} ] && rm -f ${tAWK}
+  [ -e ${pidfile} ] && rm -f ${pidfile}
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+
+exec_dio() {
+# dio write & exec command
+# exec_dio message_id diocmd ch 0|1 [time]
+  local pid CH
+  [ -e $ALIAS_DI ] && . $ALIAS_DI
+  [ -e $ALIAS_DO ] && . $ALIAS_DO
+  if [ $# = 2 ];then
+    CH=$MAXCH
+  elif [ ! -z $3 ];then
+    CH=$(($3 - 1))
+  fi
+  [ "$CH" -lt 0 -o "$CH" -gt $MAXCH ] && return
+  pid=`echo $1 | cut -c 1-10`
+  CMDDIO=${DIOCMD_DIO}_${pid}.pepocmd
+  CMDMAIL=${DIOCMD_MAIL}_${pid}.pepocmd
+  if [ $# -gt 3 -a "$CH" -gt 7 -a "$CH" -lt 14 ];then
+# IRkit operate
+    ir_num=$((CH - 8))
+    IRFILE=${WORKDIR}/.irdata_${ir_num}
+    if [ -e ${IRFILE} ];then
+      cat >${IRKIT_EXEC}<<EOF
+#!/bin/bash
+if [ ! -z $4 -a $4 -gt 500 ];then
+  $IRKITPOST $ir_num $4
+else 
+  $IRKITPOST $ir_num
+fi
+rm -f ${IRKIT_EXEC}
+EOF
+    chmod +x ${IRKIT_EXEC}
+    ${DIOEXEC} ${IRKIT_EXEC}
+      if [ ! -z ${alias_do[$CH]} ];then
+        MSG="IRKit+data+send+${alias_do[$CH]}+excute"
+      else
+        MSG="IRKit+data+send+Outnput${CH}+excute"
+      fi
+    else
+      if [ ! -z ${alias_do[$CH]} ];then
+        MSG="IRKit+data+${alias_do[$CH]}+not+found"
+      else
+        MSG="IRKit+data+Outnput${CH}+not+found"
+      fi
+	fi
+    ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+    return
+  fi
+  if [ $# -gt 3 -a "$CH" -lt 8 ];then
+# dio write
+    cat >${CMDDIO}<<END
+#!/bin/bash
+${DIOCTL} $CH $4 $5
+END
+  fi
+  if [ $# -gt 3 -a "$CH" -gt 13 -a "$CH" -lt 17 ];then
+    WDO=$(($CH - 13))
+    cat >${CMDDIO}<<END
+#!/bin/bash
+${WIREDIOCTL} $WDO $4 $5
+END
+  fi
+# dio read & send mail
+  msleep 10000
+  [ -e $DIRD ] && . $DIRD
+  [ -e $DOWD ] && . $DOWD
+  [ -e $tWORK ] && rm -f $tWORK && touch $tWORK || touch $tWORK
+  echo -en "==input list==\r\n" >>$tWORK
+  for n in 0 1 2 3 4 5 6 7 8 9 10 12 13 14 15 16 17 18 19 20 21 22 23;do
+    DI[$n]="none"
+    [ "${di[$n]}" = "1" ] && DI[$n]="high"
+    [ "${di[$n]}" = "0" ] && DI[$n]="low"
+    [ -z "${alias_di[$n]}" ] && alias_di[$n]="Input"$(($n + 1))
+    echo -en "$(($n + 1)):${alias_di[$n]}=${DI[$n]}\r\n" >>$tWORK
+  done
+  echo -en "==output list==\r\n" >>$tWORK
+  for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16;do
+    DO[$n]="none"
+    [ "${do[$n]}" = "1" ] && DO[$n]="high"
+    [ "${do[$n]}" = "0" ] && DO[$n]="low"
+    [ -z "${alias_do[$n]}" ] && alias_do[$n]="Outnput"$(($n + 1))
+    if [ $n -lt 8 ];then
+      echo -en "$(($n + 1)):${alias_do[$n]}=${DO[$n]}\r\n" >>$tWORK
+    elif [ $n -gt 7 -a $n -lt 14 ];then
+      echo -en "$(($n + 1)):${alias_do[$n]}\r\n" >>$tWORK
+	elif [ $n -gt 13 -a $n -lt 17 ];then
+	  j=$(($n - 6))
+	  echo -en "$(($n + 1)):${alias_do[$n]}=${DO[$j]}\r\n" >>$tWORK
+    fi
+  done
+  echo -en "==Other Command==\r\n" >>$tWORK
+  echo -en "21:CPU Temperature\r\n" >>$tWORK
+  echo -en "22:GPIO Temperature&Humidity\r\n" >>$tWORK
+  echo -en "23:No1 Camera Movie\r\n" >>$tWORK
+  echo -en "24:No1 Camera Picture\r\n" >>$tWORK
+  echo -en "25:No2 Camera Movie\r\n" >>$tWORK
+  echo -en "26:No2 Camera Picture\r\n" >>$tWORK
+  echo -en "27:No3 Camera Movie\r\n" >>$tWORK
+  echo -en "28:No3 Camera Picture\r\n" >>$tWORK
+  echo -en "29:Module Camera Movie\r\n" >>$tWORK
+  echo -en "30:Module Camera Picture\r\n" >>$tWORK
+  echo -en "31:Twlite Temperature&Humidity\r\n" >>$tWORK
+  echo -en "32:CPU Temperature&Graph\r\n" >>$tWORK
+  echo -en "33:GPIO Temperature&Graph\r\n" >>$tWORK
+  echo -en "34:GPIO Humidity&Graph\r\n" >>$tWORK
+  echo -en "35:Twlite Temperature&Graph\r\n" >>$tWORK
+  echo -en "36:Twlite Humidity&Graph\r\n" >>$tWORK
+  echo -en "37:GPIO Pressure&Graph\r\n" >>$tWORK
+  echo -en "38:GPIO Gas&Graph\r\n" >>$tWORK
+  echo -en "39:GPIO IAQ&Graph\r\n" >>$tWORK
+  echo -en "40:GPIO Last Hour CSV Data\r\n" >>$tWORK
+  if [ $# -gt 3 -a $CH -lt 8 ];then
+    MSG="${alias_do[$CH]}=${DO[$CH]}"
+    ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+    return
+  fi
+  if [ $# -gt 3 -a $CH -gt 13 -a $CH -lt 17 ];then
+    j=$(($CH - 7))
+    MSG="${alias_do[$CH]}=${DO[$j]}"
+    ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+    return
+  fi
+# read command list only ?
+  if [ $CH = $MAXCH ];then
+    echo -n "{gsub(/ /,\"+\",\$0);printf \$0}" >$tAWK
+    MSG=`cat $tWORK | awk -f $tAWK`
+    ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+    return
+  elif [ "$CH" = 20  ];then
+# Cpu Temperature 
+    CPU_TEMP=`cat /sys/class/thermal/thermal_zone0/temp|awk '{printf(substr($1,1,2)"."substr($1,3,1)"℃")}'`
+    MSG="Cpu+Temperature:"$CPU_TEMP
+    ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+    return
+  elif [ "$CH" = 21  ];then
+    MSG=`cat ${DIREADJSON} |awk '/gpio_i2c/{gsub(/"|{|}/,"",$0);gsub(/,/," ",$0);gsub(/ /,"+",$0);gsub(/gpio_i2c:/,"",$0);printf $0}'`
+    MSG="GPIO+Temperature+Humidity+Report+$MSG"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 22 ];then
+    MSG="No1+Camera Movie"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE1} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 23 ];then
+    MSG="No1+Camera+Picture"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE2} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 24 ];then
+    MSG="No2+Camera Movie"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE3} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 25 ];then
+    MSG="No2+Camera+Picture"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE4} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 26 ];then
+    MSG="No3+Camera Movie"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE5} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 27 ];then
+    MSG="No3+Camera+Picture"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE6} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 28 ];then
+    MSG="Module+Camera+Movie"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE7} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 29 ];then
+    MSG="Module+Camera+Picture"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GMAILIMAGE8} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 30 ];then
+  MSG=`cat ${DIREADJSON} | awk '/i2ctemp/{gsub(/"|{|}/,"",$0);gsub(/,/," ",$0);gsub(/ /,"+",$0);gsub(/i2ctemp:/,"",$0);printf $0}'`
+  MSG="Twlite+Temperature+Humidity+Report+${MSG}"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 31 ];then
+    GRAPH_CMD=/usr/local/bin/pepocputemp_graph_mail
+    MSG="CPU+Temperature+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 32 ];then
+    GRAPH_CMD=/usr/local/bin/pepogpiotemp_graph_mail
+    MSG="GPIO+Temperature+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 33 ];then
+    GRAPH_CMD=/usr/local/bin/pepogpiohum_graph_mail
+    MSG="GPIO+Humidity+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 34 ];then
+    GRAPH_CMD=/usr/local/bin/pepoi2ctemp_graph_mail
+    MSG="Twlite+Temperature+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 35 ];then
+    GRAPH_CMD=/usr/local/bin/pepoi2chum_graph_mail
+    MSG="Twlite+Humidity+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 36 ];then
+    GRAPH_CMD=/usr/local/bin/pepogpiopres_graph_mail
+    MSG="GPIO+Pressure+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 37 ];then
+    GRAPH_CMD=/usr/local/bin/pepogpiogas_graph_mail
+    MSG="GPIO+Gas+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 38 ];then
+    GRAPH_CMD=/usr/local/bin/pepogpioiaq_graph_mail
+    MSG="GPIO+IAQ+Graph+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  elif [ "$CH" = 39 ];then
+    GRAPH_CMD=/usr/local/bin/pepogpiorrdfetch_mail
+    MSG="GPIO+Last+Hour+CSV+Data+Report"
+    cat >${CMDMAIL}<<END
+#!/bin/bash
+${GRAPH_CMD} ${MAILTO} ${SUBJECT} ${MSG}
+END
+    return
+  else
+    [ $CH -gt 13 -a $CH -lt 17 ] && j=$(($CH - 6)) || j=$CH
+    [ -z "${alias_di[$CH]}" ] && alias_di[$CH]="Input"$(($CH + 1))
+    echo -en "${alias_di[$CH]}=${DI[$j]}\r\n" >$tWORK
+    CT=`ls -a $WORKDIR/|egrep ".dio"${j}"[low|high]+.count+$"`
+    if [ `echo $CT | wc -w` != 0 ];then
+      for DIO in $CT ; do
+        DIOCONT=$WORKDIR/$DIO
+        echo $DIO| awk '{gsub("\\.","");sub("count","");printf("%s\r\n",$0)}' >>$tWORK
+        cat $DIOCONT | awk '
+          /^Reset/{printf("%s\r\n",$0)}
+          /^Update/{printf("%s\r\n",$0)}
+          /^#/{sub("#","Count ");printf("%s\r\n\r\n",$0)}
+        ' >>$tWORK
+      done
+    fi
+  fi
+  echo -n "{gsub(/ /,\"+\",\$0);printf \$0}" >$tAWK
+  MSG=`cat $tWORK | awk -f $tAWK`
+  ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
+}
+
+while true
+do
+  while true
+  do
+    if [ ! -e $CONF ];then
+       LOOPTIME=10000
+       break
+    fi
+    if [ -e $CONF ];then
+      msleep 100
+      . $CONF
+      SUBJECT="+IOT-House+report"
+      USER=$GMAILUSER
+      PASSWORD=$GMAILPASSWORD
+      MAILTO=$PERMITMAIL
+      tLOOPTIME=$LOOPTIME
+      if [ $tLOOPTIME = 0 ];then
+        [ -e ${WORK} ] && rm -f ${WORK}
+        [ -e ${tWORK} ] && rm -f ${tWORK}
+        [ -e ${tAWK} ] && rm -f ${tAWK}
+        msleep 10000
+        break
+      fi
+      tJITTER=$JITTER
+      if [ $JITTER = 0 ];then
+        zeroJITTER=60
+        tJITTER=$(($JITTER + $zeroJITTER + $tLOOPTIME))
+      else
+        tJITTER=$(($tJITTER + $tLOOPTIME))
+      fi
+      LOOPTIME=$(($LOOPTIME * 1000))
+      MATCHMAIL=${MAILTO}
+# all from address permit
+      MATCHDIO=$KEYWORD
+    fi
+curl -s --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --user-agent ${USERAGENT} --tlsv1 -k -u ${USER}:${PASSWORD}  https://mail.google.com:$PORT/mail/feed/atom/unread >${WORK}
+#    wget -Q $GETSIZE -T $RETRYTIME -t $RETRY -q --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://mail.google.com:$PORT/mail/feed/atom/unread --http-user=${USER} --http-password=${PASSWORD} --output-document=${WORK}
+    [ -z ${WORK} ] && break
+    cat ${WORK} | cut -c 100-1000 >${tWORK}
+    TMP=`cat ${tWORK}| awk 'match($0,/New messages(.*)<\/email>/,a){print a[1]}' 2>/dev/null`
+    ISSUED=`echo $TMP | awk 'match($0,/<issued>(.*)<\/issued>/,a){print a[1]}'`
+    [ `echo -en $ISSUED| wc -c` -lt 20 ] && break 
+    epochJITTER=`date -ud "${tJITTER} second ago" +%s` 
+    epochNOWdelay=`date -ud "300 second ago" +%s`
+    epochISSUED=`date -ud $ISSUED +%s`
+    if [ "${JITTER}" = 0 ];then 
+      if [ ${epochISSUED} -gt ${epochNOWdelay} ];then
+        NEW_YESNO="YES"
+      else
+        NEW_YESNO="NO"
+        break
+      fi
+    fi
+    if [ "${epochISSUED}" -gt "${epochJITTER}" ];then
+      NEW_YESNO="YES"
+    else
+      NEW_YESNO="NO"
+      break
+    fi
+    MAILTO=`echo $TMP |awk 'match($0,/<email>.*/){print substr($0, RSTART+7, RLENGTH)}'`
+    [ `echo $MAILTO|grep $MATCHMAIL|wc -c` -ne 0 ] && FROM_YESNO="YES" || FROM_YESNO="NO"
+# all from address permit
+    [ ${PERMITMAIL} = ${ALLOW_FROM} ] && FROM_YESNO="YES"
+    [ ${FROM_YESNO} != "YES" ] && break
+    if [ "${NEW_YESNO}" = "YES" ];then
+      newMESSAGEID=`echo $TMP |awk 'match($0,/message_id=.*/){print substr($0, RSTART+11,16)}'`
+      [ -z "$newMESSAGEID" ] && break
+      [ -z "$oldMESSAGEID" ] && oldMESSAGEID=${newMESSAGEID}
+      if [ "${oldMESSAGEID}" = "${newMESSAGEID}" ];then
+        break
+      else
+        oldMESSAGEID=${newMESSAGEID}
+      fi
+      CMD=`echo $TMP |awk 'match($0,/<title>(.*)<\/title>/,a){print a[1]}'`
+      CMDCNT=`echo -en $CMD | grep ${MATCHDIO} | wc -c`
+      [ "${CMDCNT}" = 0 ] && break
+      CMD_ARG1_LEN=`echo ${CMD}|awk -F " " '{printf length($1)}'`
+      MATCHDIO_LEN=`echo ${MATCHDIO}|awk -F " " '{printf length($1)}'`
+      [ "${CMD_ARG1_LEN}" != "${MATCHDIO_LEN}" ] && break
+      exec_dio $newMESSAGEID ${CMD}
+    fi
+    msleep ${LOOPTIME}
+    [ -e ${WORK} ] && rm -f ${WORK}
+    [ -e ${tWORK} ] && rm -f ${tWORK}
+    [ -e ${tAWK} ] && rm -f ${tAWK}
+    break
+  done
+  msleep ${LOOPTIME}
+done

@@ -1,0 +1,29 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.8.5 update 2018.2.24
+# pepoi2cthem_graph_mail ; Get the i2c Thermometer graph & send mail
+# pepoi2cthem_graph_mail mail_to subject message
+MAILFROM=$1
+SUBJECT=$2
+MSG=$3
+WORKDIR=/www/remote-hand/tmp
+MUA=/usr/local/bin/peposendmail
+DSFILE=${WORKDIR}/.i2c_temp_hum.rrd
+RRDSTART=${WORKDIR}/.i2c_start_time
+GRAP_TEMPFILE=${WORKDIR}/i2cthem.png
+IMG=i2cthem.png
+END=`date "+%Y%m%d %H:%M:00" -d "-10 minute"`
+END=`date -d "${END}" +%s`
+CMD=${WORKDIR}/pepoi2ctemp_graph_mail.pepocmd
+if [ -e ${DSFILE} ];then
+  [ -e ${RRDSTART} ] && . ${RRDSTART}
+  TEMPSTART=`date "+%Y%m%d %H:%M:00" -d "-7 days"`
+  TEMPSTART=`date -d "${TEMPSTART}" +%s`
+  if [ ${TEMPSTART} -gt ${START} ];then
+    START=${TEMPSTART}
+  fi
+  rrdtool graph ${GRAP_TEMPFILE} --width 600 --heigh 120 --start ${START} --end ${END} --upper-limit 50 --lower-limit -10 DEF:a=${DSFILE}:i2cthem:MAX LINE1:a#FF0000:"I2C_Thermometer"
+  if [ -e  ${GRAP_TEMPFILE} ];then
+    ${MUA} ${MAILFROM} ${SUBJECT} ${MSG} ${IMG}
+  fi
+fi

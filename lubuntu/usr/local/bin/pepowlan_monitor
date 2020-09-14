@@ -1,0 +1,52 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.8.26 update 2019.10.19
+# ping monitoring of wlan0 fail for rasberry pi
+# pepowlan_monitor 
+MSLEEP=34567
+WORKDIR=/www/remote-hand/tmp
+PING_LOG=$WORKDIR/.pepowlan_monitor.log
+error() {
+  [ -e $PING_LOG ] && rm -f $PING_LOG
+  exit
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+unset GATEWAY
+while true
+do
+  GATEWAY=`ip route show|awk '/default/{printf $3}'`
+  while [ -z $GATEWAY ];do
+    msleep $MSLEEP
+    WLAN_YES_NO=`ip link show wlan0 2>&1|awk 'BEGIN{WLAN="YES"};/does not exist/{WLAN="NO"};END{printf WLAN}'`
+    ETH0_YES_NO=`ip link show eth0 2>&1|awk 'BEGIN{ETH0="YES"};/does not exist/{ETH0="NO"};END{printf ETH0}'`
+    if [ $WLAN_YES_NO = "YES" ];then
+      ifdown wlan0
+      ifup wlan0
+    else
+      ifdown eth0
+      ifup eth0
+    fi
+    GATEWAY=`ip route show|awk '/default/{printf $3}'`
+    if [ ! -z $GATEWAY ];then
+      break
+    fi
+  done
+  WLAN_YES_NO=`ip link show wlan0 2>&1|awk 'BEGIN{WLAN="YES"};/does not exist/{WLAN="NO"};END{printf WLAN}'`
+  ETH0_YES_NO=`ip link show eth0 2>&1|awk 'BEGIN{ETH0="YES"};/does not exist/{ETH0="NO"};END{printf ETH0}'`
+  PING_HOST=$GATEWAY
+  date +"%Y/%m/%d %T" > $PING_LOG
+  if ! ping -c 1 $PING_HOST 2>&1 >>$PING_LOG; then
+    msleep 2000
+    if ! ping -c 1 $PING_HOST 2>&1 >>$PING_LOG; then
+      if [ $WLAN_YES_NO = "YES" ];then
+        ifdown wlan0
+        ifup wlan0
+      elif [ $ETH0_YES_NO = "YES" ];then 
+        ifdown eth0
+        ifup eth0
+      fi
+    fi
+  fi
+  msleep $MSLEEP
+  GATEWAY=`ip route show|awk '/default/{printf $3}'`
+done
