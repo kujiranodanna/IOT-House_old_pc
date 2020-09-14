@@ -1,5 +1,6 @@
 #!/bin/bash
-# licence GPLv2 ; this scripts designed by Isamu.Yamauchi 2011.11.16 update 2018.2.11
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.11.16 update 2018.2.11
 # Scan ANDDIO for i386.
 # pepoanddiod
 DIOCTL="/usr/local/bin/pepoanddioctl 9"
