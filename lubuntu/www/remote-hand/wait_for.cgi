@@ -11,8 +11,8 @@ PPP_MODE=$DIR/.ppp_mode
 PPP_DIAL_MODE=/etc/ppp/ppp-dialer-mode
 LOCKFILE="$DIR/LCK..wait_for.cgi"
 LOCKPID="$DIR/LCK..wait_for.cgi.pid"
-LOCKCGI="$DIR/LCK..pi_int.cgi"
-LOCKCGIPID="$DIR/LCK..pi_int.cgi.pid"
+LOCKCGI="$DIR/LCK..dio_int.cgi"
+LOCKCGIPID="$DIR/LCK..dio_int.cgi.pid"
 ALIAS_DI=$DIR/.alias_di
 [ -e $ALIAS_DI ] && . $ALIAS_DI
 if [ $DI_TTY != "gpio" ];then

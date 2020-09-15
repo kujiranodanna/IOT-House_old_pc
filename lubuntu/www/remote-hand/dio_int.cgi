@@ -4,17 +4,11 @@
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
-LOCKFILE="$DIR/LCK..pi_int.cgi"
-LOCKPID="$DIR/LCK..pi_int.cgi.pid"
-DATE="2020.7.9"
-VERSION="ver:0.13&nbsp;$DATE"
-ZEROW=`gpio readall|grep "Pi ZeroW"|wc -w`
-[ $ZEROW != 0 ] && ZEROW_YES_NO="YES" || ZEROW_YES_NO="NO"
-if [ $ZEROW_YES_NO = "YES" ];then
-  DIST_NAME="IOT-House_zero_w"
-else
-  DIST_NAME="IOT-House_pi"
-fi
+LOCKFILE="$DIR/LCK..dio_int.cgi"
+LOCKPID="$DIR/LCK..dio_int.cgi.pid"
+DATE="2019.3.30"
+VERSION="ver:0.03&nbsp;$DATE"
+DIST_NAME="IOT-House_lubuntu"
 echo -en '
 <HTML>
 <HEAD>
@@ -65,18 +59,17 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2019-2022 pepolinux.com</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD></TR></TABLE>
 </BODY>
 </HTML>'
   exit -1
 else
   echo -en $$ >${LOCKPID}
 fi
-PAGE1=pi_int.html.tmp
-PAGE2=pi_int.html
+PAGE1=dio_int.html.tmp
+PAGE2=dio_int.html
 PAGE3=setup.html.tmp
 PAGE4=setup.html
-PAGE5=temp_hum.html
 echo_f() {
   local DT FL
   DT=$1
@@ -146,7 +139,7 @@ if [ $SMART_PHONE = "YES" ];then
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-1.8.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_pi.min.js" type="text/javascript"></script>
+<script src="remote-hand_dio.min.js" type="text/javascript"></script>
 <TITLE>$DIST_NAME Smart Phone Control</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
@@ -282,7 +275,7 @@ Voice control
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <BR>
 <BR>
-&copy;2019-2022 pepolinux.com&nbsp;
+&copy;2020-2022 pepolinux.com&nbsp;
 </H1>
 </BODY>
 </HTML>
@@ -303,7 +296,7 @@ END
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-1.8.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_pi.min.js" type="text/javascript"></script>
+<script src="remote-hand_dio.min.js" type="text/javascript"></script>
 <TITLE>IOT-House Temperature&Humidity</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
@@ -326,7 +319,7 @@ END
 <INPUT style="text-align:center" TYPE="button" VALUE="Home" onclick="location.href='./pi_int.html'";/>
 <BR>
 <BR>
-&copy;2019-2022 pepolinux.com&nbsp;
+&copy;2020-2022 pepolinux.com&nbsp;
 <span id="server_time" style="text-align:left"></span>
 </H1>
 </BODY>
@@ -350,7 +343,7 @@ cat >$PAGE1<<END
 <script src="jquery-1.8.1.min.js" type="text/javascript"></script>
 <script src="ui.core.js" type="text/javascript"></script>
 <script src="ui.tabs.js" type="text/javascript"></script>
-<script src="remote-hand_pi.min.js" type="text/javascript"></script>
+<script src="remote-hand_dio.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
 \$(function() {
