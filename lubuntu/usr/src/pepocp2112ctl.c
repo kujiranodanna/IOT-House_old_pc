@@ -3,7 +3,7 @@
  * For example to used humidity & temperature sensor of am2320.
  * for CP2112 Single-Chip HID USB to SMBus Master Bridge see following
  * https://www.silabs.com/documents/public/data-sheets/cp2112-datasheet.pdf
- * Copyright (c) 2018 Isamu Yamauchi, <izamu@pepolinux.com>
+ * Copyright (c) 2018 Isamu Yamauchi
  * Released under GPLv3 license, see http://www.gnu.org/licenses/gpl-3.0.html.
  *
  * Depends on the HID API multi-platform library, available from
