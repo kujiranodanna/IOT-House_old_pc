@@ -1,3 +1,3 @@
 # IOT-House_old_pc
 Revive abandoned PCs at IOT House
-![iot-house_pr_old_pc_20200918 001](https://user-images.githubusercontent.com/70492305/93547348-d52f8900-f99f-11ea-879b-b740c15cf116.jpeg)
+![IOT-House_old_pc](https://user-images.githubusercontent.com/70492305/115954727-86e1fa00-a52d-11eb-9fff-dc971c490b32.jpeg)
