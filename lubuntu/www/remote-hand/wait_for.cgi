@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2019.12.15
+# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2021.4.21
 PATH=$PATH:/usr/local/bin
 # get ppp_user name & ppp mode
 DIR=/www/remote-hand/tmp
@@ -11,14 +11,14 @@ PPP_MODE=$DIR/.ppp_mode
 PPP_DIAL_MODE=/etc/ppp/ppp-dialer-mode
 LOCKFILE="$DIR/LCK..wait_for.cgi"
 LOCKPID="$DIR/LCK..wait_for.cgi.pid"
-LOCKCGI="$DIR/LCK..dio_int.cgi"
-LOCKCGIPID="$DIR/LCK..dio_int.cgi.pid"
+LOCKCGI="$DIR/LCK..pi_int_cp2112.cgi"
+LOCKCGIPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
 ALIAS_DI=$DIR/.alias_di
 [ -e $ALIAS_DI ] && . $ALIAS_DI
-if [ $DI_TTY != "gpio" ];then
-   PI_INT=pi_int.cgi
+if [ $DI_TTY != "cp2112" ];then
+   PI_INT=pi_int_cp2112.cgi
 else
-   PI_INT=pi_int_gpio.cgi
+   PI_INT=pi_int_cp2112.cgi
 fi
 echo -en '
 <HTML>
@@ -74,7 +74,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2024 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>'
 exit -1
@@ -97,7 +97,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2019-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2024 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>'
   msleep 20000
@@ -167,11 +167,11 @@ do
   rm -rf ${LOCKCGI}
   rm -rf ${LOCKCGIPID}
 done
-if [ -e "./pi_int.html" ];then
+if [ -e "./pi_int_cp2112.html" ];then
   echo -en '
 var jump_url = setTimeout("jump_href()", 500);
 function jump_href() {
-  var jump_location = "./pi_int.html?" + (new Date().getTime());
+  var jump_location = "./pi_int_cp2112.html?" + (new Date().getTime());
   location.href=jump_location;
   clearTimeout(jump_url);
 }
@@ -184,24 +184,24 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2019-2022 pepolinux.com</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2024 pepolinux.com</TD></TR></TABLE>
 </BODY>
 </HTML>'
   msleep 1000
   ./${PI_INT} >/dev/null 2>&1
-  chown www-data.www-data ./pi_int.html
+  chown www-data.www-data ./pi_int_cp2112.html
 else
-  if [ $DI_TTY = "gpio" ];then
+  if [ $DI_TTY = "cp2112" ];then
     echo -en '
 var jump_url = setTimeout("jump_href()", 1500);
 function jump_href() {
-  var jump_location = "/remote-hand/pi_int_gpio.cgi?" + (new Date().getTime());
+  var jump_location = "/remote-hand/pi_int_cp2112.cgi?" + (new Date().getTime());
 '
   else
     echo -en '
 var jump_url = setTimeout("jump_href()", 1500);
 function jump_href() {
-  var jump_location = "/remote-hand/pi_int.cgi?" + (new Date().getTime());
+  var jump_location = "/remote-hand/pi_int_cp2112.cgi?" + (new Date().getTime());
 '
   fi
   echo -en '
@@ -217,7 +217,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2019-2022 pepolinux.com</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2024 pepolinux.com</TD></TR></TABLE>
 </BODY>
 </HTML>'
 fi

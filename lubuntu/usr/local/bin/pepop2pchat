@@ -1,7 +1,7 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2007.3.18 ; update 2017.7.13
-# This scripts sample for ppp chat 
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2007.3.18 ; update 2017.7.13
+# This scripts sample for ppp chat
 # usage /usr/local/bin/epicon -l /dev/ttyACM0 -c /usr/local/bin/pepop2pchat
 CLR="\x1b[2J"
 RED="\x1b[41m"
@@ -63,4 +63,3 @@ done
 echo -en "ATA\r\n" || exit 0
 sleep 2
 exec /usr/sbin/pppd $1
-

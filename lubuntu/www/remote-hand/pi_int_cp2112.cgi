@@ -1,14 +1,14 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2020.7.9
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2021.4.22
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
-LOCKFILE="$DIR/LCK..dio_int.cgi"
-LOCKPID="$DIR/LCK..dio_int.cgi.pid"
-DATE="2019.3.30"
-VERSION="ver:0.03&nbsp;$DATE"
-DIST_NAME="IOT-House_lubuntu"
+LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
+LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
+DATE="2021.4.22"
+VERSION="ver:0.01&nbsp;$DATE"
+DIST_NAME=IOT-House_old_pc
 echo -en '
 <HTML>
 <HEAD>
@@ -46,7 +46,7 @@ if [ $? != 0 ];then
 echo -en '
 var jump_url = setTimeout("jump_href()", 20000);
 function jump_href() {
-  var jump_location = "./pi_int.html?" + (new Date().getTime());
+  var jump_location = "./pi_int_cp2112.html?" + (new Date().getTime());
   location.href=jump_location;
   clearTimeout(jump_url);
 }
@@ -59,17 +59,18 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD></TR></TABLE>
 </BODY>
 </HTML>'
   exit -1
 else
   echo -en $$ >${LOCKPID}
 fi
-PAGE1=dio_int.html.tmp
-PAGE2=dio_int.html
+PAGE1=pi_int_cp2112.html.tmp
+PAGE2=pi_int_cp2112.html
 PAGE3=setup.html.tmp
 PAGE4=setup.html
+PAGE5=temp_hum.html
 echo_f() {
   local DT FL
   DT=$1
@@ -91,22 +92,22 @@ ALIAS_VDO=$DIR/.alias_vdo
 [ -e "$DOWD" ] && . "$DOWD"
 [ -e "$ALIAS_DI" ] && . "$ALIAS_DI"
 [ -e "$ALIAS_DO" ] && . "$ALIAS_DO"
-[ -e "$ALIAS_VDO" ] && . "$ALIAS_VDO" 
-for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25;do
+[ -e "$ALIAS_VDO" ] && . "$ALIAS_VDO"
+for n in 0 1 2 3 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25;do
   DI[$n]="none"
   DO[$n]="none"
   if [ "${di[$n]}" = "1" ];then
     DI[$n]="high"
   elif [ "${di[$n]}" = "0" ];then
-    DI[$n]="low" 
+    DI[$n]="low"
   fi
   if [ "${do[$n]}" = "1" ];then
-    DO[$n]="high" 
+    DO[$n]="high"
   elif [ "${do[$n]}" = "0" ];then
     DO[$n]="low"
   fi
   if [ "${ai[$n]}" = "1" ];then
-    ai[$n]="high" 
+    ai[$n]="high"
   elif [ "${ai[$n]}" = "0" ];then
     ai[$n]="low"
   fi
@@ -138,12 +139,12 @@ if [ $SMART_PHONE = "YES" ];then
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
-<script src="jquery-1.8.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_dio.min.js" type="text/javascript"></script>
+<script src="jquery-3.5.1.min.js" type="text/javascript"></script>
+<script src="remote-hand_dio.js" type="text/javascript"></script>
 <TITLE>$DIST_NAME Smart Phone Control</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
-<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int.cgi">
+<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.cgi">
 <DIV style="text-align:center"><FONT size="5" color="green">$DIST_NAME<FONT size="2">&nbsp;$VERSION</FONT></FONT></DIV>
 <BR>
 <FORM NAME="menu5" id="menu5_form"  ACTION="./dio_set.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
@@ -156,14 +157,6 @@ if [ $SMART_PHONE = "YES" ];then
 <span id="s_phone_do2">
 </span>
 <span id="s_phone_do3">
-</span>
-<span id="s_phone_do4">
-</span>
-<span id="s_phone_do5">
-</span>
-<span id="s_phone_do6">
-</span>
-<span id="s_phone_do7">
 </span>
 <span id="s_phone_do8">
 </span>
@@ -193,14 +186,6 @@ if [ $SMART_PHONE = "YES" ];then
 <span id="s_phone_di2">
 </span>
 <span id="s_phone_di3">
-</span>
-<span id="s_phone_di4">
-</span>
-<span id="s_phone_di5">
-</span>
-<span id="s_phone_di6">
-</span>
-<span id="s_phone_di7">
 </span>
 <span id="s_phone_di8">
 </span>
@@ -275,7 +260,7 @@ Voice control
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <BR>
 <BR>
-&copy;2020-2022 pepolinux.com&nbsp;
+&copy;2021-2023 pepolinux.com&nbsp;
 </H1>
 </BODY>
 </HTML>
@@ -295,12 +280,12 @@ END
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
-<script src="jquery-1.8.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_dio.min.js" type="text/javascript"></script>
+<script src="jquery-3.5.1.min.js" type="text/javascript"></script>
+<script src="remote-hand_dio.js" type="text/javascript"></script>
 <TITLE>IOT-House Temperature&Humidity</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
-<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int.cgi">
+<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.cgi">
 <DIV style="text-align:center"><FONT size="5" color="green">$DIST_NAME<FONT size="2">&nbsp;$VERSION</FONT></FONT></DIV>
 <span id="s_phone_temp_hum"></span>
 <span id="s_phone_gpio_temp_graph"></span>
@@ -316,10 +301,10 @@ END
 <span id="s_phone_tocos_temp_hum"></span>
 <BR>
 <BR>
-<INPUT style="text-align:center" TYPE="button" VALUE="Home" onclick="location.href='./pi_int.html'";/>
+<INPUT style="text-align:center" TYPE="button" VALUE="Home" onclick="location.href='./pi_int_cp2112.html'";/>
 <BR>
 <BR>
-&copy;2020-2022 pepolinux.com&nbsp;
+&copy;2021-2023 pepolinux.com&nbsp;
 <span id="server_time" style="text-align:left"></span>
 </H1>
 </BODY>
@@ -339,34 +324,36 @@ cat >$PAGE1<<END
 <META name="reply-to" content="izamu@pepolinux.com">
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
-<link rel="stylesheet" href="ui.tabs.css" type="text/css" media="print, projection, screen">
-<script src="jquery-1.8.1.min.js" type="text/javascript"></script>
-<script src="ui.core.js" type="text/javascript"></script>
-<script src="ui.tabs.js" type="text/javascript"></script>
-<script src="remote-hand_dio.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="pepo_ui.tabs.css" type="text/css" media="print, projection, screen">
+<script src="jquery-3.5.1.min.js" type="text/javascript"></script>
+<script src="jquery-ui.min.js" type="text/javascript"></script>
+<script src="remote-hand_dio.js" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
-\$(function() {
-  \$('#tab_cont_div > ul').tabs({selected: 1});
+  \$(function() {
+    \$("#tabs").tabs();
+  });
+  \$(function() {
+    \$("#tabs").tabs("option","active",1);
   });
 // -->
 </script>
-
 <TITLE>$DIST_NAME Control Panel</TITLE>
 </HEAD>
 <BODY id="tab_cont_body" BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
-<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int.cgi">
+<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.cgi">
+<DIV id="tabs">
 <DIV  style="text-align:center"><FONT size="5" color="green">$DIST_NAME</FONT><FONT size="2">&nbsp;$VERSION</FONT></DIV>
 <DIV id="tab_cont_div">
 <UL id="tab">
-<LI><a href="#menu4dl" title="Sound Setting"><span>Sound Setting</span></a></LI>
-<LI><a href="#menu5dl" title="DIO Setting"><span>DIO Setting</span></a></LI>
-<LI><a href="#menu6dl" title="ping_DO Setting"><span>ping_DO Setting</span></a></LI>
-<LI><a href="#menu7dl" title="ping_mail Setting"><span>ping_mail Setting</span></a></LI>
-<LI><a href="#menu8dl" title="ping_tel Setting"><span>ping_tel Setting</span></a></LI>
+<LI><a href="#menu4dl" title="Sound Settings"><span>Sound Settings</span></a></LI>
+<LI><a href="#menu5dl" title="DIO Settings"><span>DIO Settings</span></a></LI>
+<LI><a href="#menu6dl" title="ping_DO Settings"><span>ping_DO Settings</span></a></LI>
+<LI><a href="#menu7dl" title="ping_mail Settings"><span>ping_mail Settings</span></a></LI>
+<LI><a href="#menu8dl" title="ping_tel Settings"><span>ping_tel Settings</span></a></LI>
 <LI><a href="#menu9dl" title="DIO Control-1"><span>DIO Control1</span></a></LI>
 <LI><a href="#menu10dl" title="DIO Control-2"><span>DIO Control2</span></a></LI>
-<LI><a href="#menu11dl" title="Mail Setting"><span>Mail Setting</span></a></LI>
+<LI><a href="#menu11dl" title="Mail Settings"><span>Mail Settings</span></a></LI>
 <LI><a href="#menu12dl" title="Auto Process"><span>Auto Process</span></a></LI>
 <LI><a href="#menu13dl" title="Server Control"><span>Server Control</span></a></LI>
 </UL>
@@ -374,7 +361,7 @@ END
 
 cat >>$PAGE1<<END
 <DL id="menu4dl">
-<DT><FONT SIZE="+1"><B>Setting Sound</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings Sound</B></FONT></DT>
 <DD>
 <FONT SIZE="3"><B>Sound Upload</B></FONT><BR>
 <FORM style="display: inline" id="menu4_form" NAME="menu4" ACTION="./sound_set.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
@@ -444,18 +431,19 @@ if [ ! -z "${TOCOS_TTY}" ];then
   case ${TOCOS_TTY} in
     ttyUSBTWE-Lite) vTOCOS_TTY="ttyUSBTWE-Lite" ;;
     none) vTOCOS_TTY="none" ;;
+    *) vTOCOS_TTY="none" ;;
   esac
-else 
+else
   vTOCOS_TTY="none" ; TOCOS_TTY="none"
 fi
 if [ -n "${DI_TTY}" ];then
   case ${DI_TTY} in
-    gpio) vTTY="gpio" ;;
-    piface) vTTY="piface" ;;
+    cp2112) vTTY="cp2112" ;;
     none) vTTY="none" ;;
+    *) vTTY="none" ;;
   esac
-else 
-   DI_TTY="gpio" ; vTTY="gpio"
+else
+   DI_TTY="cp2112" ; vTTY="cp2112"
 fi
 MODEM=$DIR/.modem
 [ -e $MODEM ] && . $MODEM || modem_dev=none
@@ -463,10 +451,10 @@ LIVE_SERVER=`hostname -I`
 LIVE_SERVER=`echo -en $LIVE_SERVER`
 cat >>$PAGE1<<END
 <DL id="menu5dl">
-<DT><FONT SIZE="+1"><B>Setting DIO & IRKit & Tocos</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings DIO & IRKit & Twelite</B></FONT></DT>
 <DD>
 <FORM NAME="menu5" id="menu5_form" ACTION="./dio_set.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
-<B>Setting digital output terminal name</B>
+<B>Settings digital output terminal name</B>
 &nbsp;&nbsp;<INPUT style="text-align:center" TYPE="reset" VALUE="Reload" onClick="update_di(onload);"/>
 <div id="disp_menu5">Server Synchronized</div>
 <span id="do_0">
@@ -549,87 +537,8 @@ Output4<INPUT TYPE="text" size="3" id="vdo_3" name="vdo_3" readonly style="width
 <OPTION VALUE="del">Delete
 </SELECT>
 <BR>
-<span id="do_4">
-Output5<INPUT TYPE="text" size="3" id="vdo_4" name="vdo_4" readonly style="width:36px;text-align:center;" VALUE="${DO[4]}">&nbsp;
-</span>
-<span id="dosel_4">
-<SELECT onChange="update_do('dosel_4')" NAME="do_4">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="1">high
-<OPTION VALUE="0">low
-</SELECT>&nbsp;
-<INPUT TYPE="text" id="don_time_4" style="width:36px;text-align:right;" VALUE="${DON_TIME[4]}" NAME="don_time_4">ms&nbsp;
-<INPUT TYPE="text" id="alias_do_4" style="width:100px;" NAME="alias_do_4" VALUE="${ALIAS_DO[4]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_8" style="width:100px;" NAME="alias_vdo_8" VALUE="${ALIAS_VDO[8]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_9" style="width:100px;" NAME="alias_vdo_9" VALUE="${ALIAS_VDO[9]}">&nbsp;
-</span>
-<SELECT NAME="alias_do_reg_4">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-<span id="do_5">
-Output6<INPUT TYPE="text" size="3" id="vdo_5" name="vdo_5" readonly style="width:36px;text-align:center;" VALUE="${DO[5]}">&nbsp;
-</span>
-<span id="dosel_5">
-<SELECT onChange="update_do('dosel_5')" NAME="do_5">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="1">high
-<OPTION VALUE="0">low
-</SELECT>&nbsp;
-<INPUT TYPE="text" id="don_time_5" style="width:36px;text-align:right;" VALUE="${DON_TIME[5]}" NAME="don_time_5">ms&nbsp;
-<INPUT TYPE="text" id="alias_do_5" style="width:100px;" NAME="alias_do_5" VALUE="${ALIAS_DO[5]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_10" style="width:100px;" NAME="alias_vdo_10" VALUE="${ALIAS_VDO[10]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_11" style="width:100px;" NAME="alias_vdo_11" VALUE="${ALIAS_VDO[11]}">&nbsp;
-</span>
-<SELECT NAME="alias_do_reg_5">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-<span id="do_6">
-Output7<INPUT TYPE="text" size="3" id="vdo_6" name="vdo_6" readonly style="width:36px;text-align:center;" VALUE="${DO[6]}">&nbsp;
-</span>
-<span id="dosel_6">
-<SELECT onChange="update_do('dosel_6')" NAME="do_6">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="1">high
-<OPTION VALUE="0">low
-</SELECT>&nbsp;
-<INPUT TYPE="text" id="don_time_6" style="width:36px;text-align:right;" VALUE="${DON_TIME[6]}" NAME="don_time_6">ms&nbsp;
-<INPUT TYPE="text" id="alias_do_6" style="width:100px;" NAME="alias_do_6" VALUE="${ALIAS_DO[6]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_12" style="width:100px;" NAME="alias_vdo_12" VALUE="${ALIAS_VDO[12]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_13" style="width:100px;" NAME="alias_vdo_13" VALUE="${ALIAS_VDO[13]}">&nbsp;
-</span>
-<SELECT NAME="alias_do_reg_6">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-<span id="do_7">
-Output8<INPUT TYPE="text" size="3" id="vdo_7" name="vdo_7" readonly style="width:36px;text-align:center;" VALUE="${DO[7]}">&nbsp;
-</span>
-<span id="dosel_7">
-<SELECT onChange="update_do('dosel_7')" NAME="do_7">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="1">high
-<OPTION VALUE="0">low
-</SELECT>&nbsp;
-<INPUT TYPE="text" id="don_time_7" style="width:36px;text-align:right;" VALUE="${DON_TIME[7]}" NAME="don_time_7">ms&nbsp;
-<INPUT TYPE="text" id="alias_do_7" style="width:100px;" NAME="alias_do_7" VALUE="${ALIAS_DO[7]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_14" style="width:100px;" NAME="alias_vdo_14" VALUE="${ALIAS_VDO[14]}">&nbsp;
-<INPUT TYPE="text" id="alias_vdo_15" style="width:100px;" NAME="alias_vdo_15" VALUE="${ALIAS_VDO[15]}">&nbsp;
-</span>
-<SELECT NAME="alias_do_reg_7">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
 <HR>
-<B>Setting IRKit</B>
+<B>Settings IRKit</B>
 <BR>
 IR1<span id="dosel_8">
 <SELECT onChange="update_do('irkitdo_0')" NAME="irkitdo_0">
@@ -763,15 +672,15 @@ IR6<span id="dosel_13">
 <OPTION VALUE="reg">reg
 </SELECT>
 <BR>
-IRKit_IP<span id="irkit_ip"></span><INPUT TYPE="text" name="irkit_ip" style="width:100px;text-align:Left;" VALUE="none">&nbsp;<input type="button" value="Search_Set" onclick="irkit_search();"/>
+IRKit_IP:<span id="irkit_ip"></span><INPUT TYPE="text" name="irkit_ip" style="width:100px;text-align:Left;" VALUE="none">&nbsp;<input type="button" value="Search_Set" onclick="irkit_search();"/>
 <HR>
-<B>Setting Twlite</B>
+<B>Settings Twlite</B>
 <SELECT NAME="TOCOS_TTY">
 <OPTION VALUE="${TOCOS_TTY}" SELECTED>${vTOCOS_TTY}
 <OPTION VALUE="none">none
 <OPTION VALUE="ttyUSBTWE-Lite">ttyUSBTWE-Lite
 </SELECT>&nbsp;&nbsp;
-tocos_ip<INPUT TYPE="text" style="width:120px;" NAME="tocos_ip" VALUE="${tocos_ip}">&nbsp;
+Twlite_ip<INPUT TYPE="text" style="width:120px;" NAME="tocos_ip" VALUE="${tocos_ip}">&nbsp;
 &nbsp;I2C_Temperature&Humidity
 <span id="i2ctemp"></span>
 <BR>
@@ -836,7 +745,7 @@ TO3<INPUT TYPE="text" size="3" id="vdo_16" name="vdo_16" readonly style="width:3
 </SELECT>
 <BR>
 <HR>
-<B>Setting USB Modem Device</B>
+<B>Settings USB Modem Device</B>
 <SELECT NAME="modem">
 <OPTION VALUE="$modem_dev" SELECTED>$modem_dev
 <OPTION VALUE="none">none
@@ -868,20 +777,16 @@ State<span id="recognition_state" >Stop</span>
 <input type="button" value="Camera_2 photo" onclick="start_photo('video1');"/>&nbsp
 <input type="button" value="Camera_3 photo" onclick="start_photo('video2');"/>&nbsp
 <BR>
-<input type="button" value="Web Camera1" onclick="start_video('video0');"/>
+<input type="button" value="Camera_1 video" onclick="start_video('video0');"/>
 <input id="live_timer0" type="text" style="width:20px;" NAME="live_timer0" VALUE="10">Sec&nbsp;
-<input type="button" value="Web Camera2" onclick="start_video('video1');"/>
+<input type="button" value="Camera_2 video" onclick="start_video('video1');"/>
 <input id="live_timer1" type="text" style="width:20px;" NAME="live_timer1" VALUE="10">Sec&nbsp;
-<input type="button" value="Web Camera3" onclick="start_video('video1');"/>
+<input type="button" value="Camera_3 video" onclick="start_video('video2');"/>
 <input id="live_timer2" type="text" style="width:20px;" NAME="live_timer2" VALUE="10">Sec&nbsp
-<input type="button" value="Module Camera" onclick="start_video('vchiq');"/>
-<input id="live_timer3" type="text" style="width:20px;" NAME="live_timer3" VALUE="10">Sec&nbsp;
 <BR>
-<input type="button" value="Streaming start" onclick="streaming_start_stop('vchiq','start');"/>
-<input type="button" value="Streaming stop" onclick="streaming_start_stop('vchiq','stop');"/>
 Server<input type="text" style="width:100px;" id="live_server" NAME="Server" VALUE="${LIVE_SERVER}">
 <HR>
-<B>Setting digital input terminal name</B>
+<B>Settings digital input terminal name</B>
 &nbsp;&nbsp;<INPUT style="text-align:center" TYPE="reset" VALUE="Reload" onClick="update_di(onload);"/>
 <BR>
 <span id="di_0">
@@ -925,47 +830,8 @@ Input4<INPUT TYPE="text"  size="1" readonly style="width:36px;text-align:center;
 <OPTION VALUE="del">Delete
 </SELECT>
 <BR>
-<span id="di_4">
-Input5<INPUT TYPE="text" size="1" readonly style="width:36px;text-align:center;" VALUE="${DI[4]}">&nbsp;
-</span>
-<INPUT TYPE="text" style="width:120px;" NAME="alias_di_4" VALUE="${ALIAS_DI[4]}">&nbsp;
-<SELECT NAME="alias_di_reg_4">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-<span id="di_5">
-Input6<INPUT TYPE="text" size="1" readonly style="width:36px;text-align:center;" VALUE="${DI[5]}">&nbsp;
-</span>
-<INPUT TYPE="text" style="width:120px;" NAME="alias_di_5" VALUE="${ALIAS_DI[5]}">&nbsp;
-<SELECT NAME="alias_di_reg_5">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-<span id="di_6">
-Input7<INPUT TYPE="text" size="1" readonly style="width:36px;text-align:center;" VALUE="${DI[6]}">&nbsp;
-</span>
-<INPUT TYPE="text" style="width:120px;" NAME="alias_di_6" VALUE="${ALIAS_DI[6]}">&nbsp;
-<SELECT NAME="alias_di_reg_6">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-<span id="di_7">
-Input8<INPUT TYPE="text" size="1" readonly style="width:36px;text-align:center;" VALUE="${DI[7]}">&nbsp;
-</span>
-<INPUT TYPE="text" style="width:120px;" NAME="alias_di_7" VALUE="${ALIAS_DI[7]}">&nbsp;
-<SELECT NAME="alias_di_reg_7">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
 <HR>
-<B>Setting Twlite DI & AI</B>
+<B>Settings Twlite DI & AI</B>
 <BR>
 <span id="di_8">
 TI1<INPUT TYPE="text" size="1" readonly style="width:36px;text-align:center;" VALUE="${DI[8]}">&nbsp;
@@ -1173,11 +1039,10 @@ Slice<INPUT TYPE="text" style="width:24px;" NAME="slice_ai_23" VALUE="${SLICE_AI
 <HR>
 Interface<SELECT NAME="DI_TTY">
 <OPTION VALUE="${DI_TTY}" SELECTED>${vTTY}
-<OPTION VALUE="gpio">gpio
-<OPTION VALUE="piface">piface
+<OPTION VALUE="cp2112">cp2112
 <OPTION VALUE="none">none
 </SELECT>&nbsp;&nbsp;
-piface_ip<INPUT TYPE="text" style="width:120px;" NAME="piface_ip" VALUE="${piface_ip}">
+remote_ip<INPUT TYPE="text" style="width:120px;" NAME="piface_ip" VALUE="${piface_ip}">
 <BR>
 <INPUT style="text-align:center" TYPE="button" id="menu5_jikkou" VALUE="Run" onClick="return menu5_ck();"/>
 <INPUT style="text-align:center" TYPE="reset" VALUE="Clear">
@@ -1188,10 +1053,10 @@ END
 
 cat >>$PAGE1<<END
 <DL id="menu6dl">
-<DT><FONT SIZE="+1"><B>Setting ping monitoring and digital output action</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings ping monitoring and digital output action</B></FONT></DT>
 <DD>
 <FORM NAME="menu6" id="menu6_form" ACTION="./ping_watch_don.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
-<FONT SIZE="3"><B>Setting IP address and the digital Output for monitoring</B></FONT><BR>
+<FONT SIZE="3"><B>Settings IP address and the digital Output for monitoring</B></FONT><BR>
 IP1<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_0">&nbsp;
 &nbsp;DO<SELECT NAME="ping_don_0">
 <OPTION VALUE="none" SELECTED>none
@@ -1203,14 +1068,6 @@ IP1<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_0">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_0">ms&nbsp;
 &nbsp;<SELECT NAME="reg_0">
@@ -1228,14 +1085,7 @@ IP2<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_1">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
+
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_1">ms&nbsp;
 &nbsp;<SELECT NAME="reg_1">
@@ -1253,14 +1103,7 @@ IP3<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_2">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
+
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_2">ms&nbsp;
 &nbsp;<SELECT NAME="reg_2">
@@ -1278,14 +1121,7 @@ IP4<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_3">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
+
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_3">ms&nbsp;
 &nbsp;<SELECT NAME="reg_3">
@@ -1339,10 +1175,10 @@ END
 
 cat >>$PAGE1<<END
 <DL id="menu7dl">
-<DT><FONT SIZE="+1"><B>Setting ping monitoring and e-mail</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings ping monitoring and e-mail</B></FONT></DT>
 <DD>
 <FORM NAME="menu7" id="menu7_form" ACTION="./ping_watch_mail.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
-<FONT SIZE="3"><B>Setting IP address and FAIL at which monitoring</B></FONT><BR>
+<FONT SIZE="3"><B>Settings IP address and FAIL at which monitoring</B></FONT><BR>
 IP1<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_0">&nbsp;
 Email1<INPUT TYPE="text" NAME="mail_0">
 &nbsp;<SELECT NAME="reg_0">
@@ -1415,10 +1251,10 @@ END
 
 cat >>$PAGE1<<END
 <DL id="menu8dl">
-<DT><FONT SIZE="+1"><B>Setting ping monitoring and phone number</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings ping monitoring and phone number</B></FONT></DT>
 <DD>
 <FORM NAME="menu8" id="menu8_form" ACTION="./ping_watch_phone.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
-<FONT SIZE="3"><B>Setting IP address and at which monitoring</B></FONT><BR>
+<FONT SIZE="3"><B>Settings IP address and at which monitoring</B></FONT><BR>
 IP1<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_0">&nbsp;
 Phone1<INPUT TYPE="text" size="22" style="width:110px;" NAME="tel_0">
 &nbsp;<SELECT NAME="reg_0">
@@ -1519,22 +1355,6 @@ while [ $n -lt 22 ];do
       vdi_act[$n]="${ALIAS_DO[3]}high" ;;
     "DOFF_3")
       vdi_act[$n]="${ALIAS_DO[3]}low" ;;
-    "DON_4")
-      vdi_act[$n]="${ALIAS_DO[4]}high" ;;
-    "DOFF_4")
-      vdi_act[$n]="${ALIAS_DO[4]}low" ;;
-    "DON_5")
-      vdi_act[$n]="${ALIAS_DO[5]}high" ;;
-    "DOFF_5")
-      vdi_act[$n]="${ALIAS_DO[5]}low" ;;
-    "DON_6")
-      vdi_act[$n]="${ALIAS_DO[6]}high" ;;
-    "DOFF_6")
-      vdi_act[$n]="${ALIAS_DO[6]}low" ;;
-    "DON_7")
-      vdi_act[$n]="${ALIAS_DO[7]}high" ;;
-    "DOFF_7")
-      vdi_act[$n]="${ALIAS_DO[7]}low" ;;
     "IREXEC_0")
       vdi_act[$n]="${ALIAS_DO[8]}" ;;
     "IREXEC_1")
@@ -1565,6 +1385,8 @@ while [ $n -lt 22 ];do
       vdi_act[$n]="Email" ;;
     "mail_message")
       vdi_act[$n]="Email_messageage" ;;
+    "web_camera_still")
+      vdi_act[$n]="Web_camera Still" ;;
     "web_camera_video")
       vdi_act[$n]="Web_camera Video" ;;
     "mod_camera_still")
@@ -1602,7 +1424,7 @@ cat >>$PAGE1<<END
 <DT><FONT SIZE="+1"><B>Management DI(Digital Input)-1</B></FONT></DT>
 <DD>
 <FORM NAME="menu9" id="menu9_form" ACTION="./di_contorl_pi1.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
-<FONT SIZE="3"><B>Setting first action to the digital input</B></FONT>
+<FONT SIZE="3"><B>Settings first action to the digital input</B></FONT>
 <BR>
 <INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[0]}">
 <span id="menu90di_0">
@@ -1620,14 +1442,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -1643,6 +1457,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -1695,14 +1510,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -1718,6 +1525,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -1770,14 +1578,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -1793,6 +1593,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -1845,14 +1646,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -1868,6 +1661,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -1904,306 +1698,6 @@ Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[3
 </span>
 <HR>
 
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[4]}">
-<span id="menu90di_4">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[4]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_4" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_4">
-<OPTION VALUE="${di_act[4]}" SELECTED>${vdi_act[4]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_4">
-<OPTION VALUE="${DI_ACT_ALT[4]}" SELECTED>${DI_ACT_ALT[4]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[4]}" NAME="don_time_4">ms&nbsp;
-<SELECT NAME="di_change_reg_4">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio4high">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[4]}" NAME="di_tel_4">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[4]}" NAME="di_mail_4">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[4]}" NAME="di_mail_message_4">
-&nbsp;
-<span id="menu90ct_4">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[5]}">
-<span id="menu90di_5">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[5]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_5" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_5">
-<OPTION VALUE="${di_act[5]}" SELECTED>${vdi_act[5]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_5">
-<OPTION VALUE="${DI_ACT_ALT[5]}" SELECTED>${DI_ACT_ALT[5]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[5]}" NAME="don_time_5">ms&nbsp;
-<SELECT NAME="di_change_reg_5">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio5high">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[5]}" NAME="di_tel_5">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[5]}" NAME="di_mail_5">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[5]}" NAME="di_mail_message_5">
-&nbsp;
-<span id="menu90ct_5">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[6]}">
-<span id="menu90di_6">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[6]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_6" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_6">
-<OPTION VALUE="${di_act[6]}" SELECTED>${vdi_act[6]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_6">
-<OPTION VALUE="${DI_ACT_ALT[6]}" SELECTED>${DI_ACT_ALT[6]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[6]}" NAME="don_time_6">ms&nbsp;
-<SELECT NAME="di_change_reg_6">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio6high">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[6]}" NAME="di_tel_6">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[6]}" NAME="di_mail_6">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[6]}" NAME="di_mail_message_6">
-&nbsp;
-<span id="menu90ct_6">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[7]}">
-<span id="menu90di_7">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[7]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_7" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_7">
-<OPTION VALUE="${di_act[7]}" SELECTED>${vdi_act[7]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_7">
-<OPTION VALUE="${DI_ACT_ALT[7]}" SELECTED>${DI_ACT_ALT[7]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[7]}" NAME="don_time_7">ms&nbsp;
-<SELECT NAME="di_change_reg_7">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio7high">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[7]}" NAME="di_tel_7">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[7]}" NAME="di_mail_7">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[7]}" NAME="di_mail_message_7">
-&nbsp;
-<span id="menu90ct_7">
-</span>
-<HR>
-
 <INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[8]}">
 <span id="menu90di_8">
 <INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[8]}">&nbsp;
@@ -2220,14 +1714,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -2243,6 +1729,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -2295,14 +1782,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -2318,6 +1797,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -2370,14 +1850,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -2393,6 +1865,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -2445,14 +1918,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -2468,6 +1933,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -2520,14 +1986,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -2543,6 +2001,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -2595,14 +2054,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -2618,6 +2069,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -2670,14 +2122,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -2693,6 +2137,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -2729,306 +2174,6 @@ Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[1
 </span>
 <HR>
 
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[4]}">
-<span id="menu91di_4">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[4]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_15" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_15">
-<OPTION VALUE="${di_act[15]}" SELECTED>${vdi_act[15]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_15">
-<OPTION VALUE="${DI_ACT_ALT[15]}" SELECTED>${DI_ACT_ALT[15]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[15]}" NAME="don_time_15">ms&nbsp;
-<SELECT NAME="di_change_reg_15">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio4low">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[15]}" NAME="di_tel_15">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[15]}" NAME="di_mail_15">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[15]}" NAME="di_mail_message_15">
-&nbsp;
-<span id="menu91ct_4">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[5]}">
-<span id="menu91di_5">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[5]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_16" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_16">
-<OPTION VALUE="${di_act[16]}" SELECTED>${vdi_act[16]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_16">
-<OPTION VALUE="${DI_ACT_ALT[16]}" SELECTED>${DI_ACT_ALT[16]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[16]}" NAME="don_time_16">ms&nbsp;
-<SELECT NAME="di_change_reg_16">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio5low">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[16]}" NAME="di_tel_16">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[16]}" NAME="di_mail_16">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[16]}" NAME="di_mail_message_16">
-&nbsp;
-<span id="menu91ct_5">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[6]}">
-<span id="menu91di_6">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[6]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_17" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_17">
-<OPTION VALUE="${di_act[17]}" SELECTED>${vdi_act[17]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_17">
-<OPTION VALUE="${DI_ACT_ALT[17]}" SELECTED>${DI_ACT_ALT[17]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[17]}" NAME="don_time_17">ms&nbsp;
-<SELECT NAME="di_change_reg_17">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio6low">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[17]}" NAME="di_tel_17">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[17]}" NAME="di_mail_17">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[17]}" NAME="di_mail_message_17">
-&nbsp;
-<span id="menu91ct_6">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[7]}">
-<span id="menu91di_7">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[7]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_18" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_18">
-<OPTION VALUE="${di_act[18]}" SELECTED>${vdi_act[18]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_18">
-<OPTION VALUE="${DI_ACT_ALT[18]}" SELECTED>${DI_ACT_ALT[18]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[18]}" NAME="don_time_18">ms&nbsp;
-<SELECT NAME="di_change_reg_18">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-<OPTION VALUE="clr">reset
-</SELECT>
-<span id="dio7low">
-</span>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[18]}" NAME="di_tel_18">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[18]}" NAME="di_mail_18">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[18]}" NAME="di_mail_message_18">
-&nbsp;
-<span id="menu91ct_7">
-</span>
-<HR>
-
 <INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[8]}">
 <span id="menu91di_8">
 <INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[8]}">&nbsp;
@@ -3045,14 +2190,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -3068,6 +2205,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -3120,14 +2258,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -3143,6 +2273,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -3195,14 +2326,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -3218,6 +2341,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -3267,7 +2391,7 @@ while [ $n -lt 22 ];do
   unset di_act[$n]
   unset don_time[$n]
   unset di_mail[$n]
-  unset di_mail_message[$n]  
+  unset di_mail_message[$n]
   unset di_tel[$n]
   unset vdi_change[$n]
   unset vdi_act[$n]
@@ -3306,22 +2430,6 @@ while [ $n -lt 22 ];do
       vdi_act[$n]="${ALIAS_DO[3]}high" ;;
     "DOFF_3")
       vdi_act[$n]="${ALIAS_DO[3]}low" ;;
-    "DON_4")
-      vdi_act[$n]="${ALIAS_DO[4]}high" ;;
-    "DOFF_4")
-      vdi_act[$n]="${ALIAS_DO[4]}low" ;;
-    "DON_5")
-      vdi_act[$n]="${ALIAS_DO[5]}high" ;;
-    "DOFF_5")
-      vdi_act[$n]="${ALIAS_DO[5]}low" ;;
-    "DON_6")
-      vdi_act[$n]="${ALIAS_DO[6]}high" ;;
-    "DOFF_6")
-      vdi_act[$n]="${ALIAS_DO[6]}low" ;;
-    "DON_7")
-      vdi_act[$n]="${ALIAS_DO[7]}high" ;;
-    "DOFF_7")
-      vdi_act[$n]="${ALIAS_DO[7]}low" ;;
     "IREXEC_0")
       vdi_act[$n]="${ALIAS_DO[8]}" ;;
     "IREXEC_1")
@@ -3352,6 +2460,8 @@ while [ $n -lt 22 ];do
       vdi_act[$n]="Email" ;;
     "mail_message")
       vdi_act[$n]="Email_messageage" ;;
+    "web_camera_still")
+      vdi_act[$n]="Web_camera Still" ;;
     "web_camera_video")
       vdi_act[$n]="Web_camera Video" ;;
     "mod_camera_still")
@@ -3389,7 +2499,7 @@ cat >>$PAGE1<<END
 <DT><FONT SIZE="+1"><B>Management DI(Digital Input)-2</B></FONT></DT>
 <DD>
 <FORM NAME="menu10" id="menu10_form" ACTION="./di_contorl_pi2.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
-<FONT SIZE="3"><B>Setting second action to the digital input</B></FONT>
+<FONT SIZE="3"><B>Settings second action to the digital input</B></FONT>
 <BR>
 <INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[0]}">
 <span id="menu100di_0"><INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[0]}">&nbsp;
@@ -3406,14 +2516,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -3429,6 +2531,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -3478,14 +2581,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -3501,6 +2596,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -3550,14 +2646,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -3573,6 +2661,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -3622,14 +2711,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -3645,6 +2726,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -3677,295 +2759,6 @@ Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[3
 <span id="menu100ct_3">
 </span>
 <HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[4]}">
-<span id="menu100di_4">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[4]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_4" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_4">
-<OPTION VALUE="${di_act[4]}" SELECTED>${vdi_act[4]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_4">
-<OPTION VALUE="${DI_ACT_ALT[4]}" SELECTED>${DI_ACT_ALT[4]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[4]}" NAME="don_time_4">ms&nbsp;
-<SELECT NAME="di_change_reg_4">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[4]}" NAME="di_tel_4">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[4]}" NAME="di_mail_4">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[4]}" NAME="di_mail_message_4">
-&nbsp;
-<span id="menu100ct_4">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[5]}">
-<span id="menu100di_5">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[5]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_5" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_5">
-<OPTION VALUE="${di_act[5]}" SELECTED>${vdi_act[5]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_5">
-<OPTION VALUE="${DI_ACT_ALT[5]}" SELECTED>${DI_ACT_ALT[5]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[5]}" NAME="don_time_5">ms&nbsp;
-<SELECT NAME="di_change_reg_5">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[5]}" NAME="di_tel_5">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[5]}" NAME="di_mail_5">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[5]}" NAME="di_mail_message_5">
-&nbsp;
-<span id="menu100ct_5">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[6]}">
-<span id="menu100di_6">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[6]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_6" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_6">
-<OPTION VALUE="${di_act[6]}" SELECTED>${vdi_act[6]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_6">
-<OPTION VALUE="${DI_ACT_ALT[6]}" SELECTED>${DI_ACT_ALT[6]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[6]}" NAME="don_time_6">ms&nbsp;
-<SELECT NAME="di_change_reg_6">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[6]}" NAME="di_tel_6">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[6]}" NAME="di_mail_6">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[6]}" NAME="di_mail_message_6">
-&nbsp;
-<span id="menu100ct_6">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[7]}">
-<span id="menu100di_7">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[7]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_7" VALUE="low2high">
-Action:low→high
-<SELECT NAME="di_act_7">
-<OPTION VALUE="${di_act[7]}" SELECTED>${vdi_act[7]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_7">
-<OPTION VALUE="${DI_ACT_ALT[7]}" SELECTED>${DI_ACT_ALT[7]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[7]}" NAME="don_time_7">ms&nbsp;
-<SELECT NAME="di_change_reg_7">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[7]}" NAME="di_tel_7">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[7]}" NAME="di_mail_7">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[7]}" NAME="di_mail_message_7">
-&nbsp;
-<span id="menu100ct_7">
-</span>
-<HR>
-
 <INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[8]}">
 <span id="menu100di_8">
 <INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[8]}">&nbsp;
@@ -3982,14 +2775,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4005,6 +2790,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4054,14 +2840,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4077,6 +2855,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4126,14 +2905,6 @@ Action:low→high
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4149,6 +2920,7 @@ Action:low→high
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4198,14 +2970,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4221,6 +2985,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4270,14 +3035,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4293,6 +3050,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4342,14 +3100,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4365,6 +3115,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4414,14 +3165,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4437,6 +3180,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4469,295 +3213,6 @@ Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[1
 <span id="menu101ct_3">
 </span>
 <HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[4]}">
-<span id="menu101di_4">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[15]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_15" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_15">
-<OPTION VALUE="${di_act[15]}" SELECTED>${vdi_act[15]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_15">
-<OPTION VALUE="${DI_ACT_ALT[15]}" SELECTED>${DI_ACT_ALT[15]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[15]}" NAME="don_time_15">ms&nbsp;
-<SELECT NAME="di_change_reg_15">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[15]}" NAME="di_tel_15">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[15]}" NAME="di_mail_15">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[15]}" NAME="di_mail_message_15">
-&nbsp;
-<span id="menu101ct_4">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[5]}">
-<span id="menu101di_5">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[16]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_16" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_16">
-<OPTION VALUE="${di_act[16]}" SELECTED>${vdi_act[16]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_16">
-<OPTION VALUE="${DI_ACT_ALT[16]}" SELECTED>${DI_ACT_ALT[16]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[16]}" NAME="don_time_16">ms&nbsp;
-<SELECT NAME="di_change_reg_16">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[16]}" NAME="di_tel_16">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[16]}" NAME="di_mail_16">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[16]}" NAME="di_mail_message_16">
-&nbsp;
-<span id="menu101ct_5">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[6]}">
-<span id="menu101di_6">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[6]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_17" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_17">
-<OPTION VALUE="${di_act[17]}" SELECTED>${vdi_act[17]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_17">
-<OPTION VALUE="${DI_ACT_ALT[17]}" SELECTED>${DI_ACT_ALT[17]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[17]}" NAME="don_time_17">ms&nbsp;
-<SELECT NAME="di_change_reg_17">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[17]}" NAME="di_tel_17">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[17]}" NAME="di_mail_17">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[17]}" NAME="di_mail_message_17">
-&nbsp;
-<span id="menu101ct_6">
-</span>
-<HR>
-
-<INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[7]}">
-<span id="menu101di_7">
-<INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[7]}">&nbsp;
-</span>
-<INPUT TYPE="hidden" NAME="di_change_18" VALUE="high2low">
-Action:high→low
-<SELECT NAME="di_act_18">
-<OPTION VALUE="${di_act[18]}" SELECTED>${vdi_act[18]}
-<OPTION VALUE="DON_0">${ALIAS_DO[0]}high
-<OPTION VALUE="DOFF_0">${ALIAS_DO[0]}low
-<OPTION VALUE="DON_1">${ALIAS_DO[1]}high
-<OPTION VALUE="DOFF_1">${ALIAS_DO[1]}low
-<OPTION VALUE="DON_2">${ALIAS_DO[2]}high
-<OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
-<OPTION VALUE="DON_3">${ALIAS_DO[3]}high
-<OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
-<OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
-<OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
-<OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
-<OPTION VALUE="IREXEC_3">${ALIAS_DO[11]}
-<OPTION VALUE="IREXEC_4">${ALIAS_DO[12]}
-<OPTION VALUE="IREXEC_5">${ALIAS_DO[13]}
-<OPTION VALUE="TON_0">${ALIAS_DO[14]}high
-<OPTION VALUE="TOFF_0">${ALIAS_DO[14]}low
-<OPTION VALUE="TON_1">${ALIAS_DO[15]}high
-<OPTION VALUE="TOFF_1">${ALIAS_DO[15]}low
-<OPTION VALUE="TON_2">${ALIAS_DO[16]}high
-<OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
-<OPTION VALUE="phone">Phone
-<OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
-<OPTION VALUE="SOUND_1">Sound_2
-<OPTION VALUE="SOUND_2">Sound_3
-<OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
-</SELECT>
-Alt
-<SELECT NAME="di_act_alt_18">
-<OPTION VALUE="${DI_ACT_ALT[18]}" SELECTED>${DI_ACT_ALT[18]}
-<OPTION VALUE="none">none
-<OPTION VALUE="alt">alt
-</SELECT>
-&nbsp;
-<INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${DON_TIME[18]}" NAME="don_time_18">ms&nbsp;
-<SELECT NAME="di_change_reg_18">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="reg">Entry
-<OPTION VALUE="del">Delete
-</SELECT>
-<BR>
-Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[18]}" NAME="di_tel_18">
-&nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[18]}" NAME="di_mail_18">
-&nbsp;
-Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[18]}" NAME="di_mail_message_18">
-&nbsp;
-<span id="menu101ct_7">
-</span>
-<HR>
-
 <INPUT TYPE="text" readonly style="width:100px;" VALUE="${ALIAS_DI[8]}">
 <span id="menu101di_8">
 <INPUT TYPE="text" readonly style="width:36px;text-align:center;" VALUE="${DI[8]}">&nbsp;
@@ -4774,14 +3229,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4797,6 +3244,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4846,14 +3294,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4869,6 +3309,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4918,14 +3359,6 @@ Action:high→low
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -4941,6 +3374,7 @@ Action:high→low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 <OPTION VALUE="mod_camera_still">Mod_camera Still
 <OPTION VALUE="mod_camera_video">Mod_camera Video
@@ -4991,9 +3425,9 @@ CONF="$DIR/.pepogmail4dio.conf"
 [ ! -z "$LOOPTIME" ] && vLOOPTIME="$LOOPTIME"
 cat >>$PAGE1<<END
 <DL id="menu11dl">
-<DT><FONT SIZE="+1"><B>Setting system Email</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings system Email</B></FONT></DT>
 <DD>
-<B>Setting operation in Gmail</B>
+<B>Settings operation in Gmail</B>
 <BR>
 <FORM NAME="menu11" id="menu11_form" ACTION="gmail_set.cgi" METHOD="post" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
 Gmail User<INPUT TYPE="text" style="width:80px;text-align:right;" VALUE="$vGMAILUSER" NAME="gmailuser">@gmail.com<BR>
@@ -5027,7 +3461,7 @@ for n in 0 1 2 3 4 5 6 7 8 9;do
       3) vWGET_VAL[$n]="Wed" ;;
       4) vWGET_VAL[$n]="Thu" ;;
       5) vWGET_VAL[$n]="Fri" ;;
-      6) vWGET_VAL[$n]="Sat" ;; 
+      6) vWGET_VAL[$n]="Sat" ;;
     esac
   fi
 done
@@ -5038,9 +3472,9 @@ done
 
 cat >>$PAGE1<<END
 <DL id="menu12dl">
-<DT><FONT SIZE="3"><B>Setting automated processing</B></FONT></DT>
+<DT><FONT SIZE="3"><B>Settings automated processing</B></FONT></DT>
 <DD>
-<FONT SIZE="2"><B>Setting MP3 file from URL</B></FONT>
+<FONT SIZE="2"><B>Settings MP3 file from URL</B></FONT>
 <FORM NAME="menu12" id="menu12_form" ACTION="podcastsget.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
 URL<INPUT TYPE="text" style="width:400px;text-align:left;" VALUE="${vWGET_VAL[0]}" NAME="wget_val_0">
 http://www3.nhk.or.jp/rj/podcast/rss/english.xml
@@ -5090,7 +3524,7 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
   vAUTO_ACT_CON[$n]="Enable"
   [ ! -z "${auto_act_con[$n]}" ] && vAUTO_ACT_CON[$n]=${auto_act_con[$n]} || auto_act_con[$n]="Enable"
   case ${auto_act_con[$n]} in
-    "DI_ON_0")  vAUTO_ACT_CON[$n]=${ALIAS_DI[0]}high  ;; 
+    "DI_ON_0")  vAUTO_ACT_CON[$n]=${ALIAS_DI[0]}high  ;;
     "DI_OFF_0")  vAUTO_ACT_CON[$n]=${ALIAS_DI[0]}low  ;;
     "DI_ON_1")  vAUTO_ACT_CON[$n]=${ALIAS_DI[1]}high  ;;
     "DI_OFF_1")  vAUTO_ACT_CON[$n]=${ALIAS_DI[1]}low  ;;
@@ -5098,14 +3532,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
     "DI_OFF_2")  vAUTO_ACT_CON[$n]=${ALIAS_DI[2]}low  ;;
     "DI_ON_3")  vAUTO_ACT_CON[$n]=${ALIAS_DI[3]}high  ;;
     "DI_OFF_3")  vAUTO_ACT_CON[$n]=${ALIAS_DI[3]}low  ;;
-    "DI_ON_4")  vAUTO_ACT_CON[$n]=${ALIAS_DI[4]}high  ;;
-    "DI_OFF_4")  vAUTO_ACT_CON[$n]=${ALIAS_DI[4]}low  ;;
-    "DI_ON_5")  vAUTO_ACT_CON[$n]=${ALIAS_DI[5]}high  ;;
-    "DI_OFF_5")  vAUTO_ACT_CON[$n]=${ALIAS_DI[5]}low  ;;
-    "DI_ON_6")  vAUTO_ACT_CON[$n]=${ALIAS_DI[6]}high  ;;
-    "DI_OFF_6")  vAUTO_ACT_CON[$n]=${ALIAS_DI[6]}low  ;;
-    "DI_ON_7")  vAUTO_ACT_CON[$n]=${ALIAS_DI[7]}high  ;;
-    "DI_OFF_7")  vAUTO_ACT_CON[$n]=${ALIAS_DI[7]}low  ;;
     "DI_ON_8")  vAUTO_ACT_CON[$n]=${ALIAS_DI[8]}high  ;;
     "DI_OFF_8")  vAUTO_ACT_CON[$n]=${ALIAS_DI[8]}low  ;;
     "DI_ON_9")  vAUTO_ACT_CON[$n]=${ALIAS_DI[9]}high  ;;
@@ -5136,7 +3562,7 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
     "DI_OFF_22")  vAUTO_ACT_CON[$n]=${ALIAS_DI[22]}low  ;;
     "DI_ON_23")  vAUTO_ACT_CON[$n]=${ALIAS_DI[23]}high  ;;
     "DI_OFF_23")  vAUTO_ACT_CON[$n]=${ALIAS_DI[23]}low  ;;
-  esac  
+  esac
   case $n in
     0)
       for m in 0 1 2 3 4 5 6 7 8 9;do
@@ -5160,46 +3586,30 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[7]}low ;;
-        IREXEC_0)  
+        IREXEC_0)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[8]}low ;;
-        IREXEC_0)  
+        IREXEC_0)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[8]}low ;;
-        IREXEC_1)  
+        IREXEC_1)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[9]}low ;;
-        IREXEC_2)  
+        IREXEC_2)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[10]}low ;;
-        IREXEC_3)  
+        IREXEC_3)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[11]}low ;;
-        IREXEC_4)  
+        IREXEC_4)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[12]}low ;;
-        IREXEC_5)  
+        IREXEC_5)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[13]}low ;;
         TON_0)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT0_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT0_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT0_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT0_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT0_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5250,46 +3660,30 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[7]}low ;;
-        IREXEC_0)  
+        IREXEC_0)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[8]}low ;;
-        IREXEC_0)  
+        IREXEC_0)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[8]}low ;;
-        IREXEC_1)  
+        IREXEC_1)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[9]}low ;;
-        IREXEC_2)  
+        IREXEC_2)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[10]}low ;;
-        IREXEC_3)  
+        IREXEC_3)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[11]}low ;;
-        IREXEC_4)  
+        IREXEC_4)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[12]}low ;;
-        IREXEC_5)  
+        IREXEC_5)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[13]}low ;;
         TON_0)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT1_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT1_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT1_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT1_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT1_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5340,46 +3734,30 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[7]}low ;;
-        IREXEC_0)  
+        IREXEC_0)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[8]}low ;;
-        IREXEC_0)  
+        IREXEC_0)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[8]}low ;;
-        IREXEC_1)  
+        IREXEC_1)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[9]}low ;;
-        IREXEC_2)  
+        IREXEC_2)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[10]}low ;;
-        IREXEC_3)  
+        IREXEC_3)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[11]}low ;;
-        IREXEC_4)  
+        IREXEC_4)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[12]}low ;;
-        IREXEC_5)  
+        IREXEC_5)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[13]}low ;;
         TON_0)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT2_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT2_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT2_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT2_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT2_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5430,22 +3808,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT3_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT3_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT3_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -5459,15 +3821,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT3_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT3_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT3_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT3_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT3_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT3_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT3_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT3_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5518,22 +3880,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT4_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT4_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT4_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -5547,15 +3893,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT4_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT4_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT4_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT4_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT4_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT4_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT4_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT4_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5606,22 +3952,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT5_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT5_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT5_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -5635,15 +3965,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT5_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT5_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT5_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT5_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT5_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT5_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT5_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT5_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5694,22 +4024,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT6_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT6_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT6_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -5723,15 +4037,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT6_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT6_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT6_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT6_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT6_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT6_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT6_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT6_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5782,22 +4096,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT7_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT7_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT7_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -5811,15 +4109,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT7_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT7_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT7_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT7_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT7_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT7_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT7_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT7_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5870,22 +4168,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT8_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT8_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT8_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -5899,15 +4181,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT8_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT8_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT8_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT8_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT8_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT8_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT8_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT8_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -5958,22 +4240,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT9_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT9_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT9_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -5987,15 +4253,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT9_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT9_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT9_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT9_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT9_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT9_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT9_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT9_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6046,22 +4312,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT10_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT10_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT10_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6075,15 +4325,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT10_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT10_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT10_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT10_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT10_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT10_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT10_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT10_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6134,22 +4384,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT11_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT11_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT11_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6163,15 +4397,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT11_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT11_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT11_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT11_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT11_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT11_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT11_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT11_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6222,22 +4456,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT12_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT12_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT12_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6251,15 +4469,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT12_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT12_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT12_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT12_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT12_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT12_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT12_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT12_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6310,22 +4528,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT13_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT13_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT13_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6339,15 +4541,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT13_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT13_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT13_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT13_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT13_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT13_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT13_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT13_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6398,22 +4600,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT14_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT14_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT14_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6427,15 +4613,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT14_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT14_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT14_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT14_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT14_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT14_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT14_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT14_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6486,22 +4672,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT15_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT15_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT15_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6515,15 +4685,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT15_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT15_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT15_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT15_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT15_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT15_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT15_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT15_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6574,22 +4744,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT16_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT16_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT16_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6603,15 +4757,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT16_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT16_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT16_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT16_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT16_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT16_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT16_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT16_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6662,22 +4816,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT17_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT17_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT17_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6691,15 +4829,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT17_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT17_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT17_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT17_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT17_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT17_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT17_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT17_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6750,22 +4888,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT18_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT18_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT18_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6779,15 +4901,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT18_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT18_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT18_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT18_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT18_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT18_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT18_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT18_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6838,22 +4960,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT19_VAL[0]=${ALIAS_DO[3]}high ;;
         DOFF_3)
           vAUTO_ACT19_VAL[0]=${ALIAS_DO[3]}low ;;
-        DON_4)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[4]}high ;;
-        DOFF_4)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[4]}low ;;
-        DON_5)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[5]}high ;;
-        DOFF_5)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[5]}low ;;
-        DON_6)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[6]}high ;;
-        DOFF_6)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[6]}low ;;
-        DON_7)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[7]}high ;;
-        DOFF_7)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[7]}low ;;
         IREXEC_0)
           vAUTO_ACT19_VAL[0]="${ALIAS_DO[8]}" ;;
         IREXEC_1)
@@ -6867,15 +4973,15 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
         IREXEC_5)
           vAUTO_ACT19_VAL[0]="${ALIAS_DO[13]}" ;;
         TON_0)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[14]}high ;; 
+          vAUTO_ACT19_VAL[0]=${ALIAS_DO[14]}high ;;
         TOFF_0)
           vAUTO_ACT19_VAL[0]=${ALIAS_DO[14]}low ;;
         TON_1)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[15]}high ;; 
+          vAUTO_ACT19_VAL[0]=${ALIAS_DO[15]}high ;;
         TOFF_1)
           vAUTO_ACT19_VAL[0]=${ALIAS_DO[15]}low ;;
         TON_2)
-          vAUTO_ACT19_VAL[0]=${ALIAS_DO[16]}high ;; 
+          vAUTO_ACT19_VAL[0]=${ALIAS_DO[16]}high ;;
         TOFF_2)
           vAUTO_ACT19_VAL[0]=${ALIAS_DO[16]}low ;;
         SOUND_0)
@@ -6905,10 +5011,10 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
       esac
     esac
 done
- 
+
 cat >>$PAGE1<<END
 <FORM NAME="menu12sub" id="menu12sub_form" ACTION="auto_porc_pi.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
-<FONT SIZE="2"><B>Setting digital Output</B></FONT>
+<FONT SIZE="2"><B>Settings digital Output</B></FONT>
 <BR>
 1&nbsp;
 <SELECT NAME="auto_act_con_0">
@@ -6923,14 +5029,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -6972,14 +5070,7 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
+
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7052,14 +5143,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -7101,14 +5184,7 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
+
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7181,14 +5257,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -7230,14 +5298,7 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
+
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7312,14 +5373,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -7361,14 +5414,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7441,14 +5486,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -7490,14 +5527,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7570,14 +5599,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -7619,14 +5640,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7699,14 +5712,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -7748,14 +5753,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7828,14 +5825,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -7877,14 +5866,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -7957,14 +5938,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8006,14 +5979,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8086,14 +6051,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8135,14 +6092,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8215,14 +6164,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8264,14 +6205,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8344,14 +6277,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8393,14 +6318,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8473,14 +6390,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8522,14 +6431,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8602,14 +6503,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8651,14 +6544,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8731,14 +6616,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8780,14 +6657,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8860,14 +6729,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -8909,14 +6770,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -8989,14 +6842,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -9038,14 +6883,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -9118,14 +6955,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -9167,14 +6996,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -9247,14 +7068,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -9296,14 +7109,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -9376,14 +7181,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DI_OFF_2">${ALIAS_DI[2]}low
 <OPTION VALUE="DI_ON_3">${ALIAS_DI[3]}high
 <OPTION VALUE="DI_OFF_3">${ALIAS_DI[3]}low
-<OPTION VALUE="DI_ON_4">${ALIAS_DI[4]}high
-<OPTION VALUE="DI_OFF_4">${ALIAS_DI[4]}low
-<OPTION VALUE="DI_ON_5">${ALIAS_DI[5]}high
-<OPTION VALUE="DI_OFF_5">${ALIAS_DI[5]}low
-<OPTION VALUE="DI_ON_6">${ALIAS_DI[6]}high
-<OPTION VALUE="DI_OFF_6">${ALIAS_DI[6]}low
-<OPTION VALUE="DI_ON_7">${ALIAS_DI[7]}high
-<OPTION VALUE="DI_OFF_7">${ALIAS_DI[7]}low
 <OPTION VALUE="DI_ON_8">${ALIAS_DI[8]}high
 <OPTION VALUE="DI_OFF_8">${ALIAS_DI[8]}low
 <OPTION VALUE="DI_ON_9">${ALIAS_DI[9]}high
@@ -9425,14 +7222,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-<OPTION VALUE="DON_4">${ALIAS_DO[4]}high
-<OPTION VALUE="DOFF_4">${ALIAS_DO[4]}low
-<OPTION VALUE="DON_5">${ALIAS_DO[5]}high
-<OPTION VALUE="DOFF_5">${ALIAS_DO[5]}low
-<OPTION VALUE="DON_6">${ALIAS_DO[6]}high
-<OPTION VALUE="DOFF_6">${ALIAS_DO[6]}low
-<OPTION VALUE="DON_7">${ALIAS_DO[7]}high
-<OPTION VALUE="DOFF_7">${ALIAS_DO[7]}low
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -9501,7 +7290,7 @@ END
 
 tSTARTUP=$DIR/.startup.s.tmp
 [ -e $tSTARTUP ] && . $tSTARTUP
-[ ! -z $vWEBPASSWORD ] && vWEBPASSWORD="*" 
+[ ! -z $vWEBPASSWORD ] && vWEBPASSWORD="*"
 cat >>$PAGE1<<END
 <DL id="menu13dl">
 <DT><FONT SIZE="+1"><B>Server configuration and save</B></FONT></DT>
@@ -9540,10 +7329,11 @@ web password
 <INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./wait_for.cgi'">&nbsp;
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <TABLE ALIGN=RIGHT>
-<TR><TD><FONT SIZE="-1">&copy;2020-2022 pepolinux.com&nbsp;
+<TR><TD><FONT SIZE="-1">&copy;2021-2023 pepolinux.com&nbsp;
 <span id="server_time" style="text-align:left"></span>&nbsp;
 </TR>
 </TABLE>
+</DIV>
 </DIV>
 </BODY>
 </HTML>
@@ -9552,7 +7342,7 @@ mv ${PAGE1} ${PAGE2}
 echo -en '
 var jump_url = setTimeout("jump_href()", 1000);
 function jump_href() {
-  var  jump_location = "/remote-hand/pi_int.html?" + (new Date().getTime());
+  var  jump_location = "/remote-hand/pi_int_cp2112.html?" + (new Date().getTime());
   location.href=jump_location;
   clearTimeout(jump_url);
 }

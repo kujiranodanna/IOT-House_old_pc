@@ -1,5 +1,7 @@
 /* epicon.c epicon command interface program
-epicon is Copyright Isamu.Yamauchi 2002-2011.
+epicon is Copyright Isamu.Yamauchi 2002-2021.
+o 2021.2.24 gcc version 7.5.0 Warning clean up.
+  Mr. Sasano's suggestion specified character length, parity, stop bit, and transmission break.
 o 2011.9.27 On quiet mode, delete 'Disconnected message'.
 o 2010.11.17 warning: ignoring return value of ‘write’, declared with attribute warn_unused_result. clean up.
 o 2009.10.31 rename main.c -> epicon.c, add -q option quiet mode, clean up.
@@ -38,20 +40,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "epicon.h"
 
-extern void set_com_port_mode();    /* set & save com_port characteristics   */
-extern void initialize_com_port();  /* reset saved  com_port characteristics */
-extern redirect_flag;               /* redirect flag */
-extern *mem_buff;                   /* external memory buffer */
-extern void set_console_mode();
-extern void com_port_unuse();
-extern com_port_use_check();
-char esc[2] = { ESC, '\0' };
+extern long int *mem_buff;          /* external memory buffer */
+char esc[2] = { ESC, '\0' };        /* escape charctor */
+extern pid_t ck_pid;                /* check to process id */
 char *LOG_file = '\0';              /* console log file */
 char *SF_file = '\0';               /* send character file name with delay */
 char *CM_file = '\0';               /* external command file */
 char *SB_file = '\0';               /* send binary file name */
 char *argv_redirect;                /* redirect file */
-char *epicon_socket_port;           /* default local epicon_socket_port */
 char Epicon_Socket[128];            /* external AF_Socket */
 char *ip_addr;                      /* ip net connect addres */
 char *ip_port;                      /* ip net connect port */
@@ -60,28 +56,39 @@ char *client_ip_port = "23";        /* default client port */
 char com_port[64];                  /* tty_dev name */
 int com_port_fd;                    /* com_port file descriptor */
 int console_fd;                     /* console file descriptor */
-int FP1,FP2;                        /* use to close file descriptor */
 int net_flag = 0;                   /* ip net connect flag */
 int server_ip_flag = 0;             /* ip server flag */
 int Twostop = 0;                    /* 2 stop bit */
+int Datalen = CS8;                  /* data bit length */
+int Parity = 0;                     /* parity setting */
 int Bin_flag = 0;                   /* binary mode flag cannot escape */
 int Echo_flag = 0;                  /* input echo flag mode */
-int ip_socket_bufsize = 1024*1024;  /* ip socket buffer size */
 int AZ_flag = 1;                    /* auto call rz flag default auto */
 int SB_flag = 0;                    /* send binary file flag */
 int SF_flag = 0;                    /* send character file flag with delay*/
 int CM_flag = 0;                    /* external command option flag */
 int LOG_flag = 0;                   /* console log flag */
-pid_t ck_pid = 0;                   /* check to process id */
-static int console_save_flag =0;    /* com_port save flag */
 unsigned int Char_delay = 0;        /* external send charcacter delay value */
 unsigned int CR_delay = 0;          /* external send CR delay value */
 int CON_flag = 0;                   /* console flag */
 int Quiet_flag = 0;                 /* quiet flag */
 FILE *LOG_fp = 0;                   /* log file descriptor */
+
+void show_version();
+int usage();
+void set_console_mode();
+void end_process();
+void set_com_port_mode();    /* set & save com_port characteristics   */
+void initialize_com_port();  /* reset saved  com_port characteristics */
+void com_port_unuse();
+int com_port_use_check();
+void set_com_port_mode();
+void epicon_main();
+
 sigtype end_process();
 sigtype dev_timeout();
-sigtype end_process() {
+sigtype end_process()
+{
   if (net_flag) {
     set_console_mode(0);
   }
@@ -96,7 +103,7 @@ sigtype end_process() {
   exit(0);
 }
 
-main(argc, argv)
+void main(argc, argv)
 int argc;
 char *argv[];
 {
@@ -106,14 +113,14 @@ char *argv[];
   done = i = speed = t_result = epicon_pid = 0;
   extern char *optarg;
   extern int optind;
-  extern int getopt(), convert_speed(), escape_code(), access();
+  extern int getopt(), convert_speed(), escape_code(), access(), convert_mode();
   epicon_pid = getpid();
   sprintf( Epicon_Socket ,"%s%ld",Epicon_Socket_init , epicon_pid);
   unlink( Epicon_Socket );
   strcpy(com_port, COMPORT);
   argv_redirect = argv[argc];
   speed = convert_speed(SPEED);
-  while((i = getopt(argc, argv,"bmMs:d:D:l:e:n:L:f:F:c:pqvz")) != EOF) {
+  while((i = getopt(argc, argv,"bmMs:d:D:l:e:n:L:f:F:c:pqvzx:")) != EOF) {
     switch(i) {
       case 'b':
         Bin_flag = 1; /* cannot escape flag set */
@@ -201,18 +208,24 @@ char *argv[];
       case 'z':
         AZ_flag = 0;
         break;
+      case 'x':
+        if(convert_mode(optarg) == EOF) {
+          fprintf(stderr,"%s: invalid mode\n", optarg);
+          exit(1);
+        }
+        break;
       default:
         usage(*argv);
         exit(3);
     }
   }
-  if( !com_port_use_check(com_port) ) {
+  if(! com_port_use_check(com_port)) {
     fprintf(stderr, "\nDevice %s is busy\n",com_port);
   if (! Bin_flag ) exit(1);
   }
 
   signal(SIGALRM, dev_timeout);
-  alarm(10); 
+  alarm(10);
   if (! net_flag) {
   #ifdef O_NDELAY
     if((com_port_fd = open(com_port, O_RDWR|O_NDELAY)) < 0)
@@ -249,6 +262,7 @@ char *argv[];
     fprintf(stderr,"\r\n** Welcome to epicon Version-%s Copyright Isamu Yamauchi %s **",VER,DAY);
     if (!Bin_flag) fprintf(stderr,"\r\n      exec shell         ~! ");
     if (!Bin_flag) fprintf(stderr,"\r\n      send binary files  ~f");
+    if (!Bin_flag) fprintf(stderr,"\r\n      send break         ~b");
     if (!Bin_flag) fprintf(stderr,"\r\n      call rz,sz,sx,rx   ~rz,~sz,~sx,~rx");
     if (!Bin_flag) fprintf(stderr,"\r\n      call kermit        ~sk,~rk");
     if (!Bin_flag) fprintf(stderr,"\r\n      external command   ~C ");
@@ -261,20 +275,37 @@ char *argv[];
   epicon_main();
 }
 
-sigtype dev_timeout() {
+sigtype dev_timeout()
+{
   perror("dev_timeout()");
   fprintf(stderr, "Cannot open port \n");
   end_process();
 }
 
 
+#if !defined(B38400) || (B38400 != 38400)
 typedef struct {
   char *spc;
   int  spi;
 } spd;
-static spd zspeed[] = {
+spd zspeed[] = {
+#ifdef B50
+  {"50",B50},
+#endif
+#ifdef B75
+  {"75",B75},
+#endif
 #ifdef B110
   {"110",B110},
+#endif
+#ifdef B134
+  {"134",B134},
+#endif
+#ifdef B150
+  {"150",B150},
+#endif
+#ifdef B200
+  {"200",B200},
 #endif
 #ifdef B300
   {"300",B300},
@@ -284,6 +315,9 @@ static spd zspeed[] = {
 #endif
 #ifdef B1200
   {"1200",B1200},
+#endif
+#ifdef B1800
+  {"1800",B1800},
 #endif
 #ifdef B2400
   {"2400",B2400},
@@ -312,6 +346,39 @@ static spd zspeed[] = {
 #ifdef B460800
   {"460800", B460800},
 #endif
+#ifdef B500000
+  {"500000", B500000},
+#endif
+#ifdef B576000
+  {"576000", B576000},
+#endif
+#ifdef B921600
+  {"921600", B921600},
+#endif
+#ifdef B1000000
+  {"1000000", B1000000},
+#endif
+#ifdef B1152000
+  {"1152000", B1152000},
+#endif
+#ifdef B1500000
+  {"1500000", B1500000},
+#endif
+#ifdef B2000000
+  {"2000000", B2000000},
+#endif
+#ifdef B2500000
+  {"2500000", B2500000},
+#endif
+#ifdef B3000000
+  {"3000000", B3000000},
+#endif
+#ifdef B3500000
+  {"3500000", B3500000},
+#endif
+#ifdef B4000000
+  {"4000000", B4000000},
+#endif
 #ifdef EXTA
   {"19200", B19200},
 #endif
@@ -321,7 +388,7 @@ static spd zspeed[] = {
   { 0, 0 }
 };
 
-convert_speed(sp)
+int convert_speed(sp)
 register char *sp;
 {
   register spd *i = &zspeed[0];
@@ -332,7 +399,46 @@ register char *sp;
     return i->spi;
   return EOF;
 }
+#else
+int convert_speed(sp)
+register char *sp;
+{
+  if(sp == NULL) return EOF;
+  if(*sp == 0) return EOF;
+  return atoi(sp);	
+}
+#endif
 
+int convert_mode(arg)
+register char *arg;
+{
+  register int i = 0;
+  char c;
+  int cs[] = {CS5, CS6, CS7, CS8};
+  int sp[] = {0, CSTOPB};
+  while(c = arg[i]) {
+    if (i > 2) return EOF;
+    if (c == '-') ;/* do nothing */
+    else switch(i) {
+    case 0:
+      if (c < '5' || c > '8') return EOF;
+      Datalen = cs[c - '5'];
+      break;
+    case 1:
+      if (c == 'E' || c == 'e') Parity = PARENB;
+      else if (c == 'O' || c == 'o') Parity = PARENB | PARODD;
+      else if (c == 'N' || c == 'n') Parity = 0;
+      else return EOF;
+      break;
+    case 2:
+      if (c < '1' || c > '2') return EOF;
+      Twostop = sp[c - '1'];
+      break;
+    }
+    i++;
+  }
+  return 0;
+}
 
 int escape_code(c)
 register char *c;
@@ -362,7 +468,8 @@ sigtype exit_shell() {
   paused = 0;
 }
 
-sigtype into_shell() {
+sigtype into_shell()
+{
   alarm(0); in_shell = 0;
   int t_result = 0;
   t_result = write(2, "\r\nepicon wait\r\n",15);
@@ -375,29 +482,31 @@ sigtype into_shell() {
   t_result = write(2, "epicon run\r\n",12);
 }
 
-usage(avg) {
-fprintf(stderr,"\
-usage:  [-options [argument]]\r\n\
-        [-b ] <--escape no used\r\n\
-        [-c external_command]\r\n\
-        [-d send_charcacter_delay(ms)]\r\n\
-        [-D send_CR_delay(ms)]\r\n\
-        [-e escape_char]\r\n\
-        [-f send_file]\r\n\
-        [-F send_file_effective_delay]\r\n\
-        [-m ] <--input echo mode\r\n\
-        [-M ] <--line mode\r\n\
-        [-l com_port]\r\n\
-        [-L output_log_file]\r\n\
-        [-n ip_address[:port]]\r\n\
-        [-p [server_port]]\r\n\
-        [-s speed]\r\n\
-        [-v ] show version\r\n\
-        [-z ] <--auto rz prohibition\r\n",avg);
+int usage(char *avg)
+{
+fprintf(stderr,"usage: [-options [argument]]\r\n");
+fprintf(stderr,"        [-b ] <--escape no used\r\n");
+fprintf(stderr,"        [-c external_command]\r\n");
+fprintf(stderr,"        [-d send_charcacter_delay(ms)]\r\n");
+fprintf(stderr,"        [-D send_CR_delay(ms)]\r\n");
+fprintf(stderr,"        [-e escape_char]\r\n");
+fprintf(stderr,"        [-f send_file]\r\n");
+fprintf(stderr,"        [-F send_file_effective_delay]\r\n");
+fprintf(stderr,"        [-m ] <--input echo mode\r\n");
+fprintf(stderr,"        [-M ] <--line mode\r\n");
+fprintf(stderr,"        [-l com_port]\r\n");
+fprintf(stderr,"        [-L output_log_file]\r\n");
+fprintf(stderr,"        [-n ip_address[:port]]\r\n");
+fprintf(stderr,"        [-p [server_port]]\r\n");
+fprintf(stderr,"        [-s speed]\r\n");
+fprintf(stderr,"        [-v ] show version\r\n");
+fprintf(stderr,"        [-x bit_length (5|6|7) parity(o|e|n) stop_bit (1|2)] \r\n");
+fprintf(stderr,"        [-z ] <--auto rz prohibition\r\n%s",avg);
 }
 
-show_version() {
- fprintf(stderr,"\r\n\
+void show_version()
+{
+  fprintf(stderr,"\r\n\
 ** Welcome to epicon Version-%s Copyright Isamu Yamauchi %s **\r\n\
 epicon is Easy Personal Interface CoNsole software.\r\n\r\n",VER,DAY);
 }

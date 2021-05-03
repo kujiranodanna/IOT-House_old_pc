@@ -1,11 +1,12 @@
 /* epicon.h epicon incude heder file
-epicon is Copyright Isamu.Yamauchi 2002-2017.
+epicon is Copyright Isamu.Yamauchi 2002-2021.
+o 2021.2.24 "/var/tmp/" -> "/var/run/lock/", add <arpa/inet.h>
 o 2017.4.20 curses.h,term.h remove
 o 2011.10.16 Enhanced file locking, changed the function msleep.
 o 2011.9.27 On quiet mode, delete 'Disconnected message'.
 o 2009.6.22 SEL_TIME_OUT 20 milliseconds -> 20micro seconds
 o 2009.6.7 Epicon_Socket_init  "/var/tmp/epicon_socket." -> "/tmp/epicon_socket."
-  <wait.h> - > <sys/wait.h>, delete <malloc.h> 
+  <wait.h> - > <sys/wait.h>, delete <malloc.h>
 o 2008.3.23 add #include <stdlib.h>, bug fix gcc-4 -> incompatible implicit declaration of built-in function exit
 o 2007.1.4 add #include telnet.h, remove ncurses.h
 o 2006.8.17 add #define Epicon_Socket
@@ -43,13 +44,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <sys/un.h>
 #include <netinet/in.h>
 #include <arpa/telnet.h>
+#include <arpa/inet.h>
 #include <termios.h>
 // #include <curses.h> 2017.4.20 remove
 // #include <term.h> 2017.4.20 remove
 #define R_WSIZE 1024                /* send file block size */
 #define MSIZE 1024*1024             /* defaut memory allocate size */
 #define SPEED "9600"                /* default com_port speed */
-#define VER "5.1"                   /* Version 2017.4.20 */
+#define VER "5.2"                   /* Version 2017.4.20 */
 #define COMPORT "/dev/ttyS0"        /* default com_port  */
 #define ESC     '~'                 /* default esc char  */
 #define EOT     '\004'              /* ^D */
@@ -64,7 +66,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define sigtype int
 #endif
 #define DAY "compiled:"__DATE__
-#define Epicon_Socket_init "/tmp/epicon_socket." /* AF_UNIX socket */
-#define VAR_LOCK "/var/lock/"
-#define TTY_LOCK "/var/lock/LCK.."
+#define Epicon_Socket_init "/var/run/lock/epicon_socket." /* AF_UNIX socket */
+#define VAR_LOCK "/var/run/lock/"
+#define TTY_LOCK "/var/run/lock/LCK.."
 #define MY_TTYPE  "vt100"  /* terminal type */

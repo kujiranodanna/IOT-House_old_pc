@@ -1,7 +1,7 @@
 .\" usage this file.
 .\" groff -Tascii -man epicon.nr >epocon.1
 .\"
-.TH epicon 1 "epicon Manuals" "20 Sep 2004" "epicon Manuals"
+.TH epicon 1 "epicon Manuals" "24 Feb 2021" "epicon Manuals"
 .PP
 .PP
 .SH NAME
@@ -31,6 +31,7 @@ epicon [-options [argument] [-options [argument]]
        [-q ] <--quiet mode
        [-s speed]
        [-v ] <--show version
+       [-x bit_length (5|6|7) parity(o|e|n) stop_bit (1|2)]
        [-z ] <--auto rz prohibition
 
  defaults:
@@ -42,6 +43,7 @@ epicon [-options [argument] [-options [argument]]
      escape,. or escape,CTRL-D program end
      escape,!                  into to shell
      escape,escape             send escape char
+     escape,b                  send break
      escape,f                  send files
      escape,F                  send files delay effect
      escape,c                  chege speed
@@ -204,7 +206,7 @@ $ epicon -s 19200 <-- 19200 B/S Send & Recive speed.
 .RE
 .PD 1
 .TP
-There are thing that argument is necessary for the option of the command line and thing which is not so.(the examples: -b -m -p -q -z which isn't necessary)
+There are thing that argument is necessary for the option of the command line and thing which is not so.(the examples: -b -m -p -q -x -z which isn't necessary)
 .TP
 .B \-\^b
 Cannot escape mode,To exit kill own process or remote hung-up.
@@ -217,6 +219,9 @@ line mode,send line's characters if CR.
 .TP
 .B \-\^q
 quiet mode.
+.TP
+.B \-\^x
+bit_length[5|6|7] parity[o|e|n] stop_bit[1|2].
 .TP
 .B \-\^z
 No auto call zmodem recive,Default auto call mode.
@@ -257,7 +262,10 @@ Send file. Transmitting delay is effective no protocols.
 CHANGE to speed 300 to 480000.
 .TP
 .B ~C
-External command mode argument max 10. Input,Output descriptor copy to given /dev/ttySX. How to use your good idea or choice.
+External command mode argument max 10. Input,Output descriptor copy to given /dev/ttyXX. How to use your good idea or choice.
+.TP
+.B ~b
+Send break. Suspend transmission, resume when you type something from the keyboard
 .TP
 .B ~!
 Into shell. 'exit' command then back to epicon.
@@ -310,7 +318,7 @@ It is lucky if I can have a report and advice by mail if a bug is found.
 .SH AUTHOR
 Isamu.Yamauchi
 The PepoLinux Project, Only Me.
-https://ja.osdn.net/projects/pepolinux/ 
+https://ja.osdn.net/projects/pepolinux/
 pepolinux@users.osdn.me
 
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.6.30 update 2019.7.28
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2019.6.30 update 2019.7.28
 # GPIO LED Dance for rasberry pi zero W.
 # pepoled_dance
 GPIOCMD="/usr/local/bin/pepogpioctl"

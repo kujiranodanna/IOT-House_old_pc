@@ -1,28 +1,22 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.11.28 update 2020.7.21
-# pepoliveserver ;  liveserver for raspberry pi
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.11.28 update 2021.4.30
+# pepoliveserver ;  liveserver for i386
 # pepoliveserver dev timer
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 WORKDIR=/www/remote-hand/tmp
 pid=`echo $$`
 prog=pepoliveserver
 pidfile=/var/run/${prog}.pid
-LIVEFILE=${WORKDIR}/remote-hand.ffm
 LIVEFILE=${WORKDIR}/remote-hand.webm
-#VIDEOPG=ffmpeg
-VIDEOPG=avconv
-#VIDEOSV=ffserver
-VIDEOSV=avserver
-RASPICAMERA=/dev/vchiq
-RASPIVID=raspivid
-CONF=/etc/${VIDEOSV}.conf
-TIMER=45000
-VIDEOSIZE=320x240
+VIDEOPG=/usr/bin/ffmpeg
+#VIDEOPG=avconv
+DEFTIMER=15
+VIDEOSIZE=640x480
 VIDEORATE=1
-PEPORASPVIDEO=/usr/local/bin/peporaspvid
+WAITTIMER=10000
 if [ $# -lt 1 -o $# -gt 2 ];then
-  echo "usage: $0 /dev/video0 | timer(seconds)"
+  echo "usage: $0 video-dev | timer(seconds)"
   exit
 fi
 DEV=$1
@@ -31,115 +25,37 @@ if [ ! -e $DEV ];then
 fi
 error(){
   if [ -e $pidfile ];then
-    VIDEOPG_PID=`pgrep ${VIDEOPG}` ; [ ! -z ${VIDEOPG_PID} ] && kill -HUP ${VIDEOPG_PID}
-    VIDEOPG_PID=`pgrep ${RASPIVID}` ; [ ! -z ${VIDEOPG_PID} ] && kill -HUP ${VIDEOPG_PID}
-    VIDEOSERVER_PID=`pgrep ${VIDEOSV}` ; [ ! -z ${VIDEOSERVER_PID} ] && kill -HUP ${VIDEOSERVER_PID}
     rm -f $pidfile
     [ -e ${LIVEFILE} ] && rm -f ${LIVEFILE}
-    [ -e $CONF ] && echo -en >$CONF
   fi
   exit
 }
 trap error SIGINT SIGTERM SIGHUP SIGKILL SIGCHLD
-if [ -e $pidfile ];then
+while [ -e $pidfile ];do
   tpid=`cat $pidfile`
   kill -HUP $tpid
-  msleep 1000
-  [ -e $pidfile ] && rm -f $pidfile
+  msleep 100
+done
+[ -e $pidfile ] && rm -f $pidfile
+[ -e ${LIVEFILE} ] && rm -f ${LIVEFILE}
+if [ $# = 2 ];then
+  TIMER=$2
+else
+  TIMER=$DEFTIMER
 fi
-if [ $DEV = $RASPICAMERA ];then
-  VIDEOSIZE=640x480
-  VIDEORATE=10
-fi
-[ $# = 2 ] && TIMER=$2
-MSLEEP=$(($TIMER * 1))
-RASPITIMER=$(($TIMER - 0))
-OPT="-codec libvpx -pix_fmt yuv420p"
-
-#IP=`ip -f inet addr|awk '/inet 192.168/{split($2,I,"/");printf I[1]}'`
-IP=`hostname -I`
-IP=`echo -en $IP`
-#[ -e $CONF ] && rm -f $CONF
-cat >$CONF<<EOF
-# $CONF
-######################################
-# This file specifies all the options for streaming
-# an avconv produced file as flash
-######################################
-Port 8090 # this is the port you have set up for streaming
-BindAddress 0.0.0.0
-MaxHTTPConnections 10
-MaxClients 10
-MaxBandwidth 10000
-<Feed remote-hand.ffm>
-File ${LIVEFILE}
-#FileMaxSize 2M
-FileMaxSize 5M
-</Feed>
-# swf output - good for streaming
-#<Stream remote-hand.swf>
-<Stream remote-hand.webm>
-# the source feed
-Feed remote-hand.ffm
-# the output stream format - FLV = FLash Video
-#Format swf
-# the output stream format - webm = vp9
-Format webm
-# this must match the ffmpeg -r argument
-VideoFrameRate $VIDEORATE
-# generally leave this is a large number
-#VideoBufferSize 2M
-VideoBufferSize 50000
-# another quality tweak
-#VideoBitRate 200
-#VideoBitRate 100
-# quality ranges - 1-31 (1 = best, 31 = worst)
-VideoQMin 1
-VideoQMax 10
-#VideoSize 640x480
-#VideoSize 320x240
-VideoSize $VIDEOSIZE
-# this sets how many seconds in past to start
-PreRoll 0
-#PreRoll 15
-# wecams don't have audio
-NoAudio
-</Stream>
-<Stream stat.html>
-Format status
-</Stream>
-<Redirect index.html>
-# credits!
-URL http://$IP:8090/stat.html
-</Redirect>
-################################################################################
-#
-#URL http://ffmpeg.sourceforge.net/
-# ${VIDEOPG} -f video4linux2 -s 320x240 -i $DEV $OPT http://$IP:8090/remote-hand.ffm >/dev/null 2>&1
-EOF
-
-if [ $DEV = $RASPICAMERA ];then
-  VIDEOPG_PID=`pgrep ${RASPIVID}` ; [ ! -z ${VIDEOPG_PID} ] && kill -HUP ${VIDEOPG_PID}
-fi
-VIDEOPG_PID=`pgrep ${VIDEOPG}` ; [ ! -z ${VIDEOPG_PID} ] && kill -HUP ${VIDEOPG_PID}
-VIDEOSERVER_PID=`pgrep ${VIDEOSV}` ; [ ! -z ${VIDEOSERVER_PID} ] && kill -HUP ${VIDEOSERVER_PID}
+MSLEEP=$(($TIMER / 1))
+OPT="-ss 5 -to $TIMER  -codec libvpx -pix_fmt yuv420p"
+pkill -f $VIDEOPG
 msleep 100
 [ -e $pidfile ] && rm -f $pidfile
 echo -n $pid >${pidfile}
-#[ -e ${LIVEFILE} ] && rm -f ${LIVEFILE}
-#${VIDEOSV} -v verbose >/dev/null 2>&1 &
-if [ $DEV = $RASPICAMERA ];then
-#  ${RASPIVID} -vf -hf -o - -w 640 -h 480 -t $RASPITIMER -b 500000 -fps 2 | \
-  ${RASPIVID} -o - -w 640 -h 480 -t $RASPITIMER -b 500000 -fps 2 | \
-  ${VIDEOPG} -f h264 -r 2 -i - -vcodec flv http://$IP:8090/remote-hand.ffm >/dev/null 2>&1 &
-else
-#  ${VIDEOPG} -f video4linux2 -r $VIDEORATE -s $VIDEOSIZE -i $DEV $OPT http://$IP:8090/remote-hand.ffm >/dev/null 2>&1 &
-  ${VIDEOPG} -f video4linux2 -r $VIDEORATE -s $VIDEOSIZE -i $DEV $OPT -y $LIVEFILE >/dev/null 2>&1 &
-fi
-KILLSLEEP=$(($MSLEEP + 60000))
+${VIDEOPG} -f video4linux2 -r $VIDEORATE -s $VIDEOSIZE -i $DEV $OPT -y $LIVEFILE >/dev/null 2>&1 &
+MSLEEP=$(($MSLEEP * 1000))
+KILLSLEEP=$(($MSLEEP + $WAITTIMER))
 KILLSLEEP=$(($KILLSLEEP / 100))
 while [ $KILLSLEEP -gt 0 ];do
   msleep 100
   KILLSLEEP=$(($KILLSLEEP - 1))
 done
-kill -TERM $pid
+pkill -f $VIDEOPG
+[ -e $pidfile ] && rm -f $pidfile

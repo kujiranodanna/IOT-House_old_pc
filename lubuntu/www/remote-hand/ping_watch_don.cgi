@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
 
 echo -en '
 <HTML>
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Ping monitoring and digital output</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>
 '
@@ -90,10 +90,10 @@ if [ -e "$PING_DON" ];then
 fi
 if [ -e "$PING_CRON" ];then
   LEN=`cat $PING_CRON | wc -l`
-  if [ $LEN != 0 ];then 
+  if [ $LEN != 0 ];then
     crontab $PING_CRON
   else
     crontab -r
     rm -f $PING_CRON
-  fi  
+  fi
 fi

@@ -1,0 +1,149 @@
+#!/bin/bash
+# licence GPLv2 ; this scripts designed by Isamu.Yamauchi 2016.1.2 update 2018.2.24
+# Tocos-TWELITE & ToCoStick wireless dio, ai, i2c, for rasberry pi.
+DIR=/www/remote-hand/tmp
+CMDWIREDIO="/usr/local/bin/pepotocosctl 0"
+CMDWIREAI="/usr/local/bin/pepotocosctl 6"
+CMDWIREI2C="/usr/local/bin/pepotocosctl 5"
+CMDRDAI="/usr/local/bin/pepotocosctl 7"
+CMDRDWAIT="/usr/local/bin/pepotocosctl 7 3"
+TCOSWD=$DIR/.tocos_write_data
+tTCOSWD=$DIR/.tocos_write_data_tmp
+TCOSRD=$DIR/.tocos_read_data
+tTCOSRD=$DIR/.tocos_read_data_tmp
+TCOSRDCMD=$DIR/pepotocosctl.*
+ALIAS_DI=$DIR/.alias_di
+error(){
+  [ -e $TCOSWD ] && rm -f $TCOSWD
+  [ -e $TCOSRD ] && rm -f $TCOSRD
+  [ -e $TCOSRDCMD ] && rm -f $TCOSRDCMD
+  [ -e $tTCOSRD ] && rm -f $tTCOSRD
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+[ -e $TCOSWD ] && rm -f $TCOSWD
+[ -e $TCOSRD ] && rm -f $TCOSRD
+[ -e $TCOSRDCMD ] && rm -f $TCOSRDCMD
+[ -e $tTCOSRD ] && rm -f $tTCOSRD
+
+while true;do
+  LOOP=20
+  [ -e $ALIAS_DI ] && . "$ALIAS_DI"
+  if [ "${TOCOS_TTY}" = "IP_Tocos" ];then
+    while true;do
+    done
+  fi    
+
+  while [ $LOOP -ne 0 ];do
+    WRD="-1"
+    if [ -e ${TCOSWD} ];then
+#Tocos do set
+      TMP=0
+      . ${TCOSWD}
+      [ ! -z $TO1 ] && TMP=$TO1
+      [ ! -z $TO2 ] && TMP=$(($TMP + $(($TO2 * 2))))
+      [ ! -z $TO3 ] && TMP=$(($TMP + $(($TO3 * 4))))
+      [ ! -z $TO4 ] && TMP=$(($TMP + $(($TO4 * 8))))
+      case "$TMP" in
+        10) TMP=A ;;
+        11) TMP=B ;;
+        12) TMP=C ;;
+        13) TMP=D ;;
+        14) TMP=E ;;
+        15) TMP=F ;;
+      esac
+      WRD=`${CMDWIREDIO} $TMP 2>&1`
+    else
+      TMP=0
+      WRD=`${CMDWIREDIO} $TMP 2>&1`     
+	fi
+#Tocos di & ai set
+    [ -e $ALIAS_DI ] && . $ALIAS_DI
+    RD="-1" ;  AI="-1" ; TI1=-1 ; TI2=-1 ; TI3=-1 ; TI4=-1 ; AI1=-1 ; AI2=-1 ; AI3=-1 ; AI4=-1 ; VAI1=-1 ; VAI2=-1 ; VAI3=-1 ; VAI4=-1 ;
+    if [ "${WRD}" = "-1" ];then
+      RD=`$CMDRDAI 2>&1`
+    else
+      RD="${WRD}" ; WRD="-1"
+    fi
+    if [ "${RD}" = "-1" ];then
+      RETRY_RD=2
+      while [ $RETRY_RD -ne 0 ]
+      do
+        RD=`${CMDRDAI} 2>&1`
+        if [ "${RD}" != "-1" ];then
+          break
+        fi
+        RETRY_RD=$(($RETRY_RD - 1))
+        msleep 1000
+      done
+    fi
+    if [ "${RD}" != "-1" ];then
+      WRD="-1"
+      DI=`echo -en $RD |awk '{split($0,I,";");printf I[1]}'`
+      AI=`echo -en $RD |awk '{split($0,I,";");printf I[2]}'`
+      for i in 1 2 4 8;do
+        case "$i" in
+          1) tDI="$(($((0x$DI & 1)) / 1))" ; TI1=${tDI} ;;
+          2) tDI="$(($((0x$DI & 2)) / 2))" ; TI2=${tDI} ;;
+          4) tDI="$(($((0x$DI & 4)) / 4))" ; TI3=${tDI} ;;
+          8) tDI="$(($((0x$DI & 8)) / 8))" ; TI4=${tDI} ;;
+        esac
+      done
+    fi
+    if [ "${AI}" != "-1" ];then
+      VAI1=`echo ${AI}|awk '{split($0,I,",");printf I[1]}'`
+      if [ -n "${slice_ai[12]}" ];then
+        [ "${VAI1}" -lt "${slice_ai[12]}" ] && AI1="0" || AI1="1"
+      fi        
+      VAI2=`echo ${AI}|awk '{split($0,I,",");printf I[2]}'`
+      if [ -n "${slice_ai[13]}" ];then
+        [ "${VAI2}" -lt "${slice_ai[13]}" ] && AI2="0" || AI2="1"
+      fi        
+      VAI3=`echo ${AI}|awk '{split($0,I,",");printf I[3]}'`
+      if [ -n "${slice_ai[14]}" ];then
+        [ "${VAI3}" -lt "${slice_ai[14]}" ] && AI3="0" || AI3="1"
+      fi        
+      VAI4=`echo ${AI}|awk '{split($0,I,",");printf I[4]}'`
+      if [ -n "${slice_ai[15]}" ];then
+        [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"
+      fi        
+    fi
+    cat >$tTCOSRD<<END
+TI1=$TI1
+TI2=$TI2
+TI3=$TI3
+TI4=$TI4
+AI1=$AI1
+VAI1=$VAI1
+AI2=$AI2
+VAI2=$VAI2
+AI3=$AI3
+VAI3=$VAI3
+AI4=$AI4
+VAI4=$VAI4
+END
+    mv $tTCOSRD $TCOSRD
+    LOOP=$(($LOOP - 1))
+    msleep 3000
+  done
+#Tcos i2c read
+  RETRY_I2C=3
+  while [ $RETRY_I2C -ne 0 ]
+  do
+    RD=`${CMDWIREI2C} 2>&1`
+    if [ "${RD}" != "-1" ];then
+      break
+    fi
+    RETRY_I2C=$(($RETRY_I2C - 1))
+    msleep 1000
+  done
+  if [ "${RD}" != "-1" ];then
+    if [ -e ${TCOSRD} ];then
+      cat ${TCOSRD} |grep -v i2c >${tTCOSRD}
+      echo -en i2c=\"`echo -en $RD | awk '{split($0,I,",");printf("%s %s %s",substr(I[2],1,5),I[3],I[4])}'`\" >> ${tTCOSRD}
+    else
+      echo -en i2c=\"`echo -en $RD | awk '{split($0,I,",");printf("%s %s %s",substr(I[2],1,5),I[3],I[4])}'`\"  > ${tTCOSRD}
+    fi
+    mv  ${tTCOSRD} ${TCOSRD}
+  fi
+done

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.13 update 2018.2.24
 # peposound ; sound mp3 file
 # usage peposound mp3_file_No timer
 if [ $# -lt 1 -o $# -gt 2 ];then

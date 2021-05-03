@@ -1,10 +1,9 @@
 #!/bin/bash
 PATH=$PATH:/usr/local/bin
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2014.10.17 update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2014.10.17 update 2020.12.29
 # pepoirkitpost ir_num timer
 # pepoirkitpost,Post of IR data for IRKit
-# licence GPLv2 ; this scripts designed by IZAMUKARERA 
 DIR=/www/remote-hand/tmp
 IRKIT_IP=$DIR/.IRKit_IP
 DOCFILE=$DIR/irkit_out_document
@@ -28,6 +27,8 @@ fi
 IRNUM=$1
 TIMER=$2
 IRFILE=$DIR/.irdata_${IRNUM}
+RETRYTIME=10
+RETRY=1
 if [ -e ${IRKIT_IP} ];then
   IP=`cat ${IRKIT_IP}`
   if [ -e ${IRFILE} ];then
@@ -35,7 +36,7 @@ if [ -e ${IRKIT_IP} ];then
 	  echo IRKit data_$IRNUM not ready !
       exit
     fi
-  else 
+  else
     echo IRKit data_$IRNUM not ready !
     exit
   fi
@@ -43,8 +44,10 @@ else
   echo IRKit Device not found!
   exit
 fi
-wget http://${IP}/messages --header="X-Requested-With: PepoLinux" --post-file=${IRFILE} --output-document=${DOCFILE} >/dev/null 2>&1
+USERAGENT="X-Requested-With: Chrome/87.0.4280.88"
+curl -s -m $RETRYTIME --retry $RETRY --header "${USERAGENT}" -X POST -F upfile=@/${IRFILE} http://${IP}/messages >${DOCFILE}
 if [ ${TIMER}X != "X" ];then
   msleep ${TIMER}
-  wget http://${IP}/messages --header="X-Requested-With: PepoLinux" --post-file=${IRFILE} --output-document=${DOCFILE} >/dev/null 2>&1
-fi 
+  curl -s -m $RETRYTIME --retry $RETRY --header "${USERAGENT}" -X POST -F upfile=@/${IRFILE} http://${IP}/messages >${DOCFILE}
+fi
+[ -e ${DOCFILE} ] && rm ${DOCFILE}

@@ -1,5 +1,6 @@
 #!/bin/bash
-# licence GPLv2 ; this scripts designed by Isamu.Yamauchi 2018.1.7 update 2018.1.7
+# The MIT License
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2021.4.23
 # pepocp2112help for helper CP2112 HID USB to SMBus Master Bridg, GPIO & I2C.
 # pepocp2112help $1:ch[0-6] [$2:0 or 1] [$3: timer->1 to 300000ms]
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
@@ -51,10 +52,10 @@ writefile(){
 }
 
 if [ ! -z "$TIMER" ];then
-  writefile $CH $DATA 
+  writefile $CH $DATA
   msleep $TIMER
   [ $DATA != "0" ] && TMP="0" || TMP="1"
   writefile $CH $TMP
 else
-  writefile $CH $DATA 
+  writefile $CH $DATA
 fi

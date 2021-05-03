@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT(epicon, 5.1, pepolinux@users.osdn.me)
+AC_INIT(epicon, 5.2, pepolinux@users.osdn.me)
 AC_CONFIG_SRCDIR([epicon_main.c])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE

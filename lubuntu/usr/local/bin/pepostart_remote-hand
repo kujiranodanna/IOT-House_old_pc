@@ -1,6 +1,7 @@
 #!/bin/bash
-# pepostart_remote-hand ; start remote-hand for i386
-# licence GPLv3 ; this scripts designed by Isamu.Yamauchi 2011.11.28 update 2018.6.4
+# The MIT License
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2018.6.4
+# pepostart_remote-hand ; start remote-hand for old_pc
 hdparm -S 1 /dev/sda
 /etc/init.d/svscan stop
 /etc/init.d/rsyslog stop
@@ -8,7 +9,7 @@ hdparm -S 1 /dev/sda
 /etc/init.d/exim4 stop
 WORKDIR=/www/remote-hand
 WORKDIR_TMP=/www/remote-hand/tmp
-if [ ! -e /www/pepolinux ];then 
+if [ ! -e /www/pepolinux ];then
    [ ! -e ${WORKDIR} ] && mkdir -p ${WORKDIR_TMP}
    if [ ! -e /www/tmp ];then
      mkdir -p /www/tmp/mozilla
@@ -35,7 +36,7 @@ if [ ! -e /www/pepolinux ];then
     (cd ${WORKDIR} ; tar xfz /usr/src/pepolinux/back_up.tar.gz)
     (cd ${WORKDIR_TMP} ; rm -f .pepodioctl.* .pepotocsctl.* LCK* .*.rrd .*start_time *.png temperature *.mp4 *.jpg)
   else
-    (cd ${WORKDIR} ; rm -f dio_sh.tar.gz)    
+    (cd ${WORKDIR} ; rm -f dio_sh.tar.gz)
   fi
   sync
   if [ -e ${WORKDIR}/dio_sh.tar.gz ];then

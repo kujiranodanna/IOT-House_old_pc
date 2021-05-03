@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.11.28 update 2020.7.27
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2020.7.27
 # pepogmail4dio ; For raspberry pi zero, and scripts to run the GPIO and other instructions in the G-mail.
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 #LANG=ja_JP.UTF-8
@@ -81,7 +81,7 @@ exec_dio() {
 #!/bin/bash
 if [ ! -z $4 -a $4 -gt 500 ];then
   $IRKITPOST $ir_num $4
-else 
+else
   $IRKITPOST $ir_num
 fi
 rm -f ${IRKIT_EXEC}
@@ -184,7 +184,7 @@ END
     ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
     return
   elif [ "$CH" = 20  ];then
-# Cpu Temperature 
+# Cpu Temperature
     CPU_TEMP=`cat /sys/class/thermal/thermal_zone0/temp|awk '{printf(substr($1,1,2)"."substr($1,3,1)"℃")}'`
     MSG="Cpu+Temperature:"$CPU_TEMP
     ${MUA} ${MAILTO} ${SUBJECT} ${MSG}
@@ -396,11 +396,11 @@ curl -s --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --us
     cat ${WORK} | cut -c 100-1000 >${tWORK}
     TMP=`cat ${tWORK}| awk 'match($0,/New messages(.*)<\/email>/,a){print a[1]}' 2>/dev/null`
     ISSUED=`echo $TMP | awk 'match($0,/<issued>(.*)<\/issued>/,a){print a[1]}'`
-    [ `echo -en $ISSUED| wc -c` -lt 20 ] && break 
-    epochJITTER=`date -ud "${tJITTER} second ago" +%s` 
+    [ `echo -en $ISSUED| wc -c` -lt 20 ] && break
+    epochJITTER=`date -ud "${tJITTER} second ago" +%s`
     epochNOWdelay=`date -ud "300 second ago" +%s`
     epochISSUED=`date -ud $ISSUED +%s`
-    if [ "${JITTER}" = 0 ];then 
+    if [ "${JITTER}" = 0 ];then
       if [ ${epochISSUED} -gt ${epochNOWdelay} ];then
         NEW_YESNO="YES"
       else

@@ -1,8 +1,8 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.23 update 2020.6.30
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.23 update 2020.10.8
 # pepoipdiotocsd ; For raspberry pi or i386, and scripts to run the Remote DIO and Twlite.
-# licence GPLv2 ; the scripts designed by Isamu.Yamauchi, 
+# licence GPLv2 ; the scripts designed by Isamu.Yamauchi,
 #
 RETRYTIME=20
 RETRY=1
@@ -34,7 +34,7 @@ error(){
   [ -e $tLO_DI_DATA ] && rm -f $tLO_DI_DATA
   [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
   [ -e $tLO_DO_DATA ] && rm -f $tLO_DO_DATA
-#  [ -e $LO_TOCOS_RD_DATA ] && rm -f $LO_TOCOS_RD_DATA
+  [ -e $LO_TOCOS_RD_DATA ] && rm -f $LO_TOCOS_RD_DATA
   [ -e $tLO_TOCOS_RD_DATA ] && rm -f $tLO_TOCOS_RD_DATA
   [ -e $LO_TOCOS_WD_DATA ] && rm -f $LO_TOCOS_WD_DATA
   [ -e $tLO_TOCOS_WD_DATA ] && rm -f $tLO_TOCOS_WD_DATA
@@ -51,7 +51,7 @@ while true;do
       [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA
       [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
       msleep $WAIT
-      continue
+      continue 2
     fi
     PASSWORD=$vWEBPASSWORD
     USER=$vWEBUSER
@@ -96,13 +96,13 @@ curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$
             ' >$tLO_DO_DATA
             [ -e $tLO_DO_DATA ] && mv $tLO_DO_DATA $LO_DO_DATA
           else
-            [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA             
+            [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
           fi
         fi
       fi
     else
       [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
-      [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA      
+      [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA
     fi
     if [ ! -z $tocos_ip ];then
       if [ ! -z $piface_ip ];then
@@ -119,7 +119,6 @@ curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$
       if [ -e $WORK ];then
         LEN=`cat $WORK |wc -l`
         if [ $LEN -gt 2 ];then
-#          rm -f $LO_TOCOS_RD_DATA
           cat $WORK |awk '
             /"ti1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI1="i)}
             /"ti2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI2="i)}
@@ -131,24 +130,23 @@ curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$
             /i2ctemp/{gsub(/date|i2ctemp|temp|hum|{|}|":|"/,"",$0);split($0,j,",");printf("i2c=\"%s %s %s\"\n",j[1],j[2],j[3])}
             ' >$tLO_TOCOS_RD_DATA
           if [ -e $tLO_TOCOS_RD_DATA ];then
-cat $tLO_TOCOS_RD_DATA
             . $tLO_TOCOS_RD_DATA
             if [ -n "${slice_ai[12]}" ];then
               [ "${VAI1}" -lt "${slice_ai[12]}" ] && AI1="0" || AI1="1"
-            fi                
+            fi
             if [ -n "${slice_ai[13]}" ];then
               [ "${VAI2}" -lt "${slice_ai[13]}" ] && AI2="0" || AI2="1"
-            fi                
+            fi
             if [ -n "${slice_ai[14]}" ];then
               [ "${VAI3}" -lt "${slice_ai[14]}" ] && AI3="0" || AI3="1"
-            fi                
+            fi
             if [ -n "${slice_ai[15]}" ];then
               [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"
             fi
             echo -e "AI1=$AI1\nAI2=$AI2\nAI3=$AI3\nAI4=$AI4" >> $tLO_TOCOS_RD_DATA
             mv $tLO_TOCOS_RD_DATA $LO_TOCOS_RD_DATA
           fi
-          cat $WORK |awk '                        
+          cat $WORK |awk '
             /"to1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO1="i)}
             /"to2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO2="i)}
             /"to3"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO3="i)}
@@ -161,6 +159,6 @@ cat $tLO_TOCOS_RD_DATA
       [ -e $LO_TOCOS_RD_DATA ] && rm -f $LO_TOCOS_RD_DATA
     fi
     rm -f $WORK
-    msleep $WAIT 
+    msleep $WAIT
   done
 done

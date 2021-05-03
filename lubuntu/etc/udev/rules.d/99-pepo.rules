@@ -1,2 +1,11 @@
+#for mono-wireless TWE-Lite
 KERNEL=="ttyUSB*", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="ttyUSBTWE-Lite"
 KERNEL=="ttyUSB*", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="2303", SYMLINK+="ttyUSBMODEM"
+#for CP2112 i2c
+KERNEL=="i2c-*",  ATTRS{name}=="CP2112 SMBus Bridge on hidraw0", SYMLINK+="i2c-cp2112"
+KERNEL=="i2c-*",  ATTRS{name}=="CP2112 SMBus Bridge on hidraw1", SYMLINK+="i2c-cp2112"
+KERNEL=="i2c-*",  ATTRS{name}=="CP2112 SMBus Bridge on hidraw2", SYMLINK+="i2c-cp2112"
+KERNEL=="i2c-*",  ATTRS{name}=="CP2112 SMBus Bridge on hidraw3", SYMLINK+="i2c-cp2112"
+KERNEL=="i2c-*",  ATTRS{name}=="CP2112 SMBus Bridge on hidraw4", SYMLINK+="i2c-cp2112"
+#for CP2112 hid
+KERNEL=="hidraw*",  ATTRS{product}=="CP2112 HID USB-to-SMBus Bridg", SYMLINK+="hidraw-cp2112"
