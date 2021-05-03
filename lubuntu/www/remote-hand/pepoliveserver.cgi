@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2018.5.8
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2020.12.7
 
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 WORKDIR=/www/remote-hand/tmp
@@ -8,6 +8,9 @@ CMD=$WORKDIR/liveserver.pepocmd
 LIVESERVER=/usr/local/bin/pepoliveserver
 LIVEMP4CTL=/usr/local/bin/pepomp4ctl
 LIVEIMG=remote-hand.jpg
+LIVEMOVE=remote-hand.webm
+TIMERJPG=60000
+TIMERWEBM=90000
 echo -en '
 <HTML>
 <HEAD>
@@ -18,7 +21,6 @@ echo -en '
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Live Webcam</TITLE>
 <script type="text/javascript">
-<!--
 function blink() {
   for (i = 0; i < document.all.length; i++) {
     obj = document.all(i);
@@ -51,10 +53,14 @@ if [ ${TIMER} = 0 ];then
 cat >$CMD<<END
 #!/bin/bash
 $LIVEMP4CTL $DEV $LIVEIMG `echo \$\$`
+msleep $TIMERJPG
+rm -f $WORKDIR/$LIVEIMG
 END
 else
 cat >$CMD<<END
 #!/bin/bash
 $LIVESERVER $DEV $TIMER
+msleep $TIMERWEBM
+rm -f $WORKDIR/$LIVEMOVE
 END
 fi

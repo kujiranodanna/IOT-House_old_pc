@@ -1,3 +1,4 @@
+* 2021.2.24 gcc version 7.5.0 Warning clean up, Supports character length, parity, stop bits, transmit breaks.
 * 2017.4.4 read,write warn_unused_result problem clean up ; open with O_CREAT in second argument needs 3 arguments problem clean up ; curses.h and term.h remove.
 * 2011.10.16 Enhanced file locking, changed the function msleep.
 * 2011.9.27 On quiet mode, delete 'Disconnected message'.

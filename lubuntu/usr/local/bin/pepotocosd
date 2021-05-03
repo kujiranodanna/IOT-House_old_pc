@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.1.2 update 2019.10.25
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.1.2 update 2020.10.8
 # monowireless TWELITE & ToCoStick wireless dio, ai, i2c, for rasberry pi.
 DIR=/www/remote-hand/tmp
 CMDWIREDIO="/usr/local/bin/pepotocosctl 0"
@@ -16,20 +16,24 @@ ALIAS_DI=$DIR/.alias_di
 I2CLOOP=10
 error(){
   [ -e $TCOSRDCMD ] && rm -f $TCOSRDCMD
+  [ -e $TCOSRD ] && rm -f $TCOSRD
   exit 0
 }
 trap error SIGTERM SIGHUP SIGKILL SIGINT
 [ -e $TCOSRDCMD ] && rm -f $TCOSRDCMD
+[ -e $TCOSRD ] && rm -f $TCOSRD
 
 while true;do
-  while true;do
-    unset tocos_ip
+  unset tocos_ip TOCOS_TTY
+  [ -e $ALIAS_DI ] && . $ALIAS_DI
+  while [ "$TOCOS_TTY" = "none" ];do
     [ -e $ALIAS_DI ] && . $ALIAS_DI
-    [ -z $tocos_ip ] && break
     msleep  1000
   done
   LOOP=$I2CLOOP
   while [ $LOOP -ne 0 ];do
+    [ -e $ALIAS_DI ] && . $ALIAS_DI
+    [ "$TOCOS_TTY" = "none" ] && break 2
     WRD="-1"
     if [ -e ${TCOSWD} ];then
 #Tocos do set
@@ -51,7 +55,7 @@ while true;do
     else
       TMP=0
       WRD=`${CMDWIREDIO} $TMP 2>&1`     
-	fi
+    fi
 #Tocos di & ai set
     [ -e $ALIAS_DI ] && . $ALIAS_DI
     RD="-1" ;  AI="-1" ; TI1=-1 ; TI2=-1 ; TI3=-1 ; TI4=-1 ; AI1=-1 ; AI2=-1 ; AI3=-1 ; AI4=-1 ; VAI1=-1 ; VAI2=-1 ; VAI3=-1 ; VAI4=-1 ;

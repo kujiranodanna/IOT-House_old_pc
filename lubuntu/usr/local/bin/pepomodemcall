@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2011.4.10 update 2019.9.18
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.4.10 update 2019.9.18
 # FOMA cellular phone or modem dial management for rasberry pi
 DIALDIR=/www/remote-hand/tmp
 CALL=/www/pepolinux/phone/phone_call
@@ -21,7 +21,7 @@ check_foma() {
         MODEM_CK="YES"
       fi
     fi
-  else 
+  else
     MODEM=/dev/ttyACM2
   fi
 }

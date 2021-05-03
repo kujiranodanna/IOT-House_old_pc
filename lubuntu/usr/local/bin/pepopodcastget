@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2010.12.12 update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2010.12.12 update 2018.2.24
 # get pepopodcastget mp3
 # XMLにpodcastのURLを登録
 #XML=http://podcast.1242.com/ps/index.xml

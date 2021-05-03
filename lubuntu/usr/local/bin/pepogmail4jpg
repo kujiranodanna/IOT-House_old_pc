@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2012.7.11 update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2012.7.11 update 2018.2.24
 # pepogmail4pic ; get jpeg & send mail
 # pepogmail4pic mail_to subject message
 # /usr/local/bin/peposendmail $1:mail_to, $2:subject, $3:message ,$4:image.jpg

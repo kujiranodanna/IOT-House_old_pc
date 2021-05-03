@@ -1,8 +1,8 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.5.17 update 2017.9.1
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2015.5.17 update 2017.9.1
 
-# podcastgets.cgi for podacasts auto get contorol 
+# podcastgets.cgi for podacasts auto get contorol
 echo -en '
 <HTML>
 <HEAD>
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Podcast get set in</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>
 '
@@ -77,7 +77,7 @@ if [ -e "$WGET_CRON" ];then
   WLEN=`cat $WGET_CRON | wc -l`
   if [ $WLEN != 0 ];then
     crontab "$WGET_CRON"
-  else 
+  else
     crontab -r
 	rm -f $WGET_CRON
   fi

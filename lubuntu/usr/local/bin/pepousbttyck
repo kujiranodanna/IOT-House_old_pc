@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.11.5 update 2019.9.19
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.11.5 update 2019.9.19
 # pepousbttyck for detect ANDDIO,TOCOS,MODEM,CP2112
 prog=pepousbttyck
 DIR=/www/remote-hand/tmp
@@ -88,7 +88,7 @@ anddio_ck(){
     fi
   done
   cat >$CMD<<END
-#!/bin/bash 
+#!/bin/bash
 RETRY=$TRY
 while [ \${RETRY} -ne 0 ];do
   IN="-1"
@@ -124,7 +124,7 @@ END
     if [ -e "$ALIAS_DI" ];then
       cat "$ALIAS_DI"|grep -v "DI_TTY" >${tALIAS_DI}
       echo "DI_TTY="${dev} >>${tALIAS_DI}
-      mv "$tALIAS_DI" "$ALIAS_DI" 
+      mv "$tALIAS_DI" "$ALIAS_DI"
     else
       echo "DI_TTY="${dev} >${ALIAS_DI}
     fi
@@ -132,10 +132,10 @@ END
     if [ -e "$ALIAS_DI" ];then
       cat "$ALIAS_DI"|grep -v "DI_TTY" >${tALIAS_DI}
       echo "DI_TTY=none" >>${tALIAS_DI}
-      mv "$tALIAS_DI" "$ALIAS_DI" 
+      mv "$tALIAS_DI" "$ALIAS_DI"
     else
       echo "DI_TTY=none" >${ALIAS_DI}
-    fi   
+    fi
   fi
 }
 
@@ -189,7 +189,7 @@ END
     if [ -e "$ALIAS_DI" ];then
       cat "$ALIAS_DI"|grep -v "TOCOS_TTY" >${tALIAS_DI}
       echo "TOCOS_TTY="${dev} >>${tALIAS_DI}
-      mv "$tALIAS_DI" "$ALIAS_DI" 
+      mv "$tALIAS_DI" "$ALIAS_DI"
     else
       echo "TOCOS_TTY="${dev} >${ALIAS_DI}
     fi
@@ -197,10 +197,10 @@ END
     if [ -e "$ALIAS_DI" ];then
       cat "$ALIAS_DI"|grep -v "TOCOS_TTY" >${tALIAS_DI}
       echo "TOCOS_TTY=none" >>${tALIAS_DI}
-      mv "$tALIAS_DI" "$ALIAS_DI" 
+      mv "$tALIAS_DI" "$ALIAS_DI"
     else
       echo "TOCOS_TTY=none" >${ALIAS_DI}
-    fi   
+    fi
   fi
 }
 

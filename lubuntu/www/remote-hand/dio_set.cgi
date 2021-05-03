@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2019.12.21
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2020.9.28
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2019.12.21">
+<META NAME="build" content="2020.9.28">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>DIO settings</TITLE>
@@ -35,7 +35,7 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Processing DIO settings</TD></TR></TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>'
 
 CONV=./conv_get.cgi
@@ -59,14 +59,14 @@ rm -f $tALIAS_DI $tALIAS_DO $tDOWD $sDOWD
 if [ -e "$ALIAS_DI" ];then
   cat "$ALIAS_DI"|grep -v "DI_TTY" >${tALIAS_DI}
   echo "DI_TTY="${DI_TTY} >>${tALIAS_DI}
-  mv "$tALIAS_DI" "$ALIAS_DI"  
+  mv "$tALIAS_DI" "$ALIAS_DI"
 else
   echo "DI_TTY="${DI_TTY} >${ALIAS_DI}
 fi
 if [ -e "$ALIAS_DI" ];then
   cat "$ALIAS_DI"|grep -v "TOCOS_TTY" >${tALIAS_DI}
   echo "TOCOS_TTY"=${TOCOS_TTY} >>${tALIAS_DI}
-  mv "$tALIAS_DI" "$ALIAS_DI"  
+  mv "$tALIAS_DI" "$ALIAS_DI"
 else
   echo "TOCOS_TTY"=$TOCOS_TTY >>${tALIAS_DI}
 fi
@@ -82,7 +82,7 @@ else
   if [ -e "$ALIAS_DI" ];then
     cat "$ALIAS_DI"|grep -v "tocos_ip" >${tALIAS_DI}
     echo "tocos_ip"="" >>${tALIAS_DI}
-    mv "$tALIAS_DI" "$ALIAS_DI"  
+    mv "$tALIAS_DI" "$ALIAS_DI"
   else
     echo "tocos_ip"="" >>${tALIAS_DI}
   fi
@@ -91,7 +91,7 @@ if [ ! -z "$piface_ip" ];then
   if [ -e "$ALIAS_DI" ];then
     cat "$ALIAS_DI"|grep -v "piface_ip" >${tALIAS_DI}
     echo "piface_ip"=${piface_ip} >>${tALIAS_DI}
-    mv "$tALIAS_DI" "$ALIAS_DI"  
+    mv "$tALIAS_DI" "$ALIAS_DI"
   else
     echo "piface_ip"=${piface_ip} >>${tALIAS_DI}
   fi
@@ -99,7 +99,7 @@ else
   if [ -e "$ALIAS_DI" ];then
     cat "$ALIAS_DI"|grep -v "piface_ip" >${tALIAS_DI}
     echo "piface_ip"="" >>${tALIAS_DI}
-    mv "$tALIAS_DI" "$ALIAS_DI"  
+    mv "$tALIAS_DI" "$ALIAS_DI"
   else
     echo "piface_ip"="" >>${tALIAS_DI}
   fi
@@ -236,8 +236,12 @@ rm -f /www/remote-hand/pepopiface
 ln -s /usr/local/bin/pepopiface_local /www/remote-hand/pepopiface
 END
 fi
-cat >$MODEM_DEV<<END
+CMD=$DIR/dio_set_modem.pepocmd
+cat >$CMD<<END
+#!/bin/bash
+cat >$MODEM_DEV<<EOF
 modem_dev=$modem
+EOF
 END
 echo -en '
 </HTML>'

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2018.2.11 update 2018.9.27
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.2.11 update 2018.9.27
 # pepogpiotemp_graph_mail ; Get the GPIO Thermometer graph & send mail
 # pepogpiotemp_graph_mail mail_to subject message
 MAILFROM=$1

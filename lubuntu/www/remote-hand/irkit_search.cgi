@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
 
 PATH=$PATH:/usr/local/bin
 # irkit_search.cgi, search or set IP Address of IRKit
@@ -34,7 +34,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>This is the IP address during the acquisition of IRKit</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>
 '

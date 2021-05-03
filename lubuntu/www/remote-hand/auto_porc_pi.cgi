@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2019.12.21
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2019.12.21
 
 echo -en '
 <HTML>
@@ -34,7 +34,7 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Digital output automatic processing</TD></TR></TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>'
 
 DIR=/www/remote-hand/tmp
@@ -142,13 +142,13 @@ auto_cron_reg() {
       CH=18
       DO=1 ;;
     "SOUND_2")
-      CH=19 
+      CH=19
       DO=2 ;;
     "SOUND_3")
-      CH=20 
+      CH=20
       DO=3 ;;
     "SOUND_4")
-      CH=21 
+      CH=21
       DO=4 ;;
   esac
   YES_NO="ENABLE"
@@ -344,7 +344,7 @@ END
   if [ -e $AUTO_ACT_LIST ];then
     cat $AUTO_ACT_LIST | awk "! /($CRON_COND_NAME|$CRON_NAME)/{print}" > $tAUTO_ACT_LIST
     cat $QUERY | awk "/($CRON_COND_NAME|$CRON_NAME)/{print}" >> $tAUTO_ACT_LIST
-    mv $tAUTO_ACT_LIST $AUTO_ACT_LIST 
+    mv $tAUTO_ACT_LIST $AUTO_ACT_LIST
   elif [ ! -e $AUTO_ACT_LIST ];then
     cat $QUERY | awk "/($CRON_COND_NAME|$CRON_NAME)/{print}" > $AUTO_ACT_LIST
   fi
@@ -362,7 +362,7 @@ auto_cron_del() {
     cat $PING_CRON | awk "! /($CRON_NAME)/{print}" > $tPING_CRON
     mv $tPING_CRON $PING_CRON
     LEN=`cat $PING_CRON | wc -l`
-    if [ $LEN != 0 ];then 
+    if [ $LEN != 0 ];then
       crontab $PING_CRON
     else
       crontab -r

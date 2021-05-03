@@ -1,8 +1,8 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.27 update 2020.5.14
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.27 update 2020.12.21
 
-# ip_do_ajax ; For raspberry pi , and scripts to run the Remote DIO and TOCOS .
+# ip_do_ajax ; For raspberry pi , and scripts to run the remote voice command or dio [dioXXlow|dioXXhigh] or DIO and TOCOS .
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 DIOCMD=/www/remote-hand/tmp/ip_do_ajax.pepocmd
 LOCAL_DIR=/www/remote-hand/tmp
@@ -14,10 +14,10 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2020.5.14">
+<META NAME="build" content="2020.12.21">
 <META http-equiv="Refresh" content="0;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
-<TITLE>Digital -out is being modified</TITLE>
+<TITLE>ip_do_ajax running</TITLE>
 <script type="text/javascript">
 function blink() {
   for (i = 0; i < document.all.length; i++) {
@@ -38,17 +38,22 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Digital -out is being modified</TD></TR>
 </TABLE>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>
 '
-#QUERY_CMD=/www/remote-hand/tmp/.QUERY_STRING.cmd
-#cat >$QUERY_CMD
-#QUERY_STRING=`cat $QUERY_CMD`
+
 QUERY_STRING=`cat `
 CONV=./conv_get.cgi
 . $CONV
 [ -e $ALIAS_DI ] && . $ALIAS_DI
+if [[ "$ch" =~ ^dio ]];then
+  cat>$DIOCMD<<END
+#!/bin/bash
+/usr/bin/$ch
+END
+  exit
+fi
 if [ "$ch" = "voice_req" ];then
   cat>$DIOCMD<<END
 #!/bin/bash
@@ -56,14 +61,14 @@ if [ "$ch" = "voice_req" ];then
 END
   exit
 fi
-if [ $ch -gt 7 -a $ch -lt 13 ];then
+if [ $ch -gt 7 -a $ch -lt 14 ];then
   cmd=/usr/local/bin/pepoirkitpost
   ch=$(($ch - 8))
   if [ ! -z $time ];then
     val=$time
     time=""
   else
-    val="" 
+    val=""
   fi
 elif [ $ch -gt 13 -a $ch -lt 17 ];then
   ch=$(($ch - 13))
@@ -79,5 +84,5 @@ else
 fi
 cat>$DIOCMD<<END
 #!/bin/bash
-$cmd $ch $val $time >/dev/null 2>&1 
+$cmd $ch $val $time >/dev/null 2>&1
 END

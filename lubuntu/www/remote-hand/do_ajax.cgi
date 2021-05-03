@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2018.2.24
 
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 DIR=/www/remote-hand/tmp
@@ -54,5 +54,5 @@ else
 fi
 cat>$DIOCMD<<END
 #!/bin/bash
-$cmd $ch $val $time >/dev/null 2>&1 
+$cmd $ch $val $time >/dev/null 2>&1
 END

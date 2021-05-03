@@ -1,0 +1,251 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2015.2.20 update 2020.8.22
+# Scan piface & CPU Temp ,GPIO , I2C Hum&Temp daemon for rasberry pi.
+# pepopifaced
+PIFACE_CTL="/usr/local/bin/pepopiface_local 8"
+PIFACE_CMD_1ST="/usr/local/bin/pepopiface_local"
+DIR=/www/remote-hand/tmp
+DIORD=$DIR/.di_read_data
+tDIORD=$DIR/.di_read_data.tmp
+DIOWD=$DIR/.do_write_data
+tDIOWD=$DIR/.do_write_data.tmp
+IPDIOWD=$DIR/.do_write_data_ip
+IPDIORD=$DIR/.di_read_data_ip
+TCOSWD=$DIR/.tocos_write_data
+TCOSRD=$DIR/.tocos_read_data
+GPIOGPIORD=$DIR/.gpiodi_read_data
+GPIOGPIOWD=$DIR/.gpiodo_write_data
+ALIAS_DI=$DIR/.alias_di
+DIREADJSON=/www/remote-hand/.di_read_data.json
+USR_BIN=/usr/bin/dio
+EXEC_CMD=/usr/local/bin/pepodiodexec
+LOOPWAIT=500
+# File processing not used
+NO_USE_F1=/home/pi/.cache/lxsession/LXDE-pi/run.log
+
+error(){
+  [ -e $tDIORD ] && rm -f $tDIORD
+  [ -e $DIORD ] && rm -f $DIORD
+  [ -e $DIOWD ] && rm -f $DIOWD
+  exit 0
+}
+exec_cmd() {
+# gpio read & High or Low exec command
+# exec_cmd ch low or high
+#  echo ${USR_BIN}${1}${2} >/dev/tty1
+  if [ -e ${USR_BIN}${1}${2} ];then
+    $EXEC_CMD ${USR_BIN}${1}${2} >/dev/null 2>&1
+  fi
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+[ -e $tDIORD ] && rm -f $tDIORD
+[ -e $DIORD ] && rm -f $DIORD
+[ -e $DIOWD ] && rm -f $DIOWD
+[ -e $tDIOWD ] && rm -f $tDIOWD
+$DIOCTL1ST >/dev/null 2>&1
+for n in 0 1 2 3 4 5 6 7 8 9 10; do
+  old_di[$n]="-1" ; new_di[$n]="-1"
+done
+while true; do
+ [ -e $NO_USE_F1 ] && rm $NO_USE_F1
+  unset piface_ip di do
+  for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35; do old[$i]="-1" ;done
+  if [ -e $ALIAS_DI ];then
+    . $ALIAS_DI
+  else
+    echo -en "DI_TTY=gpio" >$ALIAS_DI
+  fi
+# gpio read data initialize
+  RD="-1"
+  if [ "${DI_TTY}" = "piface" ];then
+    if [ "${PIFACE_INIT}" = YES ];then
+      RD=`$PIFACE_CMD_1ST 2>&1`
+      PIFACE_INIT=NO
+    fi
+    RD=`$PIFACE_CTL 2>&1`
+  else
+    PIFACE_INIT=YES
+  fi
+  if [ "$RD" != "-1" -a "${DI_TTY}"="piface" ];then
+    LEN=`echo -en $RD | awk '{print(length($0))}'`
+    for i in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768; do
+      case "$i" in
+        1) tRD="$(($((0x$RD & 1)) / 1))" ;j=0 ;;
+        2) tRD="$(($((0x$RD & 2)) / 2))" ;j=1 ;;
+        4) tRD="$(($((0x$RD & 4)) / 4))" ;j=2 ;;
+        8) tRD="$(($((0x$RD & 8)) / 8))" ;j=3 ;;
+        16) tRD="$(($((0x$RD & 16)) / 16))" ;j=4 ;;
+        32) tRD="$(($((0x$RD & 32)) / 32))" ;j=5 ;;
+        64) tRD="$(($((0x$RD & 64)) / 64))" ;j=6 ;;
+        128) tRD="$(($((0x$RD & 128)) / 128))" ;j=7 ;;
+        256) tRD="$(($((0x$RD & 256)) / 256))" ;j=8 ;;
+        512) tRD="$(($((0x$RD & 512)) / 512))" ;j=9 ;;
+        1024) tRD="$(($((0x$RD & 1024)) / 1024))" ;j=10 ;;
+        2048) tRD="$(($((0x$RD & 2048)) / 2048))" ;j=11 ;;
+        4096) tRD="$(($((0x$RD & 4096)) / 4096))" ;j=12 ;;
+        8192) tRD="$(($((0x$RD & 8192)) / 8192))" ;j=13 ;;
+        16384) tRD="$(($((0x$RD & 16384)) / 16384))" ;j=14 ;;
+        32768) tRD="$(($((0x$RD & 32768)) / 32768))" ;j=15 ;;
+      esac
+      old[$j]=$tRD
+    done
+  fi
+  if [ -e $GPIOGPIORD ];then
+    . $GPIOGPIORD
+    for n in 0 1 2 3; do
+      [ ! -z ${di[$n]} ]  && old[$n]=${di[$n]}
+    done
+  fi
+  if [ -e $GPIOGPIOWD ];then
+    . $GPIOGPIOWD
+    for n in 0 1 2 3; do
+      j=$(($n + 8))
+      [ ! -z ${do[$n]} ]  && old[$j]=${do[$n]}
+    done
+  fi
+  if [ -e $IPDIORD ];then
+     . $IPDIORD
+     for n in 0 1 2 3 4 5 6 7; do
+       [ ! -z ${di[$n]} ]  && old[$n]=${di[$n]}
+     done
+  fi
+  if [ -e $IPDIOWD ];then
+     . $IPDIOWD
+     for n in 0 1 2 3 4 5 6 7; do
+       j=$(($n + 8))
+       [ ! -z ${do[$n]} ]  && old[$j]=${do[$n]}
+     done
+  fi
+#Tocos di set
+  if [ -e ${TCOSRD} ];then
+    unset TI1 TI2 TI3 TI4 AI1 AI2  AI3  AI4
+    . ${TCOSRD}
+    [ ! -z "$TI1" ] && old[16]=$TI1 || old[16]="-1"
+    [ ! -z "$TI2" ] && old[17]=$TI2 || old[17]="-1"
+    [ ! -z "$TI3" ] && old[18]=$TI3 || old[18]="-1"
+    [ ! -z "$TI4" ] && old[19]=$TI4 || old[19]="-1"
+    [ ! -z "$AI1" ] && old[20]=$AI1 || old[20]="-1"
+    [ ! -z "$AI2" ] && old[21]=$AI2 || old[21]="-1"
+    [ ! -z "$AI3" ] && old[22]=$AI3 || old[22]="-1"
+    [ ! -z "$AI4" ] && old[23]=$AI4 || old[23]="-1"
+  fi
+#i2c Temperature,Humidity & CPU Temperature & GPIO Temperature convert to digital set
+if [ -e ${DIREADJSON} ];then
+  CPU_TEMP=`cat ${DIREADJSON} | jq -r .cpu_temp | awk '{gsub(/Ž/,"",$0);split($0,J,".");printf J[1]}'`
+  if [ ! -z "$CPU_TEMP" -a ! -z "${slice_ai[16]}" ];then
+    [ $CPU_TEMP -lt ${slice_ai[16]} ] && old[24]=0 || old[24]=1
+  fi
+  GPIO_TEMP=`cat ${DIREADJSON} | jq -r .gpio_i2c.temp | awk '{gsub(/Ž/,"",$0);split($0,J,".");printf J[1]}'`
+  if [ ! -z "$GPIO_TEMP" -a ! -z "${slice_ai[17]}" ];then
+    [ $GPIO_TEMP -lt ${slice_ai[17]} ] && old[25]=0 || old[25]=1
+  fi
+  GPIO_HUM=`cat ${DIREADJSON} | jq -r .gpio_i2c.hum | awk '{gsub(/%/,"",$0);split($0,J,".");printf J[1]}'`
+  if [ ! -z "$GPIO_HUM" -a ! -z "${slice_ai[18]}" ];then
+    [ $GPIO_HUM -lt ${slice_ai[18]} ] && old[26]=0 || old[26]=1
+  fi
+  I2C_TEMP=`cat ${DIREADJSON} | jq -r .i2ctemp.temp | awk '{gsub(/Ž/,"",$0);split($0,I,".");printf I[1]}'`
+  if [ ! -z "$I2C_TEMP" -a ! -z "${slice_ai[19]}" ];then
+    [ $I2C_TEMP -lt ${slice_ai[19]} ] && old[27]=0 || old[27]=1
+  fi
+  I2C_HUM=`cat ${DIREADJSON} | jq -r .i2ctemp.hum | awk '{gsub(/%/,"",$0);split($0,J,".");printf J[1]}'`
+  if [ ! -z "$I2C_HUM" -a ! -z "${slice_ai[20]}" ];then
+    [ $I2C_HUM -lt ${slice_ai[20]} ] && old[28]=0 || old[28]=1
+  fi
+  GPIO_PRES=`cat ${DIREADJSON} | jq -r .gpio_i2c.pres | awk '{gsub(/[^0-9]+/,"",$0);printf $0}'`
+  if [ ! -z "$GPIO_TEMP" -a ! -z "${slice_ai[21]}" ];then
+    [ $GPIO_PRES -lt ${slice_ai[21]} ] && old[33]=0 || old[33]=1
+  fi
+  GPIO_GAS=`cat ${DIREADJSON} | jq -r .gpio_i2c.gas | awk '{gsub(/[^0-9]+/,"",$0);printf $0}'`
+  if [ ! -z "$GPIO_GAS" -a ! -z "${slice_ai[22]}" ];then
+    [ $GPIO_GAS -lt ${slice_ai[22]} ] && old[34]=0 || old[34]=1
+  fi
+  GPIO_IAQ=`cat ${DIREADJSON} | jq -r .gpio_i2c.iaq | awk '{gsub(/[^0-9]+/,"",$0);printf $0}'`
+  if [ ! -z "$GPIO_IAQ" -a ! -z "${slice_ai[23]}" ];then
+    [ $GPIO_IAQ -lt ${slice_ai[23]} ] && old[35]=0 || old[35]=1
+  fi
+fi
+#Tocos do set
+  if [ -e ${TCOSWD} ];then
+    unset TO1 TO2 TO3 TO4
+    . ${TCOSWD}
+    [ ! -z "$TO1" ] && old[29]=$TO1 || old[29]="-1"
+    [ ! -z "$TO2" ] && old[30]=$TO2 || old[30]="-1"
+    [ ! -z "$TO3" ] && old[31]=$TO3 || old[31]="-1"
+    [ ! -z "$TO4" ] && old[32]=$TO4 || old[32]="-1"
+  fi
+  di[0]=${old[0]}
+  di[1]=${old[1]}
+  di[2]=${old[2]}
+  di[3]=${old[3]}
+  di[4]=${old[4]}
+  di[5]=${old[5]}
+  di[6]=${old[6]}
+  di[7]=${old[7]}
+  di[8]=${old[16]}
+  di[9]=${old[17]}
+  di[10]=${old[18]}
+  for n in 0 1 2 3 4 5 6 7 8 9 10; do
+    new_di[$n]=${di[$n]}
+    if [ "${new_di[$n]}" = "-1" -o "${old_di[$n]}" = "-1" ];then
+      old_di[$n]=${new_di[$n]}
+    else
+      if [ "${old_di[$n]}" != "${new_di[$n]}" ];then
+        if [ "${old_di[$n]}" = "1" ];then
+          old_di[$n]=${new_di[$n]}
+          exec_cmd $n low
+          j=$(($n + 11))
+          exec_cmd $j low
+        elif [ "${old_di[$n]}" = "0" ];then
+          old_di[$n]=${new_di[$n]}
+          exec_cmd $n high
+          j=$(($n + 11))
+          exec_cmd $j high
+        fi
+      fi
+    fi
+  done
+  cat>$tDIORD<<END
+di[0]=${old[0]}
+di[1]=${old[1]}
+di[2]=${old[2]}
+di[3]=${old[3]}
+di[4]=${old[4]}
+di[5]=${old[5]}
+di[6]=${old[6]}
+di[7]=${old[7]}
+di[8]=${old[16]}
+di[9]=${old[17]}
+di[10]=${old[18]}
+di[11]=${old[19]}
+di[12]=${old[20]}
+di[13]=${old[21]}
+di[14]=${old[22]}
+di[15]=${old[23]}
+di[16]=${old[24]}
+di[17]=${old[25]}
+di[18]=${old[26]}
+di[19]=${old[27]}
+di[20]=${old[28]}
+di[21]=${old[33]}
+di[22]=${old[34]}
+di[23]=${old[35]}
+END
+  cat>$tDIOWD<<END
+do[0]=${old[8]}
+do[1]=${old[9]}
+do[2]=${old[10]}
+do[3]=${old[11]}
+do[4]=${old[12]}
+do[5]=${old[13]}
+do[6]=${old[14]}
+do[7]=${old[15]}
+do[8]=${old[29]}
+do[9]=${old[30]}
+do[10]=${old[31]}
+do[11]=${old[32]}
+END
+  chown www-data.www-data $tDIORD ;  mv $tDIORD $DIORD
+  chown www-data.www-data $tDIOWD ;  mv $tDIOWD $DIOWD
+  msleep $LOOPWAIT
+done

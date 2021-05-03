@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.7.18 update 2019.7.18
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2019.7.18 update 2019.7.18
 # pepogpiogas_graph_mail ; Get the GPIO pepogpiogas_graph_mail graph & send mail
 # pepogpiogas_graph_mail mail_to subject message
 MAILFROM=$1

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.2.10 update 2018.2.24 for i386 & raspberry pi.
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.2.10 update 2021.5.1 for i386 & raspberry pi.
 # pepotocsctl for contorl TWE-Lite DIP:Ver1.6 or later(monowireless engine) digital-IN/digital-OUT signal.
 # pepotocsctl $1:ch[0-7] [$2:0-f] [$3: timer->1 to 300000ms]
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
@@ -328,7 +328,7 @@ read_dio(){
     DATA=$(($((0x${TMP} & 0x${CH})) / ${XCH}))
     DATA=$(($DATA ^ 0x01))
   fi
-    printf "%1x" ${DATA} >/dev/stderr
+    printf "%x" ${DATA} >/dev/stderr
 }
 
 read_ai(){
@@ -364,7 +364,7 @@ read_ai(){
   AISUB=$(($(($TMP >> 6 )) & 0x03))
   VOLT=$((0x$A4 * 4))
   A4VOLT=$(($(($VOLT + $AISUB)) * 4))
-  printf "%4d,%4d,%4d,%4d" ${A1VOLT} ${A2VOLT} ${A3VOLT} ${A4VOLT} >/dev/stderr
+  printf "%d,%d,%d,%d" ${A1VOLT} ${A2VOLT} ${A3VOLT} ${A4VOLT} >/dev/stderr
 }
 wait_di(){
   local RD READWAIT TMP
@@ -436,7 +436,7 @@ read_di_ai(){
   fi
   DATA=`cmd_di ${RD} 2>&1`
   DATA1=`cmd_ai ${RD} 2>&1`
-  echo -en ${DATA}";"${DATA1} >/dev/stderr
+  printf "%x;%s" ${DATA} ${DATA1} >/dev/stderr
 }
 read_di_ai_wait(){
   local DATA DATA1 RD TMP CHECK_DATA RDCHECKPG_SUM SUM

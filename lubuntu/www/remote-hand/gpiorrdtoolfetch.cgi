@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2019.10.14
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2019.10.14
 
 WORKDIR=/www/remote-hand/tmp
 DSFILE=${WORKDIR}/.gpio_temp_hum.rrd
@@ -39,13 +39,13 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>GPIO rrdtool fetch create</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>'
 if [ -e ${DSFILE} ];then
 cat >${CMD}<<EOF
 #!/bin/bash
-[ -e $FETCHDATA ] && rm -f $FETCHDATA 
+[ -e $FETCHDATA ] && rm -f $FETCHDATA
 rrdtool fetch ${DSFILE} MAX -r 60 -s -1h | awk 'BEGIN{print "Date,Temp,Hum,Pres,Gas,IAQ"};!/nan|gpio/{if(length(\$0)==0){next};gsub(/:/,"",\$0);printf("%s,%2.1f,%2.1f,%d,%d,%d\\n",strftime("%Y/%m/%d %H:%M:%S",\$1),\$2,\$3,\$4,\$5,\$6)}' > ${FETCHDATA}
 EOF
 fi

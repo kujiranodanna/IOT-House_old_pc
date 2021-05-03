@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2012.7.11 update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2012.7.11 update 2018.2.24
 
 # pepogmail4jpg.cgi ; get video or jpeg & send mail
 # pepogmail4jpg mail_to subject message
@@ -40,7 +40,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Video is being retrieved</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>
 '
@@ -74,4 +74,3 @@ if [ -e \$WORKIMAGE ];then
 fi
 rm -f $DIOCMD
 END
-

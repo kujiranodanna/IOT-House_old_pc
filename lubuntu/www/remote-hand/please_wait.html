@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/HTML; charset=utf-8">
+<META NAME="Auther" content="yamauchi.isamu">
+<META NAME="Copyright" content="pepolinux.com">
+<META NAME="Build" content="20201205">
+<META NAME="reply-to" content="izamu@pepolinux.com">
+<TITLE>Please wait</TITLE>
+<script type="text/javascript">
+function blink() {
+  for (var i = 0; i < document.all.length; i++) {
+    obj = document.all(i);
+    if (obj.className == "blink") {
+      if (obj.style.visibility == "visible") {
+        obj.style.visibility = "hidden";
+      }
+      else {
+        obj.style.visibility = "visible";
+      }
+    }
+  }
+  setTimeout("blink()",1000);
+}
+</script>
+</HEAD>
+<BODY onload="blink()" BGCOLOR="#E0FFFF">
+<HR>
+<TABLE ALIGN=CENTER BGCOLOR="#E0FFFF" BORDER=0 CELLPADING=6 CELLSPACING=2>
+<TR ALIGN=CENTER class="blink"><TD>Server processing</TD></TR>
+<TR ALIGN=CENTER><TD>Please wait</TD></TR>
+</TABLE>
+<HR>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD></TR></TABLE>
+</BODY>
+</HTML>

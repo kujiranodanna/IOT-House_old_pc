@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.8.5 update 2018.10.17
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2016.8.5 update 2018.10.17
 # pepoi2chum_graph_mail ; Get the i2c Humidity graph & send mail
 # pepoi2chum_graph_mail mail_to subject message
 MAILFROM=$1

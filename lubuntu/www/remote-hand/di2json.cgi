@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2018.2.24
 
 DIRD=/www/remote-hand/tmp/.di_read_data
 JSONRD=/www/remote-hand/tmp/.di_read_data.json

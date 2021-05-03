@@ -1,0 +1,47 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2019.6.16 update 2019.7.28
+# Scan GPIO IAQ & LED Display for rasberry pi zero W.
+# pepoiaq2led
+DIR=/www/remote-hand/tmp
+GPIOGPIORD=$DIR/.gpiodi_read_data
+GPIOGPIOWD=$DIR/.gpiodo_write_data
+DEEP=3000
+LIGHT=1500
+DSLEEP="/usr/local/bin/msleep $DEEP"
+LSLEEP="/usr/local/bin/msleep $LIGHT"
+GPIOCMD="/usr/local/bin/pepogpioctl b"
+GPIO3RD="/usr/local/bin/pepogpioctl 3"
+BLACK="$GPIOCMD 0"
+RED="$GPIOCMD 4"
+GREEN="$GPIOCMD 2"
+BLUE="$GPIOCMD 1"
+GREEN_BLUE="$GPIOCMD 3"
+PINK="$GPIOCMD 5"
+YELLOW="$GPIOCMD 6"
+
+while true;do
+  if [ -e $GPIOGPIORD ];then
+    . $GPIOGPIOWD
+    IAQ=`cat $GPIOGPIORD|awk 'BEGIN{FS=","};{printf $6}'`
+    IAQ_COLOR=$GREEN
+    if [ $IAQ -lt 51 ];then
+      IAQ_COLOR=$GREEN
+    elif [ $IAQ -lt 101 ];then
+      IAQ_COLOR=$GREEN_BLUE
+    elif [ $IAQ -lt 151 ];then
+      IAQ_COLOR=$YELLOW
+    elif [ $IAQ -lt 201 ];then
+      IAQ_COLOR=$PINK
+    elif [ $IAQ -lt 301 ];then
+      IAQ_COLOR=$RED
+    else
+      IAQ_COLOR=$RED
+    fi
+    $IAQ_COLOR
+    $LSLEEP
+    tBLACK=$((${do[3]} * 8))
+    $GPIOCMD $tBLACK
+  fi
+  $DSLEEP
+done

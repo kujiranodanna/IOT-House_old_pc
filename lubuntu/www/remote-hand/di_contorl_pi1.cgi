@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2019.12.21
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2021.1.14
 
 echo -en '
 <HTML>
@@ -8,7 +8,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
 <META NAME="Copyright" content="pepolinux.com">
-<META NAME="Build" content="2019.12.21">
+<META NAME="Build" content="2021.1.14">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <TITLE>DI in the action setting for( digital-in)</TITLE>
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>DIO action-1 settings</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD></TR></TABLE>
 </BODY>'
 
 DIR=/www/remote-hand/tmp
@@ -147,7 +147,7 @@ if [ -e $count ];then
   chown www-data.www-data $count $log
 fi
 high_low=$high_low
-if [ $invert != "none" ];then 
+if [ $invert != "none" ];then
   [ -e $DO_WRITE_DATA ] && . $DO_WRITE_DATA
   [ \${do[$do_ch]} -eq 0 ] && high_low="1" || high_low="0"
 fi
@@ -182,7 +182,7 @@ if [ -e $count ];then
   chown www-data.www-data $count $log
 fi
 high_low=$high_low
-if [ $invert != "none" ];then 
+if [ $invert != "none" ];then
   [ -e $DO_WRITE_DATA ] && . $DO_WRITE_DATA
   [ \${do[$ch]} -eq 0 ] && high_low="1" || high_low="0"
 fi
@@ -253,11 +253,15 @@ if [ -e $count ];then
   unset WTMP
   if [ $IMAGE = "mail" ];then
     WGETMAIL=/usr/local/bin/peposendmail
-    \$WGETMAIL "$mail_to" \$SUBJECT \$MESSAGE	
+    \$WGETMAIL "$mail_to" \$SUBJECT \$MESSAGE
   elif [ $IMAGE = "mail_message" ];then
     WGETMAIL=/usr/local/bin/pepomsgsendmail
     MSG_BOX=`echo -en $msg_box |awk '{gsub(/ /,"+",$0);printf $0}'`
     \$WGETMAIL "$mail_to" \$MSG_BOX \$MESSAGE
+  elif [ $IMAGE = "web_camera_still" ];then
+    WGETMAIL="/usr/local/bin/pepogmail4jpg video0"
+    SUBJECT=\${SUBJECT}"+image_file"
+    \$WGETMAIL "$mail_to" \$SUBJECT \$MESSAGE
   elif [ $IMAGE = "web_camera_video" ];then
     WGETMAIL="/usr/local/bin/pepogmail4pic video0"
     SUBJECT=\${SUBJECT}"+image_file"
@@ -343,7 +347,7 @@ del_all() {
   local file log
   di_count $1
 #  file=$DIR/"$1"
-  file=/usr/bin/"$1" 
+  file=/usr/bin/"$1"
   count=$DIR/."$1".count
   log=$DIR/."$1".log
   CMD=$DIR/dio_control_del_$1.pepocmd
@@ -376,8 +380,8 @@ while [ $n -lt 22 ];do
         echo "di_mail_message[$n]=""${di_mail_message[$n]}" >>"$DICH"
         echo "di_mail_message[$n]=""${di_mail_message[$n]}" >>"$sDICH"
         echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$DICH"
-        echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$sDICH"        
-      elif [ "${di_act[$n]}" = "mail" -o "${di_act[$n]}" = "web_camera_video" -o "${di_act[$n]}" = "mod_camera_still" -o "${di_act[$n]}" = "mod_camera_video" ];then
+        echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$sDICH"
+      elif [ "${di_act[$n]}" = "mail" -o "${di_act[$n]}" = "web_camera_still" -o "web_camera_video" -o "${di_act[$n]}" = "mod_camera_still" -o "${di_act[$n]}" = "mod_camera_video" ];then
         echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$DICH"
         echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$sDICH"
       else
@@ -624,7 +628,7 @@ if [ -e "$sDICH" ];then
           di_mail[$n]=""
           di_tel "$FIL" "${di_tel[$n]}" "$DIR/.di_tel$n.tel_lock"
         ;;
-        "mail" | "mail_message" | "web_camera_video" | "mod_camera_still" | "mod_camera_video")
+        "mail" | "mail_message" | "web_camera_still" |  "web_camera_video" | "mod_camera_still" | "mod_camera_video")
           don_time[$n]=""
           di_tel[$n]=""
           [ "${di_act[$n]}" != "mail_message" ] && di_mail_message[$n]=""
@@ -656,6 +660,8 @@ if [ -e "$sDICH" ];then
             $MAIL "$FIL" "${di_mail[$n]}" "$DI_NAME" "$FIL" "mail"
           elif [ ${di_act[$n]} = "mail_message" ];then
             $MAIL "$FIL" "${di_mail[$n]}" "$DI_NAME" "$FIL" "mail_message" "${di_mail_message[$n]}"
+          elif [ ${di_act[$n]} = "web_camera_still" ];then
+            $MAIL "$FIL" "${di_mail[$n]}" "$DI_NAME" "$FIL" "web_camera_still"
           elif [ ${di_act[$n]} = "web_camera_video" ];then
             $MAIL "$FIL" "${di_mail[$n]}" "$DI_NAME" "$FIL" "web_camera_video"
           elif [ ${di_act[$n]} = "mod_camera_still" ];then
@@ -689,13 +695,13 @@ if [ -e "$sDICH" ];then
           ARG2="${don_time[$n]}"
           di_sound "$FIL" "$ARG1" "$ARG2"
         ;;
-      esac 
+      esac
     fi
     if [ "${di_change_reg[$n]}" = "del" ];then
-      del_all "$FIL" 
+      del_all "$FIL"
     fi
     if [ "${di_change_reg[$n]}" = "clr" ];then
-      di_clear "$FIL" 
+      di_clear "$FIL"
     fi
     n=$(($n + 1))
   done

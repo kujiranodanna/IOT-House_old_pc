@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2013.7.15 update 2020.6.30
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2021.5.3
 # pepojsond is for daemon make json data
 USR_BIN=/usr/bin/dio
 EXEC_CMD=/usr/local/bin/pepodiodexec
@@ -14,15 +14,20 @@ DIOWD=$DIR/.do_write_data
 GPIORD=$DIR/.gpiodi_read_data
 VOICEREQ=$DIR/.voice_req
 tVOICEREQ=$DIR/.voice_req.tmp
+LIVEIMG=$DIR/remote-hand.jpg
+LIVEMOVE=$DIR/remote-hand.webm
 JSONRD=/www/remote-hand/.di_read_data.json
 tJSONRD=/www/remote-hand/.di_read_data.json.tmp
 IRKIT_IP=$DIR/.IRKit_IP
-TEMPERFILE=$DIR/temperature
 TCOSWD=$DIR/.tocos_write_data
 TCOSRD=$DIR/.tocos_read_data
 SOUND_FILE_NAME=$DIR/.sound_file_name
+#HOMEPAGE=/www/remote-hand/pi_int.html
+HOMEPAGE=/www/remote-hand/pi_int_cp2112.html
 prog=pepojsond
 pidfile=/var/run/$prog.pid
+MAX_TMP_FILE_LIVE=180
+CMD=$DIR/$prog.pepocmd
 echo -en $$ >$pidfile
 WAIT=2000
 LWAIT=8000
@@ -37,10 +42,10 @@ trap error SIGTERM SIGHUP SIGKILL SIGINT
 [ -e "$tJSONRD" ] && rm -f $tJSONRD
 [ -e $pidfile ] && rm -f $pidfile
 
-# loop for gpio polling read 
+# loop for gpio polling read
 while true
 do
-  unset di do alias_di alias_do alias_vdo sound_file piface_ip tocos_ip 
+  unset di do alias_di alias_do alias_vdo sound_file piface_ip tocos_ip
   [ -e $ALIAS_DI ] && . $ALIAS_DI
   [ -e $ALIAS_DO ] && . $ALIAS_DO
   if [ ! -z  $piface_ip ];then
@@ -371,7 +376,7 @@ END
   echo -e \"cpu_temp\":\"$CPU_TEMP\", >>$tJSONRD
   voice_req="none"
   if [ ! -e "${tVOICEREQ}" ];then
-    if [ -e ${VOICEREQ} ];then 
+    if [ -e ${VOICEREQ} ];then
       mv ${VOICEREQ} ${tVOICEREQ}
       voice_req=`cat ${tVOICEREQ}`
       [ -z "${voice_req}" ] && voice_req="none"
@@ -379,9 +384,47 @@ END
   else
     voice_req=`cat ${tVOICEREQ}`
   fi
-  echo -e \"voice_req\":\"${voice_req}\" >>$tJSONRD
+  echo -e \"voice_req\":\"${voice_req}\", >>$tJSONRD
+  HP_TIMESTAMP=`date +%s -r $HOMEPAGE`
+  echo -e \"hp_timestamp\":\"${HP_TIMESTAMP}\", >>$tJSONRD
+  liveimg="none"
+  livevideo="none"
+  NOWSECOND=`date +%s`
+  if [ -e $LIVEIMG ];then
+    LIVEIMGSTAMP=`date +%s -r $LIVEIMG`
+    if [ $(($NOWSECOND - $LIVEIMGSTAMP)) -gt 2 ];then
+      liveimg="remote-hand.jpg"
+    fi
+  fi
+  if [ -e $LIVEMOVE ];then
+    LIVEIMGSTAMP=`date +%s -r $LIVEMOVE`
+    if [ $(($NOWSECOND - $LIVEIMGSTAMP)) -gt 5 ];then
+      livevideo="remote-hand.webm"
+    fi
+  fi
+  echo -e \"liveimg\":\"${liveimg}\", >>$tJSONRD
+  echo -e \"livevideo\":\"${livevideo}\" >>$tJSONRD
   echo "}" >>$tJSONRD
   mv $tJSONRD $JSONRD
   chown www-data.www-data $JSONRD
+  #temp file delete
+  TMP_FILE_PNG=`ls $DIR/|grep ".png"`;CT_PNG=`echo $TMP_FILE_PNG|wc -w`
+  TMP_FILE_JPG=`ls $DIR/|grep ".jpg"`;CT_JPG=`echo $TMP_FILE_JPG|wc -w`
+  TMP_FILE_TXT=`ls $DIR/|grep ".txt"`;CT_TXT=`echo $TMP_FILE_TXT|wc -w`
+  TOTAL=$(($CT_PNG + $CT_JPG + $CT_TXT))
+  if [ $TOTAL -gt 0 ];then
+    for TMP in $TMP_FILE_PNG $TMP_FILE_JPG $TMP_FILE_TXT ;do
+      TM=`date +%s -r $DIR/$TMP`
+      if [ $(($NOWSECOND - $TM)) -gt $MAX_TMP_FILE_LIVE ];then
+        rm $DIR/$TMP
+      fi
+    done
+  fi
+  if [ -e ${VOICEREQ} ];then
+    FILE_LIVE=`date +%s -r ${VOICEREQ}`
+    if [ $(($NOWSECOND - $FILE_LIVE)) -gt $MAX_TMP_FILE_LIVE ];then
+      rm ${VOICEREQ}
+    fi
+  fi
   msleep ${POLLTIME}
 done
