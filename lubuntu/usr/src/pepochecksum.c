@@ -1,5 +1,5 @@
 /* 
-Copyright Isamu.Yamauchi 2015-2017. update 2015.2.20
+Copyright Isamu.Yamauchi 2015-2023. update 2021.5.5
 This program is intended for making the checksum of the transmitted data of TWE-Lite DIP(Tocos wireless engine) .
 */
 
@@ -18,9 +18,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include<stdio.h>
-#include<string.h>
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <sys/types.h>
 #define VER "0.1"
 #define DAY "compiled:"__DATE__

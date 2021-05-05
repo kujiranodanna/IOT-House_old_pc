@@ -1,5 +1,5 @@
 /*
- Copyright Isamu.Yamauchi 2011.11.5
+ Copyright Isamu.Yamauchi 2011.11.5 update 2021.5.5
  pepodioexec.c help diod for daemon contorl digital-Input to ANDDIO
 */
 
@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 void exec_cmd(char *cmd) {
   char *cmds[4];
   cmds[0] = "/bin/sh";
@@ -28,7 +29,7 @@ void exec_cmd(char *cmd) {
 
 int main (int argc, char *argv[]) {
   int pid;
-  switch( pid = fork() ) {
+  switch(pid = fork()) {
     case 0:
       exec_cmd(argv[1]);
     break;

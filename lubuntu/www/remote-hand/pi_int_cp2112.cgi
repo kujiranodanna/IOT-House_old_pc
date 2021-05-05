@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2021.4.22
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2021.5.5
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2021.4.22"
+DATE="2021.5.5"
 VERSION="ver:0.01&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
@@ -1459,8 +1459,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1527,8 +1526,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1595,8 +1593,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1663,8 +1660,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1731,8 +1727,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1799,8 +1794,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1867,8 +1861,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1935,8 +1928,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2003,8 +1995,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2071,8 +2062,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2139,8 +2129,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2207,8 +2196,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2275,8 +2263,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2343,8 +2330,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2533,8 +2519,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2598,8 +2583,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2663,8 +2647,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2728,8 +2711,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2792,8 +2774,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2857,8 +2838,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2922,8 +2902,7 @@ Action:low→high
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2987,8 +2966,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3052,8 +3030,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3117,8 +3094,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3182,8 +3158,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3246,8 +3221,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3311,8 +3285,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3376,8 +3349,7 @@ Action:high→low
 <OPTION VALUE="mail_message">Email_messageage
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="mod_camera_still">Mod_camera Still
-<OPTION VALUE="mod_camera_video">Mod_camera Video
+
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
