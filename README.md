@@ -1,5 +1,6 @@
 # IOT-House_old_pc
-Revive abandoned PCs at IOT House
+### Revive abandoned PCs at IOT House
+Give your old laptop another chance to play an active role!
 ![IOT-House_old_pc](https://user-images.githubusercontent.com/70492305/115954863-33bc7700-a52e-11eb-9c52-d42f607de5d1.jpeg)
 ### It has the following features.
 1. MM-CP2122A is used for gpio to revive an old PC with IOT-House.
