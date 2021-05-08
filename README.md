@@ -40,4 +40,6 @@ https://osdn.net/projects/pepolinux/releases/75081
 7. Please set the network properly,
 - the initial state is wired LAN, the host name is iot000.
 8. From another PC http://iot000.local etc. user:remote, password: hand ,Log in with.
+Control panel below
 ![sshot_iot-house_old_pc](https://user-images.githubusercontent.com/70492305/117527575-08df2200-b008-11eb-990a-0898cda7eed1.png)
+![sshot_iot-house_old_pc-2](https://user-images.githubusercontent.com/70492305/117527767-6758d000-b009-11eb-8510-1410da3beade.png)
