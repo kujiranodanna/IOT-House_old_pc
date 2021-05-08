@@ -35,7 +35,7 @@ https://osdn.net/projects/pepolinux/releases/75081
 - dd if=IOT-House_old_pc_xx.img of=/dev/sdb bs=100M count=80
 5. Attach it to the USB of the flash memory notebook PC and start it by turning on the power.
 - It may take about 5 minutes to start.
-6. When the login screen appears, user: remote, Password: hand Log in with.
+6. When the login screen appears, user: remote, password: hand ,Log in with.
 7. Please set the network properly,
 - the initial state is wired LAN, the host name is iot000.
-8. From another PC http://iot000.local etc. User:remote, Password: hand Log in with.
+8. From another PC http://iot000.local etc. user:remote, password: hand ,Log in with.
