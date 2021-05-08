@@ -2,6 +2,7 @@
 ### Revive abandoned PCs at IOT House
 Give your old laptop another chance to play an active role!
 ![IOT-House_old_pc](https://user-images.githubusercontent.com/70492305/115954863-33bc7700-a52e-11eb-9c52-d42f607de5d1.jpeg)
+
 ### It has the following features.
 1. [Sunhayato's MM-CP2122A](https://www.sunhayato.co.jp/material2/ett09/item_1083) is used for gpio to revive an old PC with IOT-House.
 2. IOT-House of raspberry pi is arranged according to lubuntu.
@@ -39,3 +40,4 @@ https://osdn.net/projects/pepolinux/releases/75081
 7. Please set the network properly,
 - the initial state is wired LAN, the host name is iot000.
 8. From another PC http://iot000.local etc. user:remote, password: hand ,Log in with.
+![sshot_iot-house_old_pc](https://user-images.githubusercontent.com/70492305/117527575-08df2200-b008-11eb-990a-0898cda7eed1.png)
