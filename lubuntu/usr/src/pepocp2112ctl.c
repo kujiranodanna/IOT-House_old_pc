@@ -1,6 +1,6 @@
 /*
 The MIT License
-Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.5.13 Update 2021.4.11
+Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.5.13 Update 2021.4.23
 read for AM2320 or BME680 temperature,humidity,presure,gas
 */
 
@@ -12,7 +12,7 @@ read for AM2320 or BME680 temperature,humidity,presure,gas
  * https://www.silabs.com/documents/public/data-sheets/cp2112-datasheet.pdf
  *
  * Depends on the HID API multi-platform library, available from
- * http://www.signal11.us/oss/hidapi/
+ * https://github.com/signal11/hidapi
  * BME680 Drivers from https://github.com/BoschSensortec/BME680_driver
  * Downloads bme680.c bme680.h bme680_defs.h
  * Build with
@@ -20,7 +20,9 @@ read for AM2320 or BME680 temperature,humidity,presure,gas
  *   or
  *   gcc -Wall -o pepocp2112ctl pepocp2112ctl.c bme680.c -lhidapi-hidraw
  *
- o 2021.4.11
+ o 2021.4.23 Ver0.4
+   bug fix gpio output pin is reset when the command is executed
+ o 2021.4.11 Ver0.3
    bug fix BME680 and AM2320 cannot be operated at the same time
  o 2021.3.28 Ver0.2
  o Added support for some bug fixes and BME680
@@ -55,7 +57,7 @@ read for AM2320 or BME680 temperature,humidity,presure,gas
 #undef  DEMO /* Comment out the case when DEMO */
 #define READ 'R'
 #define WRITE 'W'
-#define VER "0.3"
+#define VER "0.4"
 #define DAY "compiled:"__DATE__
 #define LOCK -1
 #define UNLOCK 1
@@ -115,6 +117,7 @@ void usage()
 {
   fprintf(stderr,"\r\n** Welcome to pepocp2112ctl Version-%s Copyright Isamu.Yamauchi %s **",VER,DAY);
   fprintf(stderr,"\n\rusage:pepocp2112ctl port:0-8 [0|1] [timer:0-300000ms]");
+  fprintf(stderr,"\n\rusage:pepocp2112ctl port:0-3 output, 4-7 input ");
   fprintf(stderr,"\n\rusage:pepocp2112ctl 5  <--AM2320 measured");
   fprintf(stderr,"\n\rusage:pepocp2112ctl 10  <--BME680 measured\n\r");
 }
@@ -254,105 +257,14 @@ void create_semaphore()
   }
 }
 
-void mysem_lock(int sid)
+static int cp2112_close(hid_device *hd)
 {
-  struct sembuf mysemop[1];
-  mysemop[0].sem_num = 0;
-  mysemop[0].sem_op = LOCK;
-  mysemop[0].sem_flg = SEM_UNDO;
-  if (semop(sid, mysemop, 1) == -1)
-  {
-    perror("semop: semop lock-1 failed");
-    exit(EXIT_FAILURE);
-  }
-#ifdef DEBUG
-  printf("semop_lock:");get_myval(sid);
-#endif
-}
-
-void mysem_unlock(int sid)
-{
-  struct sembuf mysemop[1];
-  mysemop[0].sem_num = 0;
-  mysemop[0].sem_op = UNLOCK;
-  mysemop[0].sem_flg = SEM_UNDO;
-  if (semop(sid, mysemop, 1) == -1)
-  {
-    perror("semop: semop unlock failed");
-    exit(EXIT_FAILURE);
-  }
-#ifdef DEBUG
-  printf("sem_unlock:");get_myval(sid);
-#endif
-}
-
-sigtype close_fd()
-{
-  mysem_unlock(mysem_id);
-  unlink(SENSOR_DATA);
-  unlink(SENSOR_DATA_TMP);
-  unlink(CP2112_SEMAPHORE);
+  int8_t rslt = 0;
   if (is_hid == CP2112_IS_OPEN)
   {
     hid_close(hd);
     hid_exit();
   }
-  exit(EXIT_SUCCESS);
-}
-
-void move_file(const char* src_name, const char* dest_name)
-{
-  rename(src_name, dest_name);
-}
-
-/* CRC16 calculation */
-unsigned short crc16( unsigned char *ptr, unsigned char len ) {
-  unsigned short crc = 0xFFFF;
-  unsigned char i;
-  while( len-- )
-  {
-    crc ^= *ptr++;
-    for(i = 0; i < 8; i++)
-    {
-      if(crc & 0x01)
-      {
-        crc >>= 1;
-        crc ^= 0xA001;
-      } else {
-        crc >>= 1;
-      }
-    }
-  }
-  return crc;
-}
-
-/* configures cp2112 to automatically send read data, see AN495 section 4.6 */
-static int cp2112_set_auto_send_read(hid_device *hd, int on_off)
-{
-  unsigned char buf[14] = { CP2112_GETSET_SMBUS_CONFIG, };
-  int ret = hid_get_feature_report(hd, buf, sizeof(buf));
-  if (ret < 0)
-  {
-    fprintf(stderr, "hid_get_feature_report() failed: %ls\n",
-    hid_error(hd));
-    return -1;
-  }
-  buf[6] = on_off;
-  ret = hid_send_feature_report(hd, buf, sizeof(buf));
-  if (ret < 0)
-  {
-    fprintf(stderr, "hid_send_feature_report() failed: %ls\n",
-    hid_error(hd));
-    return -1;
-  }
-  return 0;
-}
-
-static int cp2112_close(hid_device *hd)
-{
-  int8_t rslt = 0;
-  hid_close(hd);
-  hid_exit();
   is_hid = CP2112_IS_CLOSE;
   return rslt;
 }
@@ -376,22 +288,8 @@ static int cp2112_open(int cp2112_vid, int cp2112_pid)
       raise(SIGTERM);
     }
   }
-  if (cp2112_set_auto_send_read(hd, 0) < 0)
-  {
-    fprintf(stderr, "set_auto_send_read failed\n");
-    is_hid = CP2112_IS_CLOSE;
-    raise(SIGTERM);
-  }
   is_hid = CP2112_IS_OPEN;
   return rslt;
-}
-
-/* reset cp2112 */
-static int cp2112_reset(hid_device *hd)
-{
-  unsigned char buf[2] = { CP2112_RESET ,0x01 ,};
-  int ret = hid_send_feature_report(hd, buf, sizeof(buf));
-  return ret;
 }
 
 /* configure cp2112 GPIO pins */
@@ -461,6 +359,152 @@ static unsigned char cp2112_get_gpio(hid_device *hd, unsigned char mask, unsigne
     return -1;
   }
   return buf[1] ;
+}
+/* configures cp2112 to automatically send read data, see AN495 section 4.6 */
+static int cp2112_set_auto_send_read(hid_device *hd, int on_off)
+{
+  unsigned char buf[14] = { CP2112_GETSET_SMBUS_CONFIG, };
+  int ret = hid_get_feature_report(hd, buf, sizeof(buf));
+  if (ret < 0)
+  {
+    fprintf(stderr, "hid_get_feature_report() failed: %ls\n",
+    hid_error(hd));
+    return -1;
+  }
+  buf[6] = on_off;
+  ret = hid_send_feature_report(hd, buf, sizeof(buf));
+  if (ret < 0)
+  {
+    fprintf(stderr, "hid_send_feature_report() failed: %ls\n",
+    hid_error(hd));
+    return -1;
+  }
+  return 0;
+}
+
+void mysem_lock(int sid)
+{
+  key_t key;
+  FILE *fdsem;
+  if (sid == 0)
+  {
+    fdsem = fopen(CP2112_SEMAPHORE,"r");
+    if (fdsem == NULL)
+    {
+      create_semaphore();
+      cp2112_open(CP2112_VID, CP2112_PID);
+      cp2112_config_gpio(hd);
+    // DEMO
+    #ifdef DEMO
+      unsigned char mask = 0x7f;
+      unsigned char value = 0x7f;
+    #else
+      unsigned char mask = 0x0f;
+      unsigned char value = 0x00;
+    #endif
+      cp2112_set_gpio(hd, mask, value);
+      if (cp2112_set_auto_send_read(hd, 0) < 0)
+      {
+        fprintf(stderr, "set_auto_send_read failed\n");
+        is_hid = CP2112_IS_CLOSE;
+        raise(SIGTERM);
+      }
+    }
+    else
+      fclose(fdsem);
+    if ((key = ftok(CP2112_SEMAPHORE, 'S')) == -1)
+    {
+      perror("ftok: failed");
+      exit(EXIT_FAILURE);
+    }
+    if (mysem_id == 0)
+    {
+  /* Initialization of the semaphore */
+      mysem_id = semget(key, 1, 0666 | IPC_CREAT);
+    }
+    if (mysem_id  < 0)
+    {
+      perror("semget: semget Initialization failed");
+      exit(EXIT_FAILURE);
+    }
+    sid = mysem_id;
+  }
+  if (is_hid == CP2112_IS_CLOSE) cp2112_open(CP2112_VID, CP2112_PID);
+  struct sembuf mysemop[1];
+  mysemop[0].sem_num = 0;
+  mysemop[0].sem_op = LOCK;
+  mysemop[0].sem_flg = SEM_UNDO;
+  if (semop(sid, mysemop, 1) == -1)
+  {
+    perror("semop: semop lock-1 failed");
+    exit(EXIT_FAILURE);
+  }
+#ifdef DEBUG
+  printf("semop_lock:");get_myval(sid);
+#endif
+}
+
+void mysem_unlock(int sid)
+{
+  struct sembuf mysemop[1];
+  mysemop[0].sem_num = 0;
+  mysemop[0].sem_op = UNLOCK;
+  mysemop[0].sem_flg = SEM_UNDO;
+  if (semop(sid, mysemop, 1) == -1)
+  {
+    perror("semop: semop unlock failed");
+    exit(EXIT_FAILURE);
+  }
+#ifdef DEBUG
+  printf("sem_unlock:");get_myval(sid);
+#endif
+}
+
+sigtype close_fd()
+{
+  mysem_unlock(mysem_id);
+  unlink(SENSOR_DATA);
+  unlink(SENSOR_DATA_TMP);
+  if (is_hid == CP2112_IS_OPEN)
+  {
+    hid_close(hd);
+    hid_exit();
+  }
+  exit(EXIT_SUCCESS);
+}
+
+void move_file(const char* src_name, const char* dest_name)
+{
+  rename(src_name, dest_name);
+}
+
+/* CRC16 calculation */
+unsigned short crc16( unsigned char *ptr, unsigned char len ) {
+  unsigned short crc = 0xFFFF;
+  unsigned char i;
+  while( len-- )
+  {
+    crc ^= *ptr++;
+    for(i = 0; i < 8; i++)
+    {
+      if(crc & 0x01)
+      {
+        crc >>= 1;
+        crc ^= 0xA001;
+      } else {
+        crc >>= 1;
+      }
+    }
+  }
+  return crc;
+}
+
+/* reset cp2112 */
+static int cp2112_reset(hid_device *hd)
+{
+  unsigned char buf[2] = { CP2112_RESET ,0x01 ,};
+  int ret = hid_send_feature_report(hd, buf, sizeof(buf));
+  return ret;
 }
 
 /* port no 0-7 write */
@@ -579,6 +623,7 @@ https://www.silabs.com/community/interface/knowledge-base.entry.html/2014/10/21/
       user_delay_ms(HID_WAIT);
       continue;
     }
+    user_delay_ms(HID_WAIT);
 /* write a buf_out byte to the am2320 */
     buf_out[0] = CP2112_DATA_WRITE;
     buf_out[2] = 0x03; // writes length
@@ -727,9 +772,7 @@ int bme680_is_connect(hid_device *hd)
     hid_error(hd));
     raise(SIGTERM);
   }
-  mysem_lock(mysem_id);
   rslt = hid_write(hd, buf_out, 2);
-  mysem_unlock(mysem_id);
   ret = bme680_is_idle(hd);
   if (ret < 0)
   {
@@ -751,7 +794,7 @@ int8_t user_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16
   int8_t rslt = 0; /* Return 0 for Success, non-zero for failure */
   uint8_t reg[5] = { 0 };
   uint8_t buf_in[40] = { 0 };
-  int timeout = 500; // 500 milisecons
+  int timeout = 1000; // 1000 milisecons
   mysem_lock(mysem_id);
 /* if cp2112_hid open ? */
   if (is_hid == CP2112_IS_CLOSE) cp2112_open(CP2112_VID, CP2112_PID);
@@ -820,33 +863,20 @@ int8_t user_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16
 */  // debugging code out
     if (buf_in[0] == CP2112_DATA_READ_RESPONS)
     {
-      if (buf_in[1] == 0x00 || buf_in[1] == 0x02 || buf_in[1] == 0x03)
+      if (buf_in[1] == 0x00 || buf_in[1] == 0x02)
       {
-        ret = buf_in[1];
+        ret = 0;
+        break;
+      }
+      if (buf_in[1] == 0x03)
+      {
+        ret = -1;
         break;
       }
       user_delay_ms(HID_WAIT);
       continue;
     }
-    if (buf_in[0] == CP2112_TRANSFER_STATUS_RESP)
-    {
-      user_delay_ms(HID_WAIT);
-      retry_cnt++;
-      continue;
-      if (buf_in[1] == 0x01)
-      {
-        retry_cnt++; // Busy or Idle or Other
-        user_delay_ms(HID_WAIT);
-        continue;
-      }
-      if (buf_in[1] == 0x00 && buf_in[1] == 0x02 && buf_in[1] == 0x03)
-      {
-        retry_cnt++; // Busy or Idle or Other
-        user_delay_ms(HID_WAIT);
-        continue;
-      }
-    }
-    retry_cnt++; // Busy or Idle or Other
+    retry_cnt++; // Busy or Other
     user_delay_ms(HID_WAIT);
     continue;
   }
@@ -854,40 +884,36 @@ int8_t user_i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16
   {
     fprintf(stderr, "user_i2c_read()4 retry failed: %ls\n",
     hid_error(hd));
-    raise(SIGTERM);
-  }
-  if (ret == 3)
-  {
-    fprintf(stderr, "user_i2c_read()5 failed time out: %ls\n",
-    hid_error(hd));
-    raise(SIGTERM);
-
+    ret = -1;
   }
   if (buf_in[2] != len)
   {
-    fprintf(stderr, "user_i2c_read()6 failed read length not match\n");
-    raise(SIGTERM);
+    fprintf(stderr, "user_i2c_read()5 failed read length not match\n");
+    ret = -1;
   }
-  if(buf_in[2] > 0 && rslt > 3 && buf_in[2] < rslt)
+  if (ret != -1)
   {
-    int8_t j = buf_in[2];
-//    fprintf(stderr, "\nbuf_in[2] dump start\n");
-    for (int8_t i=0; i < j; i++)
+    if(buf_in[2] > 0 && rslt > 3 && buf_in[2] < rslt)
     {
-      reg_data[i] = buf_in[i+3];
-//      fprintf(stderr,"%d:%02x ",i,reg_data[i]);
+      int8_t j = buf_in[2];
+  //    fprintf(stderr, "\nbuf_in[2] dump start\n");
+      for (int8_t i=0; i < j; i++)
+      {
+        reg_data[i] = buf_in[i+3];
+  //      fprintf(stderr,"%d:%02x ",i,reg_data[i]);
+      }
+  //    fprintf(stderr, "\nbuf_in[2] end\n");
     }
-//    fprintf(stderr, "\nbuf_in[2] end\n");
   }
-/* Read as a dummy to make the status response idle */
-  ret = bme680_is_idle(hd);
+  /* Read as a dummy to make the status response idle */
+  bme680_is_idle(hd);
   cp2112_close(hd);
   mysem_unlock(mysem_id);
   if (ret < 0)
   {
-    fprintf(stderr, "user_i2c_read()10 failed: %ls\n",
+    fprintf(stderr, "user_i2c_read()6 timeout or others failed: %ls\n",
     hid_error(hd));
-    return 1;
+    return -1;
   }
   return 0;
 }
@@ -987,21 +1013,30 @@ int bme680_measured(hid_device *hd)
   putenv(DESTZONE);  // Switch to destination time zone
   if (bme680_is_connect(hd) < 0)
   {
-    fprintf(stderr, "bme680_measured()0 failed: %ls\n" ,hid_error(hd));
+    fprintf(stderr, "bme680_measured() bme680_is_connect() failed: %ls\n" ,hid_error(hd));
     raise(SIGTERM);
   }
+  mysem_unlock(mysem_id);
 /* Get sensor data Avoid using measurements from an unstable heating setup */
-  conf_bme680(hd);
+  if (conf_bme680(hd) != 0)
+  {
+    fprintf(stderr, "bme680_measured() conf_bme680() failed: %ls\n" ,hid_error(hd));
+    raise(SIGTERM);
+  }
   while(1)
   {
     rslt = bme680_get_sensor_data(&data, &gas_sensor);
+    if(rslt != 0)
+    {
+      conf_bme680(hd);
+      continue;
+    }
     if(data.status & BME680_HEAT_STAB_MSK)
     {
       data_fd = fopen(SENSOR_DATA_TMP,"w");
       if(data_fd < 0)
       {
         raise(SIGTERM);
-
       }
       t = time(NULL);
       tm = *localtime(&t);
@@ -1033,8 +1068,6 @@ int main(int argc, char *argv[])
   int port_timer = 0;
   char rw_flag = READ;
   unsigned char s_result = 0x00;
-  key_t key;
-  FILE *fdsem;
   char patterns[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
   if ( argc > 4 || argc < 2  )
   {
@@ -1071,42 +1104,7 @@ int main(int argc, char *argv[])
     }
     rw_flag = WRITE;
   }
-  fdsem = fopen(CP2112_SEMAPHORE,"r");
-  if (fdsem == NULL)
-  {
-    create_semaphore();
-  }
-  else
-    fclose(fdsem);
-  if ((key = ftok(CP2112_SEMAPHORE, 'S')) == -1)
-  {
-    perror("ftok: failed");
-    exit(EXIT_FAILURE);
-  }
-  if (mysem_id == 0)
-  {
-/* Initialization of the semaphore */
-    mysem_id = semget(key, 1, 0666 | IPC_CREAT);
-  }
-  if (mysem_id  < 0)
-  {
-    perror("semget: semget Initialization failed");
-    exit(EXIT_FAILURE);
-  }
   mysem_lock(mysem_id);
-/* if cp2112_hid open ? */
-  if (is_hid == CP2112_IS_CLOSE) cp2112_open(CP2112_VID, CP2112_PID);
-// DEMO
-#ifdef DEMO
-  unsigned char mask = 0x7f;
-  unsigned char value = 0x7f;
-#else
-  unsigned char mask = 0x0f;
-  unsigned char value = 0x00;
-#endif
-  cp2112_config_gpio(hd);
-  cp2112_set_gpio(hd, mask, value);
-/* cp2112 auto_send_read disable */
   if (rw_flag == WRITE)
   {
   /* port write */
@@ -1167,7 +1165,6 @@ int main(int argc, char *argv[])
     }
     else if (port == 10)
     {
-      mysem_unlock(mysem_id);
       bme680_measured(hd);
     }
     else
