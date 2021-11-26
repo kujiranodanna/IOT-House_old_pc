@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2021.4.23
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2021.5.8
 # Scan CP2112GPIO for i386.
 # pepocp2112ctld
 GPIOINT="/usr/local/bin/pepocp2112ctl 9"
@@ -30,12 +30,15 @@ tGPIOGPIOWD=$DIR/.gpiodo_write_data.tmp
 DOWDHELP=$DIR/.do_write_cp2112_helper
 ALIAS_DI=$DIR/.alias_di
 tALIAS_DI=$DIR/.alias_di_pepogpioctld
-GPIOGPIO_INIT_FLAG=YES
+GPIO_INIT_FILE=/var/run/pepocp2112.semaphore
+GPIO_INIT_FLAG=YES
 BME680_RD=$DIR/.pepocp2112bme680
 error(){
   [ -e $tGPIOGPIORD ] && rm -f $tGPIORD
   [ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
   [ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
+  [ -e $GPIO_INIT_FILE ] && rm -f $GPIO_INIT_FILE
+  $GPIO_INIT_FILE
   pkill -f "$GPIOCTL_I2CBME680"
   exit 0
 }
@@ -44,6 +47,7 @@ trap error SIGTERM SIGHUP SIGKILL SIGINT SIGQUIT
 [ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
 [ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
 [ -e $tGPIOGPIOWD ] && rm -f $tGPIOGPIOWD
+[ -e $GPIO_INIT_FILE ] && rm -f $GPIO_INIT_FILE
 LOOPDO=${LOOPDOCT}
 LOOPI2C=${LOOPI2CT}
 pkill -f "$GPIOCTL_I2CBME680"
@@ -60,7 +64,7 @@ while true;do
   if [ "$DI_TTY" = "none" ];then
     [ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
     [ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
-    GPIOGPIO_INIT_FLAG=YES
+    GPIO_INIT_FLAG=YES
     LOOPTIME=$LOOPSLEEP
     msleep $LOOPTIME
     pkill "$GPIOCTL_I2CBME680"
@@ -70,20 +74,20 @@ while true;do
   for i in 0 1 2 3 4 5 6 7; do old[$i]="-1" ;done
   LOOPTIME=$LOOPSLEEP
   # usb gpio_do initialize
-  if [ $GPIOGPIO_INIT_FLAG = YES ];then
-    RD=`$GPIOCTL 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIOGPIO_INIT_FLAG || echo -en "YES" >$GPIOGPIO_INIT_FLAG
+  if [ $GPIO_INIT_FLAG = YES ];then
+    RD=`$GPIOCTL 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIO_INIT_FLAG || echo -en "YES" >$GPIO_INIT_FLAG
     msleep $WAIT
-    RD=`$GPIOCTL_0 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIOGPIO_INIT_FLAG || echo -en "YES" >$GPIOGPIO_INIT_FLAG
+    RD=`$GPIOCTL_0 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIO_INIT_FLAG || echo -en "YES" >$GPIO_INIT_FLAG
     msleep $WAIT
-    RD=`$GPIOCTL_1 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIOGPIO_INIT_FLAG || echo -en "YES" >$GPIOGPIO_INIT_FLAG
+    RD=`$GPIOCTL_1 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIO_INIT_FLAG || echo -en "YES" >$GPIO_INIT_FLAG
     msleep $WAIT
-    RD=`$GPIOCTL_2 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIOGPIO_INIT_FLAG || echo -en "YES" >$GPIOGPIO_INIT_FLAG
+    RD=`$GPIOCTL_2 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIO_INIT_FLAG || echo -en "YES" >$GPIO_INIT_FLAG
     msleep $WAIT
-    RD=`$GPIOCTL_3 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIOGPIO_INIT_FLAG || echo -en "YES" >$GPIOGPIO_INIT_FLAG
+    RD=`$GPIOCTL_3 2>&1` ; [ "$RD" != "-1" ] && echo -en "NO" >$GPIO_INIT_FLAG || echo -en "YES" >$GPIO_INIT_FLAG
     msleep $WAIT
     $GPIOCTL_I2CBME680 &
   fi
-  GPIOGPIO_INIT_FLAG=NO
+  GPIO_INIT_FLAG=NO
 #DO write
   if [ -e $DOWDHELP ];then
     if [ $LOOPDO = 0 ];then
@@ -210,7 +214,7 @@ while true;do
   RD=`$GPIOCTL 2>&1`
   LEN=`echo $RD|awk '{print(length($0))}'`
   if [ "$RD" != "-1" -o "LEN" = 2 ];then
-    GPIOGPIO_INIT_FLAG=NO
+    GPIO_INIT_FLAG=NO
     for i in 1 2 4 8 16 32 64 128; do
       case "$i" in
         1) tRD="$(($((0x$RD & 1)) / 1))" ;j=0 ;;
@@ -225,7 +229,7 @@ while true;do
     old[$j]=$tRD
     done
   else
-    GPIOGPIO_INIT_FLAG=YES
+    GPIO_INIT_FLAG=YES
     rm -f $GPIOGPIORD $GPIOGPIOWD
   fi
   cat>$tGPIOGPIORD<<END
