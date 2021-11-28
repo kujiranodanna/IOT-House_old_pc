@@ -1,7 +1,7 @@
 # IOT-House_old_pc
 ### Revive abandoned PCs at IOT House
 - News 2021.11.23 [IOT-House_docker](https://hub.docker.com/repository/docker/kujiranodanna/iot-house_docker) release
-- docker run -itd --privileged --name iot-house_docker -p 8022:22 -p 80:80 -p 443:443 kujiranodanna/iot-house_docker:v0.01
+  - docker run -itd --privileged --name iot-house_docker -p 8022:22 -p 80:80 -p 443:443 kujiranodanna/iot-house_docker:v0.01
 
 Give your old laptop another chance to play an active role!
 ![IOT-House_old_pc](https://user-images.githubusercontent.com/70492305/115954863-33bc7700-a52e-11eb-9c52-d42f607de5d1.jpeg)
