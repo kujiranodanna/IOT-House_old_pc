@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.13 update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.13 update 2022.1.10
 # peposound ; sound mp3 file
 # usage peposound mp3_file_No timer
 if [ $# -lt 1 -o $# -gt 2 ];then
@@ -12,7 +12,7 @@ TM=$2
 DIR=/www/remote-hand/tmp
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 MP3_FILE_NAME=$DIR/.sound_file_name
-MP3_PLAY=/usr/bin/mpg321
+MP3_PLAY=/usr/bin/mplayer
 if [ -e $MP3_FILE_NAME ];then
   . $MP3_FILE_NAME
   [ ! -z ${sound_file[$NUM]} ] && MP3_FILE=$DIR/${sound_file[$NUM]} || exit

@@ -1,13 +1,13 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2021.5.7
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.1.12
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2021.5.7"
-VERSION="ver:0.01&nbsp;$DATE"
+DATE="2022.1.12"
+VERSION="ver:0.02&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
 <HTML>
@@ -437,12 +437,12 @@ else
 fi
 if [ -n "${DI_TTY}" ];then
   case ${DI_TTY} in
-    cp2112) vTTY="cp2112" ;;
+    gpio) vTTY="cp2112" ;;
     none) vTTY="none" ;;
     *) vTTY="none" ;;
   esac
 else
-   DI_TTY="cp2112" ; vTTY="cp2112"
+   DI_TTY="gpio" ; vTTY="cp2112"
 fi
 MODEM=$DIR/.modem
 [ -e $MODEM ] && . $MODEM || modem_dev=none
@@ -1038,7 +1038,7 @@ Slice<INPUT TYPE="text" style="width:24px;" NAME="slice_ai_23" VALUE="${SLICE_AI
 <HR>
 Interface<SELECT NAME="DI_TTY">
 <OPTION VALUE="${DI_TTY}" SELECTED>${vTTY}
-<OPTION VALUE="cp2112">cp2112
+<OPTION VALUE="gpio">cp2112
 <OPTION VALUE="none">none
 </SELECT>&nbsp;&nbsp;
 remote_ip<INPUT TYPE="text" style="width:120px;" NAME="piface_ip" VALUE="${piface_ip}">

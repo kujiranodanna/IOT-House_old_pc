@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2021.4.21
+# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2022.1.12
 PATH=$PATH:/usr/local/bin
 # get ppp_user name & ppp mode
 DIR=/www/remote-hand/tmp
@@ -15,7 +15,7 @@ LOCKCGI="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKCGIPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
 ALIAS_DI=$DIR/.alias_di
 [ -e $ALIAS_DI ] && . $ALIAS_DI
-if [ $DI_TTY != "cp2112" ];then
+if [ $DI_TTY != "gpio" ];then
    PI_INT=pi_int_cp2112.cgi
 else
    PI_INT=pi_int_cp2112.cgi

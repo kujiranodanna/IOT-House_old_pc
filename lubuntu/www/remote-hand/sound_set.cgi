@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2017.7.13
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.1.11
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,8 +9,8 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2017.7.13">
-<META http-equiv="Refresh" content="2;URL=/remote-hand/pi_int.html">
+<META NAME="build" content="2022.1.11">
+<META http-equiv="Refresh" content="2;URL=/remote-hand/pi_int_cp2112.html">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Upload Sound File settings</TITLE>
 <script type="text/javascript">
@@ -35,7 +35,7 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Processing Upload Sound File settings</TD></TR></TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD><TR></TABLE>
 </BODY>'
 
 CONV=./conv_get.cgi

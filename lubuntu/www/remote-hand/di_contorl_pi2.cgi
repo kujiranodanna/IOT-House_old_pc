@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2021.1.14
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.1.11
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
 <META NAME="Copyright" content="pepolinux.com">
-<META NAME="Build" content="2021.1.14">
+<META NAME="Build" content="2022.1.10">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <TITLE>DI in the action setting for( digital -in)</TITLE>
@@ -323,12 +323,12 @@ while [ $n -lt 22 ]; do
         echo "di_mail_message[$n]=""${di_mail_message[$n]}" >>"$sDICH"
         echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$DICH"
         echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$sDICH"
-      elif [ "${di_act[$n]}" = "mail" -o "${di_act[$n]}" = "web_camera_still" -o "web_camera_video" -o "${di_act[$n]}" = "mod_camera_still" -o "${di_act[$n]}" = "mod_camera_video" ];then
+      elif [ "${di_act[$n]}" = "mail" -o "${di_act[$n]}" = "web_camera_still" -o "${di_act[$n]}" = "web_camera_video" -o "${di_act[$n]}" = "mod_camera_still" -o "${di_act[$n]}" = "mod_camera_video" ];then
         echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$DICH"
         echo "di_mail[$n]="\"${di_mail[$n]}\" >>"$sDICH"
       else
-	    echo "di_act_alt[$n]=""${di_act_alt[$n]}" >>"$DICH"
-	    echo "di_act_alt[$n]=""${di_act_alt[$n]}" >>"$sDICH"
+        echo "di_act_alt[$n]=""${di_act_alt[$n]}" >>"$DICH"
+        echo "di_act_alt[$n]=""${di_act_alt[$n]}" >>"$sDICH"
         echo "don_time[$n]=""${don_time[$n]}" >>"$DICH"
         echo "don_time[$n]=""${don_time[$n]}" >>"$sDICH"
       fi
