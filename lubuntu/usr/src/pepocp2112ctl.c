@@ -1,6 +1,6 @@
 /*
 The MIT License
-Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.5.13 Update 2021.4.23
+Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.5.13 Update 2022.1.15
 read for AM2320 or BME680 temperature,humidity,presure,gas
 */
 
@@ -20,6 +20,8 @@ read for AM2320 or BME680 temperature,humidity,presure,gas
  *   or
  *   gcc -Wall -o pepocp2112ctl pepocp2112ctl.c bme680.c -lhidapi-hidraw
  *
+ o 2022.1.15 Ver0.5
+   bug fix mysem_lock,mysem_unlock
  o 2021.4.23 Ver0.4
    bug fix gpio output pin is reset when the command is executed
  o 2021.4.11 Ver0.3
@@ -99,6 +101,7 @@ struct bme680_field_data data;
 FILE *data_fd;
 uint16_t meas_period;
 int mysem_id = 0;
+key_t key;
 hid_device *hd;
 int8_t is_hid = CP2112_IS_CLOSE;
 
@@ -120,6 +123,7 @@ void usage()
   fprintf(stderr,"\n\rusage:pepocp2112ctl port:0-3 output, 4-7 input ");
   fprintf(stderr,"\n\rusage:pepocp2112ctl 5  <--AM2320 measured");
   fprintf(stderr,"\n\rusage:pepocp2112ctl 10  <--BME680 measured\n\r");
+  exit(EXIT_FAILURE);
 }
 
 int get_myval(int sid)
@@ -180,7 +184,7 @@ void create_semaphore()
   FILE *fdsem;
   uint16_t d_result;
   int mysemun_id;
-  key_t key;
+//  key_t key;
 #ifdef DEBUG
   pid_t my_pid, sem_pid;
   my_pid = getpid();
@@ -384,31 +388,16 @@ static int cp2112_set_auto_send_read(hid_device *hd, int on_off)
 
 void mysem_lock(int sid)
 {
-  key_t key;
+//  key_t key;
   FILE *fdsem;
+  int config_gpio = 0;
   if (sid == 0)
   {
     fdsem = fopen(CP2112_SEMAPHORE,"r");
     if (fdsem == NULL)
     {
       create_semaphore();
-      cp2112_open(CP2112_VID, CP2112_PID);
-      cp2112_config_gpio(hd);
-    // DEMO
-    #ifdef DEMO
-      unsigned char mask = 0x7f;
-      unsigned char value = 0x7f;
-    #else
-      unsigned char mask = 0x0f;
-      unsigned char value = 0x00;
-    #endif
-      cp2112_set_gpio(hd, mask, value);
-      if (cp2112_set_auto_send_read(hd, 0) < 0)
-      {
-        fprintf(stderr, "set_auto_send_read failed\n");
-        is_hid = CP2112_IS_CLOSE;
-        raise(SIGTERM);
-      }
+      config_gpio = 1;
     }
     else
       fclose(fdsem);
@@ -429,7 +418,6 @@ void mysem_lock(int sid)
     }
     sid = mysem_id;
   }
-  if (is_hid == CP2112_IS_CLOSE) cp2112_open(CP2112_VID, CP2112_PID);
   struct sembuf mysemop[1];
   mysemop[0].sem_num = 0;
   mysemop[0].sem_op = LOCK;
@@ -442,6 +430,26 @@ void mysem_lock(int sid)
 #ifdef DEBUG
   printf("semop_lock:");get_myval(sid);
 #endif
+  if (is_hid == CP2112_IS_CLOSE) cp2112_open(CP2112_VID, CP2112_PID);
+  if (config_gpio == 1)
+  {
+    cp2112_config_gpio(hd);
+    // DEMO
+    #ifdef DEMO
+    unsigned char mask = 0x7f;
+    unsigned char value = 0x7f;
+    #else
+    unsigned char mask = 0x0f;
+    unsigned char value = 0x00;
+    #endif
+    cp2112_set_gpio(hd, mask, value);
+    if (cp2112_set_auto_send_read(hd, 0) < 0)
+    {
+      fprintf(stderr, "set_auto_send_read failed\n");
+      is_hid = CP2112_IS_CLOSE;
+      raise(SIGTERM);
+    }
+  }
 }
 
 void mysem_unlock(int sid)
@@ -1072,14 +1080,12 @@ int main(int argc, char *argv[])
   if ( argc > 4 || argc < 2  )
   {
     usage();
-    exit(EXIT_FAILURE);
   }
   else {
     port = atoi(argv[1]);
     if (port > 10 || port < 0)
     {
       usage();
-      exit(EXIT_FAILURE);
     }
   }
   if ( argc == 3 ||  argc == 4)
@@ -1088,7 +1094,6 @@ int main(int argc, char *argv[])
     if ( data != 0 && data != 1 )
     {
       usage();
-      exit(EXIT_FAILURE);
     }
     else {
       rw_flag = WRITE;
@@ -1100,7 +1105,6 @@ int main(int argc, char *argv[])
     if ( port_timer < 0 || port_timer > 300000 )
     {
       usage();
-      exit(EXIT_FAILURE);
     }
     rw_flag = WRITE;
   }
