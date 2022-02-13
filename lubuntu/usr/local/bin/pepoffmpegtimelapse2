@@ -1,6 +1,6 @@
 #!/bin/bash
 # # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2021.7.7 update 2022.1.10
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2021.7.7 update 2022.2.12
 # pepoffmpegtimelapse ; RaspberryPi module A script that uses a camera to perform a security camera timelapse jpg to mp4 conversion.
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 LANG=en_us.utf-8
@@ -10,7 +10,7 @@ DISK=/dev/sda1
 # storage period, day week or month
 ROTA_PERIOD="1 month ago"
 # Image acquisition start time(seconds)
-GET_SEC=8
+GET_SEC=16
 # Grace time (seconds)
 MARGIN_SEC=$(($GET_SEC + 3))
 IMAGE_DIR=$WORKDIR/timelapse2
@@ -26,7 +26,7 @@ WAIT=5000
 PORT=443
 RMHOST1=iot02f.local
 MP_DIR=$WORKDIR/hdd
-IMG_MP_DIR=$MP_DIR/$RMHOST1
+IMG_MP_DIR=$MP_DIR/opt/$RMHOST1
 #FFMPEG_DIR_TMP=$IMG_MP_DIR/ffmpeg_tmp
 if [ ! -e $DISK ];then
   echo error no $DISK !

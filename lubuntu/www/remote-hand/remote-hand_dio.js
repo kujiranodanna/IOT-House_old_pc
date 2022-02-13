@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2021.5.3
-* remote-hand_dio.js  ver0.1 2021.5.3
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.12
+* remote-hand_dio.js  ver0.2 2022.2.12
 */
 function blink(){
   if (!document.all){ return; }
@@ -3025,7 +3025,8 @@ function ipaddr_ck(str){
 
 function mail_ck(str){
 /* mail address check */
-  var ck_pattern = /[!#-9A-~]+@+[0-9A-Za-z.-]+.+[^.]$/;
+//  var ck_pattern = /[!#-9A-~]+@+[0-9A-Za-z.-]+.+[^.]$/;
+  var ck_pattern = /[!#-9A-~]+[0-9A-Za-z.-]+.+[^.]$/;
   if(! str.match(ck_pattern)){
     alert(str + "←" + "There is an error in the e-mail address");
     return -1;

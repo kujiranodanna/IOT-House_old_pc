@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.1.12
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.12
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2022.1.12"
+DATE="2022.2.12"
 VERSION="ver:0.02&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
@@ -1383,7 +1383,7 @@ while [ $n -lt 22 ];do
     "mail")
       vdi_act[$n]="Email" ;;
     "mail_message")
-      vdi_act[$n]="Email_messageage" ;;
+      vdi_act[$n]="Send_message" ;;
     "web_camera_still")
       vdi_act[$n]="Web_camera Still" ;;
     "web_camera_video")
@@ -1455,7 +1455,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1484,7 +1484,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[0]}" NAME="di_tel_0">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[0]}" NAME="di_mail_0">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[0]}" NAME="di_mail_0">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[0]}" NAME="di_mail_message_0">
 &nbsp;
@@ -1522,7 +1522,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1551,7 +1551,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[1]}" NAME="di_tel_1">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[1]}" NAME="di_mail_1">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[1]}" NAME="di_mail_1">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[1]}" NAME="di_mail_message_1">
 &nbsp;
@@ -1589,7 +1589,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1618,7 +1618,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[2]}" NAME="di_tel_2">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[2]}" NAME="di_mail_2">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[2]}" NAME="di_mail_2">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[2]}" NAME="di_mail_message_2">
 &nbsp;
@@ -1656,7 +1656,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1685,7 +1685,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[3]}" NAME="di_tel_3">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[3]}" NAME="di_mail_3">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[3]}" NAME="di_mail_3">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[3]}" NAME="di_mail_message_3">
 &nbsp;
@@ -1723,7 +1723,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1752,7 +1752,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[8]}" NAME="di_tel_8">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[8]}" NAME="di_mail_8">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[8]}" NAME="di_mail_8">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[8]}" NAME="di_mail_message_8">
 &nbsp;
@@ -1790,7 +1790,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1819,7 +1819,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[9]}" NAME="di_tel_9">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[9]}" NAME="di_mail_9">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[9]}" NAME="di_mail_9">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[9]}" NAME="di_mail_message_9">
 &nbsp;
@@ -1857,7 +1857,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1886,7 +1886,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[10]}" NAME="di_tel_10">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[10]}" NAME="di_mail_10">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[10]}" NAME="di_mail_10">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[10]}" NAME="di_mail_message_10">
 &nbsp;
@@ -1924,7 +1924,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -1953,7 +1953,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[11]}" NAME="di_tel_11">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[11]}" NAME="di_mail_11">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[11]}" NAME="di_mail_11">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[11]}" NAME="di_mail_message_11">
 &nbsp;
@@ -1991,7 +1991,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2020,7 +2020,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[12]}" NAME="di_tel_12">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[12]}" NAME="di_mail_12">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[12]}" NAME="di_mail_12">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[12]}" NAME="di_mail_message_12">
 &nbsp;
@@ -2058,7 +2058,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2087,7 +2087,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[13]}" NAME="di_tel_13">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[13]}" NAME="di_mail_13">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[13]}" NAME="di_mail_13">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[13]}" NAME="di_mail_message_13">
 &nbsp;
@@ -2125,7 +2125,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2154,7 +2154,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[14]}" NAME="di_tel_14">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[14]}" NAME="di_mail_14">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[14]}" NAME="di_mail_14">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[14]}" NAME="di_mail_message_14">
 &nbsp;
@@ -2192,7 +2192,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2221,7 +2221,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[19]}" NAME="di_tel_19">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[19]}" NAME="di_mail_19">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[19]}" NAME="di_mail_19">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[19]}" NAME="di_mail_message_19">
 &nbsp;
@@ -2259,7 +2259,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2288,7 +2288,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[20]}" NAME="di_tel_20">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[20]}" NAME="di_mail_20">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[20]}" NAME="di_mail_20">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[20]}" NAME="di_mail_message_20">
 &nbsp;
@@ -2326,7 +2326,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2355,7 +2355,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[21]}" NAME="di_tel_21">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[21]}" NAME="di_mail_21">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[21]}" NAME="di_mail_21">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[21]}" NAME="di_mail_message_21">
 &nbsp;
@@ -2444,7 +2444,7 @@ while [ $n -lt 22 ];do
     "mail")
       vdi_act[$n]="Email" ;;
     "mail_message")
-      vdi_act[$n]="Email_messageage" ;;
+      vdi_act[$n]="Send_message" ;;
     "web_camera_still")
       vdi_act[$n]="Web_camera Still" ;;
     "web_camera_video")
@@ -2515,7 +2515,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2541,7 +2541,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[0]}" NAME="di_tel_0">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[0]}" NAME="di_mail_0">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[0]}" NAME="di_mail_0">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[0]}" NAME="di_mail_message_0">
 &nbsp;
@@ -2579,7 +2579,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2605,7 +2605,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[1]}" NAME="di_tel_1">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[1]}" NAME="di_mail_1">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[1]}" NAME="di_mail_1">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[1]}" NAME="di_mail_message_1">
 &nbsp;
@@ -2643,7 +2643,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2669,7 +2669,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[2]}" NAME="di_tel_2">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[2]}" NAME="di_mail_2">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[2]}" NAME="di_mail_2">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[2]}" NAME="di_mail_message_2">
 &nbsp;
@@ -2707,7 +2707,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2733,7 +2733,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[3]}" NAME="di_tel_3">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[3]}" NAME="di_mail_3">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[3]}" NAME="di_mail_3">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[3]}" NAME="di_mail_message_3">
 &nbsp;
@@ -2770,7 +2770,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2796,7 +2796,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[8]}" NAME="di_tel_8">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[8]}" NAME="di_mail_8">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[8]}" NAME="di_mail_8">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[8]}" NAME="di_mail_message_8">
 &nbsp;
@@ -2834,7 +2834,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2860,7 +2860,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[9]}" NAME="di_tel_9">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[9]}" NAME="di_mail_9">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[9]}" NAME="di_mail_9">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[9]}" NAME="di_mail_message_9">
 &nbsp;
@@ -2898,7 +2898,7 @@ Action:low→high
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2924,7 +2924,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[10]}" NAME="di_tel_10">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[10]}" NAME="di_mail_10">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[10]}" NAME="di_mail_10">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[10]}" NAME="di_mail_message_10">
 &nbsp;
@@ -2962,7 +2962,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -2988,7 +2988,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[11]}" NAME="di_tel_11">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[11]}" NAME="di_mail_11">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[11]}" NAME="di_mail_11">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[11]}" NAME="di_mail_message_11">
 &nbsp;
@@ -3026,7 +3026,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -3052,7 +3052,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[12]}" NAME="di_tel_12">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[12]}" NAME="di_mail_12">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[12]}" NAME="di_mail_12">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[12]}" NAME="di_mail_message_12">
 &nbsp;
@@ -3090,7 +3090,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -3116,7 +3116,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[13]}" NAME="di_tel_13">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[13]}" NAME="di_mail_13">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[13]}" NAME="di_mail_13">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[13]}" NAME="di_mail_message_13">
 &nbsp;
@@ -3154,7 +3154,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -3180,7 +3180,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[14]}" NAME="di_tel_14">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[14]}" NAME="di_mail_14">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[14]}" NAME="di_mail_14">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[14]}" NAME="di_mail_message_14">
 &nbsp;
@@ -3217,7 +3217,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -3243,7 +3243,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[19]}" NAME="di_tel_19">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[19]}" NAME="di_mail_19">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[19]}" NAME="di_mail_19">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[19]}" NAME="di_mail_message_19">
 &nbsp;
@@ -3281,7 +3281,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -3307,7 +3307,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[20]}" NAME="di_tel_20">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[20]}" NAME="di_mail_20">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[20]}" NAME="di_mail_20">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[20]}" NAME="di_mail_message_20">
 &nbsp;
@@ -3345,7 +3345,7 @@ Action:high→low
 <OPTION VALUE="TOFF_2">${ALIAS_DO[16]}low
 <OPTION VALUE="phone">Phone
 <OPTION VALUE="mail">Email
-<OPTION VALUE="mail_message">Email_messageage
+<OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
 
@@ -3371,7 +3371,7 @@ Alt
 <BR>
 Phone<INPUT TYPE="text" style="width:100px;text-align:left;" VALUE="${DI_TELNO[21]}" NAME="di_tel_21">
 &nbsp;
-Email<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[21]}" NAME="di_mail_21">
+Address<INPUT TYPE="text" style="width:120px;text-align:left;" VALUE="${DI_MAIL[21]}" NAME="di_mail_21">
 &nbsp;
 Message<INPUT TYPE="text" style="width:50px;text-align:left;" VALUE="${DI_MESS[21]}" NAME="di_mail_message_21">
 &nbsp;
@@ -3396,7 +3396,7 @@ CONF="$DIR/.pepogmail4dio.conf"
 [ ! -z "$LOOPTIME" ] && vLOOPTIME="$LOOPTIME"
 cat >>$PAGE1<<END
 <DL id="menu11dl">
-<DT><FONT SIZE="+1"><B>Settings system Email</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings system Address</B></FONT></DT>
 <DD>
 <B>Settings operation in Gmail</B>
 <BR>

@@ -1,0 +1,58 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2012.7.8 update 2022.1.12
+# pepomsgsend
+# pepomsgsend $1:mail_to, $2:subject, $3:message ,$4:image.jpeg
+if [ $# -lt 3 -o $# -gt 4 ];then
+  echo "usage: $0 mail_to subject message | image(remote.mp4|remote.jpg)"
+  exit
+fi
+DIR=/www/remote-hand/tmp
+SERVERCONF=$DIR/.startup.s.tmp
+MUA="/usr/bin/mutt -n -F /root/.mutt/muttrc"
+ALEXADO=/usr/local/bin/pepoalexado
+MAIL_LOG=/var/mail/mail
+prog=pepomsgsend
+pidfile=/var/run/$prog.pid
+MAIL_TO=$1
+SUBJECT=`echo $2 | awk '{gsub(/\+/," ",$0);printf $0}'`
+MESSAGE=`echo $3 | awk '{gsub(/\+/," ",$0);printf $0}'`
+VAL=`echo $4 | awk '{gsub(/\+/," ",$0);printf $0}'`
+EMAIL_YES_NO=`echo $MAIL_TO| awk 'BEGIN{i="NO"};/@/{i="YES"};END{printf i}'`
+if [ $EMAIL_YES_NO = "NO" ];then
+  if [ -e $SERVERCONF ];then
+    . $SERVERCONF
+    PASSWORD=$vWEBPASSWORD
+    USER=$vWEBUSER
+    NUM_SUB=`echo -en $SUBJECT |awk 'BEGIN{i="NO"}/^[0-9]/{i="YES"};END{printf i}'`
+    if [ $NUM_SUB = "YES" ];then
+      $ALEXADO $MAIL_TO $USER $PASSWORD $SUBJECT
+    elif [[ "$SUBJECT" =~ ^dio ]];then
+      $ALEXADO $MAIL_TO $USER $PASSWORD $SUBJECT
+    else
+      $ALEXADO $MAIL_TO $USER $PASSWORD "voice_req" $SUBJECT
+    fi
+  fi
+  exit
+fi
+HOSTNAME=`/bin/hostname`
+SUBJECT="$HOSTNAME $SUBJECT"
+IMAGEFILE=$4
+error(){
+  [ -e $pidfile ] && rm -f $pidfile
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+while [ -e ${pidfile} ]
+do
+  msleep 1000
+  kill -HUP `cat ${pidfile}`
+done
+echo -en $$ > ${pidfile}
+if [ $# -eq 4 ];then
+  echo ${MESSAGE} | ${MUA} -s "${SUBJECT}" "${MAIL_TO}" -a ${DIR}/${IMAGEFILE}
+elif [ $# -eq 3 ];then
+  echo ${MESSAGE} | ${MUA} -s "${SUBJECT}" "${MAIL_TO}"
+fi
+[ -e ${pidfile} ] && rm ${pidfile}
+[ -e ${MAIL_LOG} ] && rm -f ${MAIL_LOG}
