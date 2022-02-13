@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.12
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.13
 
 echo -en '
 <HTML>
@@ -8,7 +8,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
 <META NAME="Copyright" content="pepolinux.com">
-<META NAME="Build" content="2022.2.12">
+<META NAME="Build" content="2022.2.13">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <TITLE>DI in the action setting for( digital-in)</TITLE>
@@ -720,3 +720,11 @@ END
 fi
 echo -en '
 </HTML>'
+msleep 5000
+if [ $DI_TTY = "gpio" ];then
+  ./pi_int_gpio.cgi
+elif [ $DI_TTY = "piface" ];then
+  ./pi_int.cgi
+elif [ $DI_TTY = "cp2112" ];then
+  ./pi_int_cp2112.cgi
+fi

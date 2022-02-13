@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2020.9.28
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.13
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2020.9.28">
+<META NAME="build" content="2022.2.13">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>DIO settings</TITLE>
@@ -245,3 +245,11 @@ EOF
 END
 echo -en '
 </HTML>'
+msleep 5000
+if [ $DI_TTY = "gpio" ];then
+  ./pi_int_gpio.cgi
+elif [ $DI_TTY = "piface" ];then
+  ./pi_int.cgi
+elif [ $DI_TTY = "cp2112" ];then
+  ./pi_int_cp2112.cgi
+fi
