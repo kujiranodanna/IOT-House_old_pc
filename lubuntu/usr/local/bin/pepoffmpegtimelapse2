@@ -1,6 +1,6 @@
 #!/bin/bash
 # # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2021.7.7 update 2022.2.12
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2021.7.7 update 2022.2.19
 # pepoffmpegtimelapse ; RaspberryPi module A script that uses a camera to perform a security camera timelapse jpg to mp4 conversion.
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 LANG=en_us.utf-8
@@ -144,7 +144,7 @@ while true;do
       [ -e $i ] && rm $i
     done
     rm $FFMPEGINPUT
-    SOMEDAYSAGO_IMAGE=`ls -l $IMAGE_DIR/*| grep $SOMEDAYSAGO| awk '{printf("%s ",$9)}'`
+    SOMEDAYSAGO_IMAGE=`ls -l $IMAGE_DIR_TMP/*| grep $SOMEDAYSAGO| awk '{printf("%s ",$9)}'`
     MP_SOMEDAYSAGO_IMAGE=`ls -l $IMG_MP_DIR/*| grep $SOMEDAYSAGO| awk '{printf("%s",$9)}'`
     if [ `echo $SOMEDAYSAGO_IMAGE| wc -w` -eq 0 ];then
       continue
