@@ -1,0 +1,35 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.8.26 update 2022.2.21
+# ping monitoring of wifi or lan fail for old_pc
+# pepowlan_monitor_old_pc
+MSLEEP=34567
+UP_DOWN_SLEEP=89012
+WORKDIR=/www/remote-hand/tmp
+PING_LOG=$WORKDIR/.pepowlan_monitor_old_pc.log
+error() {
+  [ -e $PING_LOG ] && rm -f $PING_LOG
+  exit
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+unset GATEWAY
+while true
+do
+  GATEWAY=`ip route show|awk '/default/{printf $3}'`
+  while [ -z $GATEWAY ];do
+    msleep $MSLEEP
+    /etc/init.d/network-manager restart
+    msleep $UP_DOWN_SLEEP
+    GATEWAY=`ip route show|awk '/default/{printf $3}'`
+    if [ ! -z $GATEWAY ];then
+      break
+    fi
+  done
+  PING_HOST=$GATEWAY
+  date +"%Y/%m/%d %T" > $PING_LOG
+  if ! ping -c 1 $PING_HOST 2>&1 >>$PING_LOG; then
+    msleep 2000
+  fi
+  msleep $MSLEEP
+  GATEWAY=`ip route show|awk '/default/{printf $3}'`
+done

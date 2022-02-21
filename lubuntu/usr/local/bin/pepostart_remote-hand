@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2018.6.4
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2022.2.20
 # pepostart_remote-hand ; start remote-hand for old_pc
 hdparm -S 1 /dev/sda
 /etc/init.d/svscan stop
@@ -62,6 +62,10 @@ END
   fi
 else
   echo remote-hand aredy running!
+fi
+INT=`iw dev|grep Interface|awk '{print $2}'`
+if [ ! -z $INT ];then
+  iwconfig $INT power off
 fi
 /usr/local/bin/pepousbttyck
 /etc/init.d/svscan start
