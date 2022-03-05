@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2018.2.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.22
 
 echo -en '
 <HTML>
@@ -44,7 +44,7 @@ PING_MAIL=/www/remote-hand/tmp/.ping_mail_list
 PING_TMP=/www/remote-hand/tmp/.ping_mail_list.tmp
 PING_CRON=/www/remote-hand/tmp/.ping_watch.cron
 tPING_CRON=/www/remote-hand/tmp/.ping_watch.cron.tmp
-PING_WATCH=/pepolinux/mail/ping_watch_mail
+PING_WATCH=/www/pepolinux/mail/ping_watch_mail
 RUNDIR=/pepolinux/ping_mail
 LOCKDIR=/www/remote-hand/tmp
 CONV=./conv_get.cgi

@@ -37,8 +37,8 @@ cat >$PING_MSG<<END
 To:$MAIL_ADDRES
 Subject:host $1 ping up!
 END
-    cat $PING_LOG >>$PING_MSG
-    echo '.' >>$PING_MSG
+cat $PING_LOG >>$PING_MSG
+echo '.' >>$PING_MSG
 cat >$CMD<<EOF
 #!/bin/bash
 /usr/sbin/sendmail -i $2 <$PING_MSG

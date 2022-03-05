@@ -1,9 +1,9 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2019.6.16 update 2021.5.5
-# Scan GPIO IAQ & LED Display for lubuntu.
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2019.6.16 update 2022.2.22
+# Scan GPIO IAQ & LED Display for rasberry pi zero W.
 # pepoiaq2led
-# output pin1:red ,pin2:green ,pin3:blue
+# Connect physical Pin 13 ->Red Led, Pin 14 ->Green Led
 DIR=/www/remote-hand/tmp
 GPIOGPIORD=$DIR/.gpiodi_read_data
 GPIOGPIOWD=$DIR/.gpiodo_write_data
@@ -11,62 +11,25 @@ DEEP=3000
 LIGHT=1500
 DSLEEP="/usr/local/bin/msleep $DEEP"
 LSLEEP="/usr/local/bin/msleep $LIGHT"
-GPIOCMD="/usr/local/bin/pepocp2112ctl"
-BLACK="black"
-RED="red"
-GREEN="green"
-BLUE="blue"
-GREEN_BLUE="green_blue"
-PINK="pink"
-YELLOW="yellow"
+GPIOCMD="/usr/local/bin/pepogpioctl b"
+BLACK="$GPIOCMD 0"
+GREEN="$GPIOCMD 10"
+RED="$GPIOCMD 20"
+YELLOW="$GPIOCMD 30"
 
-black(){
-  $GPIOCMD 0 0
-  $GPIOCMD 1 0
-  $GPIOCMD 2 0
-}
-red(){
-  $GPIOCMD 0 1
-  $GPIOCMD 1 0
-  $GPIOCMD 2 0
-}
-green(){
-  $GPIOCMD 0 0
-  $GPIOCMD 1 1
-  $GPIOCMD 2 0
-}
-blue(){
-  $GPIOCMD 0 0
-  $GPIOCMD 1 0
-  $GPIOCMD 2 1
-}
-green_blue(){
-  $GPIOCMD 0 1
-  $GPIOCMD 1 1
-  $GPIOCMD 2 0
-}
-pink(){
-  $GPIOCMD 0 1
-  $GPIOCMD 1 0
-  $GPIOCMD 2 1
-}
-yellow(){
-  $GPIOCMD 0 0
-  $GPIOCMD 1 1
-  $GPIOCMD 2 1
-}
 while true;do
   if [ -e $GPIOGPIORD ];then
+    . $GPIOGPIOWD
     IAQ=`cat $GPIOGPIORD|awk 'BEGIN{FS=","};{printf $6}'`
     IAQ_COLOR=$GREEN
     if [ $IAQ -lt 51 ];then
       IAQ_COLOR=$GREEN
     elif [ $IAQ -lt 101 ];then
-      IAQ_COLOR=$GREEN_BLUE
+      IAQ_COLOR=$GREEN
     elif [ $IAQ -lt 151 ];then
       IAQ_COLOR=$YELLOW
     elif [ $IAQ -lt 201 ];then
-      IAQ_COLOR=$PINK
+      IAQ_COLOR=$YELLOW
     elif [ $IAQ -lt 301 ];then
       IAQ_COLOR=$RED
     else
@@ -74,6 +37,7 @@ while true;do
     fi
     $IAQ_COLOR
     $LSLEEP
+    $GPIOCMD $BLACK
   fi
   $DSLEEP
 done

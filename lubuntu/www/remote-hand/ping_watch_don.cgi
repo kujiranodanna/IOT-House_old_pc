@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2020.3.20 update 2022.3.1
 
 echo -en '
 <HTML>
@@ -8,7 +8,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
 <META NAME="Copyright" content="pepolinux.com">
-<META NAME="Build" content="2018.2.24">
+<META NAME="Build" content="2022.2.22">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Ping monitoring and digital output</TITLE>
@@ -43,7 +43,7 @@ DIR=/www/remote-hand/tmp
 CMD=$DIR/ping_watch_don.pepocmd
 PING_DON=$DIR/.ping_don_list
 PING_TMP=$DIR/.ping_don_tmp
-PING_WATCH=/pepolinux/ping_watch_don
+PING_WATCH=/www/pepolinux/ping_watch_don
 PING_CRON=$DIR/.ping_watch.cron
 tPING_CRON=$DIR/.ping_watch.cron.tmp
 

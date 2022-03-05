@@ -1,17 +1,17 @@
 #!/bin/bash
-#licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.10.21update 2013.7.24
-# ping watch of dio on for rasberry pi 
+#licence GPLv2 ; this scripts designed by IZAMUKARERA 2011.10.21update 2022.3.1
+# ping watch of dio on for rasberry pi
 PING_HOST=$1
 DIO_ACT=$2
 DIO_TIM=$3
 PING_LOCK=/www/remote-hand/tmp/"$PING_HOST"_dio.lock
 PING_LOG=/www/remote-hand/tmp/"$PING_HOST"_dio.log
 FAIL_DONE=/www/remote-hand/tmp/"$PING_HOST"_dio.done
-FIL=/www/remote-hand/tmp/dio_write.pepocmd
+FIL=/www/remote-hand/tmp/ping_watch_don.pepocmd
 
 if [ $# -lt 3 ]; then
-        echo usage: $0 ip_addres dio_act [dio_high_time]
-        exit
+  echo usage: $0 ip_addres dio_act [dio_high_time]
+  exit
 fi
 
 dio_write() {
@@ -72,7 +72,6 @@ $cmd $ARG1 $ARG2 $ARG3
 EOF
   chmod +x $FILE
 }
-
 
 if ! ping -c 1 $1 2>&1 >$PING_LOG; then
   msleep 1000
