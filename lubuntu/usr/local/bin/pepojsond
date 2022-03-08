@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2021.5.3
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2022.3.8
 # pepojsond is for daemon make json data
 USR_BIN=/usr/bin/dio
 EXEC_CMD=/usr/local/bin/pepodiodexec
