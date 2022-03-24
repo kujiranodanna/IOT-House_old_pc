@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.1.12
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.3.16
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -33,7 +33,7 @@ function blink() {
 <BODY onload="blink()" BGCOLOR="#E0FFFF">
 <HR>
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
-<TR ALIGN=CENTER class="blink"><TD>Processing Upload Sound File settings</TD></TR></TABLE>
+<TR ALIGN=CENTER class="blink"><TD>Processing Sound File settings</TD></TR></TABLE>
 <HR>
 <TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD><TR></TABLE>
 </BODY>'
@@ -43,15 +43,14 @@ CONV=./conv_get.cgi
 DIR=/www/remote-hand/tmp
 FILE_NAME=$DIR/.sound_file_name
 tFILE_NAME=$DIR/.sound_file_name_tmp
-
 if [ ! -e $FILE_NAME ];then
   exit
 else
   . $FILE_NAME
 fi
 for n in 0 1 2 3 4;do
-if [ -n ${sound_file[$n]} ];then
-  if [ ${reg_sound[$n]} = "del" ];then
+if [ -n "${disp_sound[$n]}" ];then
+  if [ ${sound_file[$n]}=${disp_sound[$n]} ];then
     cat $FILE_NAME | grep -F -v ${sound_file[$n]} > $tFILE_NAME
     mv $tFILE_NAME $FILE_NAME
     rm -f $DIR/${sound_file[$n]}

@@ -1,41 +1,51 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.13 update 2022.1.10
-# peposound ; sound mp3 file
-# usage peposound mp3_file_No timer
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2022.3.19
+# peposound for IOT-House_old_pc
+# usage peposound sound file_Num timer
 if [ $# -lt 1 -o $# -gt 2 ];then
-  echo  "usage: $0 0-4:mp3_file_No timer"
+  echo  "usage: $0 0-4:sound_file_Num timer"
   exit
 fi
 NUM=$1
 TM=$2
 DIR=/www/remote-hand/tmp
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
-MP3_FILE_NAME=$DIR/.sound_file_name
-MP3_PLAY=/usr/bin/mplayer
-if [ -e $MP3_FILE_NAME ];then
-  . $MP3_FILE_NAME
-  [ ! -z ${sound_file[$NUM]} ] && MP3_FILE=$DIR/${sound_file[$NUM]} || exit
-  MP3=`echo ${sound_file[$NUM]} | awk 'BEGIN{FS="."};{if($2=="mp3"){printf "YES"} else {printf "NO"}}'`
-  [ ! -e $MP3_FILE  -o $MP3 != "YES" ] && exit
+SOUND_FILE_NAME=$DIR/.sound_file_name
+SOUND_PLAYER=/usr/bin/mplayer
+MYPROG=/usr/local/bin/peposound
+SOUND_EXEC_CMD=$DIR/sound_player.pepocmd
+if [ -e $SOUND_FILE_NAME ];then
+  . $SOUND_FILE_NAME
+  [ ! -z ${sound_file[$NUM]} ] && SOUND_FILE=$DIR/${sound_file[$NUM]} || exit
 else
   exit
 fi
 prog=peposound
+MYPROG_CT=`pgrep -f $MYPROG |wc -l`
+[ $MYPROG_CT -gt 2 ] && exit
 LOCKFILE=/var/run/${prog}.pid
-
 error(){
   [ -e ${LOCKFILE} ] && rm -f ${LOCKFILE}
   exit 0
 }
-trap error SIGINT SIGTERM SIGHUP SIGKILL SIGCHLD
+trap error SIGINT SIGTERM SIGHUP
 lockfile -15 -r 1 ${LOCKFILE} >/dev/null 2>&1
 if [ $? = 0 ];then
   echo -en $$ >${LOCKFILE}
+else
+  exit
 fi
-${MP3_PLAY} ${MP3_FILE} >/dev/null 2>&1
+cat>$SOUND_EXEC_CMD<<END
+#!/bin/bash
+${SOUND_PLAYER} ${SOUND_FILE} >/dev/null 2>&1
+rm -f ${LOCKFILE}
+END
 if [ ! -z $TM ];then
   msleep $TM
-  ${MP3_PLAY} ${MP3_FILE} >/dev/null 2>&1
+  cat>$SOUND_EXEC_CMD<<END
+#!/bin/bash
+${SOUND_PLAYER} ${SOUND_FILE} >/dev/null 2>&1
+rm -f ${LOCKFILE}
+END
 fi
-rm -f  ${LOCKFILE}

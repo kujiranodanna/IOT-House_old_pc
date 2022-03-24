@@ -1,13 +1,13 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.1
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.19
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2022.3.1"
-VERSION="ver:0.02&nbsp;$DATE"
+DATE="2022.3.19"
+VERSION="ver:0.03&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
 <HTML>
@@ -363,17 +363,14 @@ cat >>$PAGE1<<END
 <DT><FONT SIZE="+1"><B>Settings Sound</B></FONT></DT>
 <DD>
 <FONT SIZE="3"><B>Sound Upload</B></FONT><BR>
-<FORM style="display: inline" id="menu4_form" NAME="menu4" ACTION="./sound_set.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
+<FORM style="display: inline" id="menu4_form" NAME="menu4" ACTION="./sound_del.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
 Sound1
 <INPUT TYPE="file" id="sound_file_0" style="width:240px;" NAME="sound_file_0" VALUE="">&nbsp;
 <INPUT style="text-align:center" TYPE="button" id="menu4_sound_0" VALUE="Upload" onClick="return menu4_ck('menu4_sound_0','disp_sound_0');"/>
 &nbsp;
 <span id="disp_sound_0">
 </span>&nbsp;
-<SELECT id="reg_sound_0" NAME="reg_sound_0">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="del">Delete
-</SELECT>&nbsp;
+<INPUT style="text-align:center" TYPE="button" id="menu4_sound_del_0" VALUE="Delete" onClick="return menu4_ck('menu4_sound_del','disp_sound_0');"/>
 <BR>
 Sound2
 <INPUT TYPE="file" id="sound_file_1" style="width:240px;" NAME="sound_file_1" VALUE="">&nbsp;
@@ -381,10 +378,7 @@ Sound2
 &nbsp;
 <span id="disp_sound_1">
 </span>&nbsp;
-<SELECT id="reg_sound_1" NAME="reg_sound_1">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="del">Delete
-</SELECT>&nbsp;
+<INPUT style="text-align:center" TYPE="button" id="menu4_sound_del_1" VALUE="Delete" onClick="return menu4_ck('menu4_sound_del','disp_sound_1');"/>
 <BR>
 Sound3
 <INPUT TYPE="file" id="sound_file_2" style="width:240px;" NAME="sound_file_2" VALUE="">&nbsp;
@@ -392,10 +386,7 @@ Sound3
 &nbsp;
 <span id="disp_sound_2">
 </span>&nbsp;
-<SELECT id="reg_sound_2" NAME="reg_sound_2">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="del">Delete
-</SELECT>&nbsp;
+<INPUT style="text-align:center" TYPE="button" id="menu4_sound_del_2" VALUE="Delete" onClick="return menu4_ck('menu4_sound_del','disp_sound_2');"/>
 <BR>
 Sound4
 <INPUT TYPE="file" id="sound_file_3" style="width:240px;" NAME="sound_file_3" VALUE="">&nbsp;
@@ -403,10 +394,7 @@ Sound4
 &nbsp;
 <span id="disp_sound_3">
 </span>&nbsp;
-<SELECT id="reg_sound_3" NAME="reg_sound_3">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="del">Delete
-</SELECT>&nbsp;
+<INPUT style="text-align:center" TYPE="button" id="menu4_sound_del_3" VALUE="Delete" onClick="return menu4_ck('menu4_sound_del','disp_sound_3');"/>
 <BR>
 Sound5
 <INPUT TYPE="file" id="sound_file_4" style="width:240px;" NAME="sound_file_4" VALUE="">&nbsp;
@@ -414,13 +402,8 @@ Sound5
 &nbsp;
 <span id="disp_sound_4">
 </span>&nbsp;
-<SELECT id="reg_sound_4" NAME="reg_sound_4">
-<OPTION VALUE="none" SELECTED>none
-<OPTION VALUE="del">Delete
-</SELECT>
+<INPUT style="text-align:center" TYPE="button" id="menu4_sound_del_4" VALUE="Delete" onClick="return menu4_ck('menu4_sound_del','disp_sound_4');"/>
 <BR>
-<INPUT style="text-align:center" TYPE="button" id="menu4_jikkou" VALUE="Run" onClick="return menu4_ck('menu4_jikkou','disp_jikkou');"/>
-<INPUT style="text-align:center" TYPE="reset" VALUE="Clear">
 </FORM>
 </DD>
 </DL>
