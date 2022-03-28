@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.19
-* remote-hand_dio.js  ver0.03 2022.3.19
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.29
+* remote-hand_dio.js  ver0.03 2022.3.29
 */
 function blink(){
   if (!document.all){ return; }
@@ -18,7 +18,7 @@ function blink(){
   }
   setTimeout("blink()",1000);
 }
-var smapho_reload_tm = 10000;
+var smapho_reload_tm = 15000;
 var unsmapho_reload_tm = 60000;
 var recognition = new webkitSpeechRecognition();
 var recognition_state = "Stop"
@@ -178,19 +178,17 @@ function google_speak(voice_t,voice_l){
 }
 function google_speak_none(voice_t,voice_l){
   if (voice_l == "en"){
-//    voice_t = voice_t + " do not understand";
       voice_t = "Because" + voice_t + "can not understand, I searched it with google";
   }
   else {
-//    voice_t = ""+ voice_t + "、が理解できませんでした。";
     var search_val = voice_t;
-    voice_t = voice_t + "、が理解できないのでgoogleで検索しました";
+    voice_t = voice_t + "、をウェブで検索しました";
   }
     var child_url = "https://www.google.com/search?q=" + search_val;
       var google_search = window.open(child_url,"width=640,height=480,resizable=yes,scrollbars=no");
       setTimeout(function () {
         google_search .close();
-      },10000);
+      },15000);
     speak_main(voice_t,voice_l);
 }
 

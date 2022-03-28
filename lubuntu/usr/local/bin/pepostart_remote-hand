@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2022.3.24
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2022.3.28
 # pepostart_remote-hand ; start remote-hand for old_pc
 hdparm -S 60 /dev/sda
 /etc/init.d/svscan stop
@@ -73,6 +73,9 @@ ln -s /www/tmp/.bash_history_remote /home/remote/.bash_history
 rm -f /root/.bash_history
 touch /www/tmp/.bash_history_root
 ln -s /www/tmp/.bash_history_root /root/.bash_history
+rm -f /var/lib/logrotate/status
+touch /www/tmp/logrotate_status
+ln -s /www/tmp/logrotate_status /var/lib/logrotate/status
 /usr/local/bin/pepousbttyck
 /etc/init.d/svscan start
 /etc/init.d/rsyslog start

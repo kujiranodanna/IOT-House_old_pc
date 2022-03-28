@@ -1,0 +1,30 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2022.3.27 update 2022.3.28
+# pepoalexahelp is daemon, Help the content that Alexa can not answer
+
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+DIR=/www/remote-hand
+DIR_TMP=$DIR/tmp
+JSON_DATA=$DIR/.di_read_data.json
+VOICEREQ=$DIR_TMP/.voice_req
+CPU_TEMP=`cat $JSON_DATA |jq -r .cpu_temp`
+TEMP=`cat $JSON_DATA |jq -r .gpio_i2c.temp`
+HUM=`cat $JSON_DATA |jq -r .gpio_i2c.hum`
+PRES=`cat $JSON_DATA |jq -r .gpio_i2c.pres`
+IAQ=`cat $JSON_DATA |jq -r .gpio_i2c.iaq`
+IAQ_STATUS="good"
+if [ $IAQ -lt 51 ];then
+  IAQ_STATUS="good"
+elif [ $IAQ -lt 101 ];then
+  IAQ_STATUS="average"
+elif [ $IAQ -lt 151 ];then
+  IAQ_STATUS="littlebad"
+elif [ $IAQ -lt 201 ];then
+  IAQ_STATUS="bad"
+elif [ $IAQ -lt 301 ];then
+  IAQ_STATUS="worse"
+elif [ $IAQ -gt 300 ];then
+  IAQ_STATUS="verybad"
+fi
+echo -en "@cpu温度${CPU_TEMP},部屋の温度,${TEMP},湿度,${HUM},気圧,${PRES},空気質,${IAQ}で${IAQ_STATUS}です">$VOICEREQ
