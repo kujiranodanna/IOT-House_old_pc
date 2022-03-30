@@ -376,6 +376,7 @@ END
     fi
   else
     voice_req=`cat ${tVOICEREQ}`
+    rm ${tVOICEREQ}
   fi
   echo -e \"voice_req\":\"${voice_req}\", >>$tJSONRD
   HP_TIMESTAMP=`date +%s -r $HOMEPAGE`

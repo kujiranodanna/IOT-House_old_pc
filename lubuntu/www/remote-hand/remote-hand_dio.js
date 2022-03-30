@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.29
-* remote-hand_dio.js  ver0.03 2022.3.29
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.30
+* remote-hand_dio.js  ver0.03 2022.3.30
 */
 function blink(){
   if (!document.all){ return; }
@@ -1846,12 +1846,20 @@ function update_di(item){
           }
           if (di2json.voice_req){
             val = di2json.voice_req;
-            if ( val == "high" ){
+            if (val == "high"){
               startWebVoiceRecognition();
             } else {
-               if ( val != "none" ){
-                 update_do("voice_sel",val);
-               }
+                if (val != "none"){
+                  var tmp = (val.match(/[^@＠]+/));
+                  if (tmp.index == 1){
+                    var voice_lang_val = $("#voice_lang").val();
+                    if (voice_lang_val === null) voice_lang_val = ja;
+                    val = tmp[0];
+                    speak_exec(val,voice_lang_val);
+                  } else {
+                      update_do("voice_sel",val);
+                }
+              }
             }
           }
           if (di2json.do0){
