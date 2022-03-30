@@ -18,7 +18,7 @@ function blink(){
   }
   setTimeout("blink()",1000);
 }
-var smapho_reload_tm = 15000;
+var smapho_reload_tm = 10000;
 var unsmapho_reload_tm = 60000;
 var recognition = new webkitSpeechRecognition();
 var recognition_state = "Stop"

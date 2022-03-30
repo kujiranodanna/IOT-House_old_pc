@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2022.3.8
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2022.3.30
 # pepojsond is for daemon make json data
 USR_BIN=/usr/bin/dio
 EXEC_CMD=/usr/local/bin/pepodiodexec
@@ -30,7 +30,6 @@ MAX_TMP_FILE_LIVE=180
 CMD=$DIR/$prog.pepocmd
 echo -en $$ >$pidfile
 WAIT=2000
-LWAIT=8000
 error(){
   [ -e "$JSONRD" ] && rm -f $JSONRD
   [ -e "$tJSONRD" ] && rm -f $tJSONRD
@@ -48,13 +47,7 @@ do
   unset di do alias_di alias_do alias_vdo sound_file piface_ip tocos_ip
   [ -e $ALIAS_DI ] && . $ALIAS_DI
   [ -e $ALIAS_DO ] && . $ALIAS_DO
-  if [ ! -z  $piface_ip ];then
-    POLLTIME=$LWAIT
-  elif [ ! -z  $tocos_ip ];then
-    POLLTIME=$LWAIT
-  else
-    POLLTIME=$WAIT
-  fi
+  POLLTIME=$WAIT
   for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23; do
     [ ! -z "${di[$i]}" ] && old[$i]=${di[$i]} || old[$i]="-1"
   done

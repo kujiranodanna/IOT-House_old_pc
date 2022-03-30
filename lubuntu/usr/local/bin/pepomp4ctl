@@ -1,13 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2013.10.12 update 2021.5.9
-# pepomp4ctl ; get video or jpeg
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2013.10.12 update 2022.3.29
+# pepomp4ctl ; get video or jpeg for IOT-House_old_pc
 # pepomp4ctl dev image pid
-#VIDEOPG=ffmpeg
 RASPICAMERA=/dev/vchiq
 RASPIVID=raspivid
 RASPISTILL=raspistill
-VIDEOPG=/usr/bin/avconv
+VIDEOPG=/usr/bin/ffmpeg
 MAXRUNTIME=60
 if [ $# != 3 ];then
  echo  "$0 video-dev xxx.jpg|xxx.mp4 your_pid"
