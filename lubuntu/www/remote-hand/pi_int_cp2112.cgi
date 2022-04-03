@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.19
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.4.3
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2022.3.19"
+DATE="2022.4.3"
 VERSION="ver:0.03&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '

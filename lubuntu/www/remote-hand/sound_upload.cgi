@@ -1,7 +1,7 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.3.19
-# sound_upload.cgi for IOT-House_old_pc
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.4.2
+
 PATH=$PATH:/usr/local/bin
 echo -en '
 <HTML>
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2022.3.19">
+<META NAME="build" content="2022.4.2">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Upload Sound File settings</TITLE>
@@ -70,18 +70,35 @@ case $name in
      n=4
   ;;
 esac
+M4A_YES_NO=`echo $filename |awk 'BEGIN{TMP="NO"};/m4a$/{TMP="YES"};END{printf TMP}'`
+WAV_YES_NO=`echo $filename |awk 'BEGIN{TMP="NO"};/wav$/{TMP="YES"};END{printf TMP}'`
+tmpFILENAME=$filename
+convertFILE="NO"
+if [ $M4A_YES_NO = "YES" ];then
+  tmpFILENAME=`echo $filename |awk '{sub("m4a","mp3",$0);printf $0}'`
+  convertFILE="YES"
+fi
+if [ $WAV_YES_NO = "YES" ];then
+  tmpFILENAME=`echo $filename |awk '{sub("wav","mp3",$0);printf $0}'`
+  convertFILE="YES"
+fi
 if [ -e $FILE_NAME ];then
-  .  $FILE_NAME
+  . $FILE_NAME
   [ -e $DIR/${sound_file[$n]} ] && rm -f $DIR/${sound_file[$n]}
   cat $FILE_NAME |grep -F -v $tmp >$tFILE_NAME
-  echo "$tmp"="$filename" >> $tFILE_NAME
+  echo "$tmp"="$tmpFILENAME" >> $tFILE_NAME
   mv $tFILE_NAME $FILE_NAME
 else
-  echo "$tmp"="$filename" > $tFILE_NAME
+  echo "$tmp"="$tmpFILENAME" > $FILE_NAME
 fi
-FILE=$DIR/$filename
+inputFILE=${DIR}/$filename
+outputFILE=${DIR}/$tmpFILENAME
 cat $tSOUND_FILE | sed '1,8d' >$SOUND_FILE
-dd if=$SOUND_FILE of=$FILE bs=1 count=$SIZE
+dd if=$SOUND_FILE of=$inputFILE bs=1 count=$SIZE
+if [ $convertFILE = "YES" ];then
+  ffmpeg -i $inputFILE -ab 64k -y $outputFILE
+  rm -f $inputFILE
+fi
 rm -f $tSOUND_FILE $tFILE_NAME $SOUND_FILE
 echo -en '
 </HTML>'

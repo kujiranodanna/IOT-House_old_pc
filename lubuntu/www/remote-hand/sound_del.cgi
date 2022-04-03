@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.3.16
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.4.2
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2022.1.11">
+<META NAME="build" content="2022.4.2">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Upload Sound File settings</TITLE>
@@ -55,6 +55,11 @@ if [ -n "${disp_sound[$n]}" ];then
     mv $tFILE_NAME $FILE_NAME
     rm -f $DIR/${sound_file[$n]}
   fi
+fi
+lengthFILE_NAME=`cat $FILE_NAME | wc -l`
+if [ $lengthFILE_NAME -eq 0 ];then
+  rm $FILE_NAME
+  exit
 fi
 done
 echo -en '

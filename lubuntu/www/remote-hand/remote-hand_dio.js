@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.3.30
-* remote-hand_dio.js  ver0.03 2022.3.30
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.4.3
+* remote-hand_dio.js  ver0.03 2022.4.3
 */
 function blink(){
   if (!document.all){ return; }
@@ -3145,11 +3145,16 @@ function menu4_ck(button_id,disp_id){
     return false;
   }
   if (call_cgi == "sound_upload.cgi"){
-    $(disp_id).text("File upload in progress.");
+    setInterval(function(){
+      $(disp_id).text("File upload in progress.");
+      $(disp_id).fadeOut('slow',function(){
+        $(this).fadeIn('slow');
+      });
+    },2000);
     $.ajax({
       type: "POST",
       url: call_cgi,
-      timeout : 30000,
+      timeout : 180000,
       dataType: "html",
       data: formdata,
       cache       : false,
@@ -3157,13 +3162,16 @@ function menu4_ck(button_id,disp_id){
       processData : false,
       success: function(){
         $(disp_id).text("File Upload Success!");
-        return;
       },
       error: function(){
         $(disp_id).text("File Upload faile!");
-        return;
       }
     });
+    setInterval(function(){
+      var jump_location = "wait_for.cgi?"
+      location.href=jump_location;
+      return;
+    },60000);
   }
 }
 
