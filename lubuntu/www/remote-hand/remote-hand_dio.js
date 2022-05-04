@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.4.3
-* remote-hand_dio.js  ver0.03 2022.4.3
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.5.4
+* remote-hand_dio.js  ver0.04 2022.5.4
 */
 function blink(){
   if (!document.all){ return; }
@@ -2836,6 +2836,30 @@ function update_di(item){
            val = di2json.disp_sound_4;
           $("#disp_sound_4").text(val);
         }
+        if (di2json.disp_sound_5){
+           val = di2json.disp_sound_5;
+          $("#disp_sound_5").text(val);
+        }
+        if (di2json.disp_sound_6){
+           val = di2json.disp_sound_6;
+          $("#disp_sound_6").text(val);
+        }
+        if (di2json.disp_sound_7){
+           val = di2json.disp_sound_7;
+          $("#disp_sound_7").text(val);
+        }
+        if (di2json.disp_sound_8){
+           val = di2json.disp_sound_8;
+          $("#disp_sound_8").text(val);
+        }
+        if (di2json.disp_sound_8){
+           val = di2json.disp_sound_4;
+          $("#disp_sound_4").text(val);
+        }
+        if (di2json.disp_sound_9){
+           val = di2json.disp_sound_9;
+          $("#disp_sound_9").text(val);
+        }
        },
        error: function(di2json){
           $("#disp_menu5").text("Server-Timout");
@@ -3112,6 +3136,61 @@ function menu4_ck(button_id,disp_id){
         call_cgi = 'sound_upload.cgi';
         formdata.append('size',$('#sound_file_4')[0].files[0].size);
         formdata.append('sound_file_4',$('#sound_file_4')[0].files[0]);
+      } else {
+        return false;
+      }
+      break;
+    case 'menu4_sound_5':
+      file_name = document.menu4.sound_file_5.value;
+      if (file_name != ""){
+        disp_id = disp_sound_5;
+        call_cgi = 'sound_upload.cgi';
+        formdata.append('size',$('#sound_file_5')[0].files[0].size);
+        formdata.append('sound_file_5',$('#sound_file_5')[0].files[0]);
+      } else {
+        return false;
+      }
+      break;
+    case 'menu4_sound_6':
+      file_name = document.menu4.sound_file_6.value;
+      if (file_name != ""){
+        disp_id = disp_sound_6;
+        call_cgi = 'sound_upload.cgi';
+        formdata.append('size',$('#sound_file_6')[0].files[0].size);
+        formdata.append('sound_file_6',$('#sound_file_6')[0].files[0]);
+      } else {
+        return false;
+      }
+      break;
+    case 'menu4_sound_7':
+      file_name = document.menu4.sound_file_7.value;
+      if (file_name != ""){
+        disp_id = disp_sound_7;
+        call_cgi = 'sound_upload.cgi';
+        formdata.append('size',$('#sound_file_7')[0].files[0].size);
+        formdata.append('sound_file_7',$('#sound_file_7')[0].files[0]);
+      } else {
+        return false;
+      }
+      break;
+    case 'menu4_sound_8':
+      file_name = document.menu4.sound_file_8.value;
+      if (file_name != ""){
+        disp_id = disp_sound_8;
+        call_cgi = 'sound_upload.cgi';
+        formdata.append('size',$('#sound_file_8')[0].files[0].size);
+        formdata.append('sound_file_8',$('#sound_file_8')[0].files[0]);
+      } else {
+        return false;
+      }
+      break;
+    case 'menu4_sound_9':
+      file_name = document.menu4.sound_file_9.value;
+      if (file_name != ""){
+        disp_id = disp_sound_9;
+        call_cgi = 'sound_upload.cgi';
+        formdata.append('size',$('#sound_file_9')[0].files[0].size);
+        formdata.append('sound_file_9',$('#sound_file_9')[0].files[0]);
       } else {
         return false;
       }

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.4.2
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.4.26
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2022.4.2">
+<META NAME="build" content="2022.4.26">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Upload Sound File settings</TITLE>
@@ -68,6 +68,26 @@ case $name in
   "sound_file_4")
      tmp="sound_file[4]"
      n=4
+  ;;
+  "sound_file_5")
+     tmp="sound_file[5]"
+     n=5
+  ;;
+  "sound_file_6")
+     tmp="sound_file[6]"
+     n=6
+  ;;
+  "sound_file_7")
+     tmp="sound_file[7]"
+     n=7
+  ;;
+  "sound_file_8")
+     tmp="sound_file[8]"
+     n=8
+  ;;
+  "sound_file_9")
+     tmp="sound_file[9]"
+     n=9
   ;;
 esac
 M4A_YES_NO=`echo $filename |awk 'BEGIN{TMP="NO"};/m4a$/{TMP="YES"};END{printf TMP}'`

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2022.1.12
+# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2022.5.4
 PATH=$PATH:/usr/local/bin
 # get ppp_user name & ppp mode
 DIR=/www/remote-hand/tmp
@@ -13,13 +13,66 @@ LOCKFILE="$DIR/LCK..wait_for.cgi"
 LOCKPID="$DIR/LCK..wait_for.cgi.pid"
 LOCKCGI="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKCGIPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
+HOMEPAGE=./pi_int_cp2112.html
+RMHOMEPAGE="NO"
+NOWTIME=`date +%s`
+JITTER=5
 ALIAS_DI=$DIR/.alias_di
+if [ -e $ALIAS_DI ];then
+  timeSTAMP=`date +%s -r $ALIAS_DI`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
+ALIAS_DO=$DIR/.alias_do
+if [ -e $ALIAS_DO ];then
+  timeSTAMP=`date +%s -r $ALIAS_DO`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
+DICHANG1=$DIR/.di_change1
+if [ -e $DICHANG1 ];then
+  timeSTAMP=`date +%s -r $DICHANG1`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
+DICHANG2=$DIR/.di_change2
+if [ -e $DICHANG1 ];then
+  timeSTAMP=`date +%s -r $DICHANG2`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
+AUTOACT_LIST=$DIR/.auto_act.list
+if [ -e $AUTOACT_LIST ];then
+  timeSTAMP=`date +%s -r $AUTOACT_LIST`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
+STARTUP=$DIR/.startup.s.tmp
+if [ -e $STARTUP ];then
+  timeSTAMP=`date +%s -r $STARTUP`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
+SOUND=$DIR/.sound_file_name
+if [ -e $SOUND ];then
+  timeSTAMP=`date +%s -r $SOUND`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
+GMAIL=$DIR/.pepogmail4dio.conf
+if [ -e $GMAIL ];then
+  timeSTAMP=`date +%s -r $GMAIL`
+  [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
+fi
 [ -e $ALIAS_DI ] && . $ALIAS_DI
 if [ $DI_TTY != "gpio" ];then
    PI_INT=pi_int_cp2112.cgi
+   cat>$CMD<<END
+#!/bin/bash
+rm -f /www/remote-hand/pepocp2112help
+END
 else
-   PI_INT=pi_int_cp2112.cgi
+   PI_INT=pi_int_gpio.cgi
+   cat>$CMD<<END
+#!/bin/bash
+rm -f /www/remote-hand/pepocp2112help
+ln -s /usr/local/bin/pepocp2112help /www/remote-hand/pepocp2112help
+END
 fi
+
 echo -en '
 <HTML>
 <HEAD>
@@ -161,6 +214,8 @@ do
   msleep 500
   BUSY=`ls $DIR/|grep -E ".pepocmd$"|wc -w`
 done
+[ $RMHOMEPAGE = "YES" ] && rm $HOMEPAGE
+
 while [ -e ${LOCKCGI} ]
 do
   msleep 20000

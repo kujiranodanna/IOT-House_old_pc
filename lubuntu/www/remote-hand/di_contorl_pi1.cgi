@@ -1,14 +1,16 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.13
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.4.26
+# di_control_pi1.cgi
 
+PATH=$PATH:/usr/local/bin
 echo -en '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
 <META NAME="Copyright" content="pepolinux.com">
-<META NAME="Build" content="2022.2.13">
+<META NAME="Build" content="2022.4.26">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <TITLE>DI in the action setting for( digital-in)</TITLE>
@@ -35,7 +37,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>DIO action-1 settings</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD></TR></TABLE>
 </BODY>'
 
 DIR=/www/remote-hand/tmp
@@ -695,6 +697,31 @@ if [ -e "$sDICH" ];then
           ARG2="${don_time[$n]}"
           di_sound "$FIL" "$ARG1" "$ARG2"
         ;;
+        "SOUND_5")
+          ARG1="5"
+          ARG2="${don_time[$n]}"
+          di_sound "$FIL" "$ARG1" "$ARG2"
+        ;;
+        "SOUND_6")
+          ARG1="6"
+          ARG2="${don_time[$n]}"
+          di_sound "$FIL" "$ARG1" "$ARG2"
+        ;;
+        "SOUND_7")
+          ARG1="7"
+          ARG2="${don_time[$n]}"
+          di_sound "$FIL" "$ARG1" "$ARG2"
+        ;;
+        "SOUND_8")
+          ARG1="8"
+          ARG2="${don_time[$n]}"
+          di_sound "$FIL" "$ARG1" "$ARG2"
+        ;;
+        "SOUND_9")
+          ARG1="9"
+          ARG2="${don_time[$n]}"
+          di_sound "$FIL" "$ARG1" "$ARG2"
+        ;;
       esac
     fi
     if [ "${di_change_reg[$n]}" = "del" ];then
@@ -720,7 +747,6 @@ END
 fi
 echo -en '
 </HTML>'
-msleep 5000
 if [ $DI_TTY = "gpio" ];then
   ./pi_int_gpio.cgi
 elif [ $DI_TTY = "piface" ];then

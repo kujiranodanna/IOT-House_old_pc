@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.13
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.4.26
 
 echo -en '
 <HTML>
@@ -8,7 +8,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2022.2.13">
+<META NAME="build" content="2022.4.26">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Automatic process settings</TITLE>
@@ -34,7 +34,7 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Digital output automatic processing</TD></TR></TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD><TR></TABLE>
 </BODY>'
 
 DIR=/www/remote-hand/tmp
@@ -150,6 +150,21 @@ auto_cron_reg() {
     "SOUND_4")
       CH=21
       DO=4 ;;
+    "SOUND_5")
+      CH=22
+      DO=5 ;;
+    "SOUND_6")
+      CH=23
+      DO=6 ;;
+    "SOUND_7")
+      CH=24
+      DO=7 ;;
+    "SOUND_8")
+      CH=25
+      DO=8 ;;
+    "SOUND_9")
+      CH=26
+      DO=9 ;;
   esac
   YES_NO="ENABLE"
   DI_CH="-1"
@@ -320,7 +335,7 @@ if [ $CH -gt 7 -a $CH -lt 14 ];then
   $ACT_IRKIT $J $TM
 elif [ $CH -gt 13 -a $CH -lt 17 ];then
   $ACT_TOCOS $J $DO $TM
-elif [ $CH -gt 16 -a $CH -lt 22 ];then
+elif [ $CH -gt 16 -a $CH -lt 27 ];then
   $SOUND_DO $DO $TM
 elif [ $CH -lt 8 ];then
   $ACT_DO $CH $DO $TM
@@ -634,7 +649,6 @@ elif [ "${auto_act19_val[9]}" = "del" ];then
 fi
 echo -en '
 </HTML>'
-msleep 5000
 if [ $DI_TTY = "gpio" ];then
   ./pi_int_gpio.cgi
 elif [ $DI_TTY = "piface" ];then

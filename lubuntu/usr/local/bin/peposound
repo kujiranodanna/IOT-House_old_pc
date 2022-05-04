@@ -1,10 +1,10 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2022.4.3
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2022.5.4
 # peposound ; Play a sound file
 # usage peposound sound file_Num timer
 if [ $# -lt 1 -o $# -gt 2 ];then
-  echo  "usage: $0 0-4:sound_file_Num timer"
+  echo  "usage: $0 0-9:sound_file_Num timer"
   exit
 fi
 NUM=$1
