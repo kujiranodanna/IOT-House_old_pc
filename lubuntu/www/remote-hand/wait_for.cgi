@@ -1,8 +1,8 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2022.5.4
+# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2022.5.28
 PATH=$PATH:/usr/local/bin
-# get ppp_user name & ppp mode
+# for i386
 DIR=/www/remote-hand/tmp
 CMD=$DIR/wait_for.pepocmd
 PPP_USR=$DIR/.ppp_user
@@ -65,7 +65,7 @@ if [ $DI_TTY != "gpio" ];then
 rm -f /www/remote-hand/pepocp2112help
 END
 else
-   PI_INT=pi_int_gpio.cgi
+   PI_INT=pi_int_cp2112.cgi
    cat>$CMD<<END
 #!/bin/bash
 rm -f /www/remote-hand/pepocp2112help

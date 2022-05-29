@@ -1,7 +1,7 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.13
-
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.5.28
+# for i386
 PATH=$PATH:/usr/local/bin
 echo -en '
 <HTML>
@@ -247,7 +247,7 @@ echo -en '
 </HTML>'
 msleep 5000
 if [ $DI_TTY = "gpio" ];then
-  ./pi_int_gpio.cgi
+  ./pi_int_cp2112.cgi
 elif [ $DI_TTY = "piface" ];then
   ./pi_int.cgi
 elif [ $DI_TTY = "cp2112" ];then
