@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.5.28
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.7.29
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2022.5.28"
+DATE="2022.7.29"
 VERSION="ver:0.04&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
@@ -228,11 +228,11 @@ if [ $SMART_PHONE = "YES" ];then
 <span id="voice_sel">
 Voice control
 <input id="voice_val" type="text" style="width:120px;" NAME="voice_val" VALUE="" onkeydown="if(event.keyCode == 13 || event.keyCode == 9) update_do('voice_sel')" placeholder="Command" autofocus />
-</span>
 <SELECT NAME="voice_lang" id="voice_lang">
 <OPTION VALUE="ja" SELECTED>Japanese
 <OPTION VALUE="en">English
 </SELECT>
+</span>
 <HR>
 <span id="s_phone_cpu_temp_graph"></span>
 <span id="s_phone_gpio_temp_graph"></span>
@@ -250,7 +250,8 @@ Voice control
 <INPUT style="text-align:center" TYPE="button" VALUE="Temp&Hum Disp" onclick="location.href='./temp_hum.html'";>
 <BR>
 <BR>
-<INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./wait_for.cgi'">&nbsp;
+<INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
+
 <BR>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Setup" onclick="location.href='./setup.html'";>
@@ -1107,7 +1108,6 @@ IP2<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_1">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_1">ms&nbsp;
 &nbsp;<SELECT NAME="reg_1">
@@ -1125,7 +1125,6 @@ IP3<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_2">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_2">ms&nbsp;
 &nbsp;<SELECT NAME="reg_2">
@@ -1143,7 +1142,6 @@ IP4<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_3">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_3">ms&nbsp;
 &nbsp;<SELECT NAME="reg_3">
@@ -1425,6 +1423,16 @@ while [ $n -lt 22 ];do
       vdi_act[$n]="Sound_4" ;;
     "SOUND_4")
       vdi_act[$n]="Sound_5" ;;
+    "SOUND_5")
+      vdi_act[$n]="Sound_6" ;;
+    "SOUND_6")
+      vdi_act[$n]="Sound_7" ;;
+    "SOUND_7")
+      vdi_act[$n]="Sound_8" ;;
+    "SOUND_8")
+      vdi_act[$n]="Sound_9" ;;
+      "SOUND_9")
+      vdi_act[$n]="Sound_10" ;;
     *)
       di_act[$n]="none"
       vdi_act[$n]="none" ;;
@@ -1480,13 +1488,16 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_0">
@@ -1547,13 +1558,16 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_1">
@@ -1615,12 +1629,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_2">
@@ -1681,13 +1699,16 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_3">
@@ -1748,13 +1769,16 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_8">
@@ -1815,13 +1839,16 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_9">
@@ -1882,13 +1909,16 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_10">
@@ -1949,13 +1979,16 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_11">
@@ -2016,13 +2049,16 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_12">
@@ -2084,12 +2120,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_13">
@@ -2151,12 +2191,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_14">
@@ -2218,12 +2262,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_19">
@@ -2285,12 +2333,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_20">
@@ -2352,12 +2404,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_21">
@@ -2419,7 +2475,6 @@ while [ $n -lt 22 ];do
   *)
     di_change[$n]="low2high"
     vdi_change[$n]="low→high"
-
   esac
   case "${di_act[$n]}" in
     "DON_0")
@@ -2486,6 +2541,16 @@ while [ $n -lt 22 ];do
       vdi_act[$n]="Sound_4" ;;
     "SOUND_4")
       vdi_act[$n]="Sound_5" ;;
+    "SOUND_5")
+      vdi_act[$n]="Sound_6" ;;
+    "SOUND_6")
+      vdi_act[$n]="Sound_7" ;;
+    "SOUND_7")
+      vdi_act[$n]="Sound_8" ;;
+    "SOUND_8")
+      vdi_act[$n]="Sound_9" ;;
+    "SOUND_9")
+      vdi_act[$n]="Sound_10" ;;
     *)
       di_act[$n]="none"
       vdi_act[$n]="none" ;;
@@ -2541,12 +2606,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_0">
@@ -2605,12 +2674,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_1">
@@ -2669,12 +2742,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_2">
@@ -2733,12 +2810,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_3">
@@ -2796,12 +2877,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_8">
@@ -2860,12 +2945,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_9">
@@ -2924,12 +3013,16 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_10">
@@ -2988,12 +3081,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_11">
@@ -3052,12 +3149,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_12">
@@ -3116,12 +3217,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_13">
@@ -3180,12 +3285,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_"14>
@@ -3243,12 +3352,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_19">
@@ -3307,12 +3420,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_20">
@@ -3371,12 +3488,16 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
-
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
 <SELECT NAME="di_act_alt_21">
@@ -3425,7 +3546,7 @@ cat >>$PAGE1<<END
 <BR>
 <FORM NAME="menu11" id="menu11_form" ACTION="gmail_set.cgi" METHOD="post" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
 Gmail User<INPUT TYPE="text" style="width:80px;text-align:right;" VALUE="$vGMAILUSER" NAME="gmailuser">@gmail.com<BR>
-Gmail Password<INPUT TYPE="password" style="width:80px;text-align:left;" VALUE="$vGMAILPASSWORD" NAME="gmailpassword"><BR>
+Gmail App Password<INPUT TYPE="password" style="width:80px;text-align:left;" VALUE="$vGMAILPASSWORD" NAME="gmailpassword"><BR>
 Mail Address<INPUT TYPE="text" style="width:180px;text-align:left;" VALUE="$vPERMITMAIL" NAME="permitmail">&nbsp;Allow Email address<BR>
 Key Word<INPUT TYPE="text" style="width:80px;text-align:left;" VALUE="$vKEYWORD" NAME="keyword">&nbsp;Subject(keyword)<BR>
 Mail Check <INPUT TYPE="text" style="width:20px;text-align:left;" VALUE="$vLOOPTIME" NAME="looptime">&nbsp;New Email check interval(Sec)<BR>
@@ -3616,6 +3737,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT0_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT0_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT0_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT0_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT0_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT0_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT0_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT0_VAL[0]="none";;
       esac
@@ -3690,6 +3821,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT1_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT1_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT1_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT1_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT1_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT1_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT1_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT1_VAL[0]="none";;
       esac
@@ -3764,6 +3905,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT2_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT2_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT2_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT2_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT2_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT2_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT2_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT2_VAL[0]="none";;
       esac
@@ -3836,6 +3987,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT3_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT3_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT3_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT3_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT3_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT3_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT3_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT3_VAL[0]="none";;
       esac
@@ -3908,6 +4069,19 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT4_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT4_VAL[0]=Sound_5 ;;
+
+        SOUND_4)
+          vAUTO_ACT4_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT4_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT4_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT4_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT4_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT4_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT4_VAL[0]="none";;
       esac
@@ -3980,6 +4154,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT5_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT5_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT5_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT5_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT5_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT5_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT5_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT5_VAL[0]="none";;
       esac
@@ -4052,6 +4236,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT6_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT6_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT6_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT6_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT6_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT6_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT6_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT6_VAL[0]="none";;
       esac
@@ -4124,6 +4318,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT7_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT7_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT7_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT7_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT7_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT7_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT7_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT7_VAL[0]="none";;
       esac
@@ -4196,6 +4400,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT8_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT8_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT8_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT8_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT8_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT8_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT8_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT8_VAL[0]="none";;
       esac
@@ -4268,6 +4482,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT9_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT9_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT9_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT9_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT9_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT9_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT9_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT9_VAL[0]="none";;
       esac
@@ -4340,6 +4564,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT10_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT10_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT10_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT10_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT10_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT10_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT10_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT10_VAL[0]="none";;
       esac
@@ -4412,6 +4646,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT11_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT11_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT11_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT11_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT11_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT11_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT11_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT11_VAL[0]="none";;
       esac
@@ -4484,6 +4728,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT12_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT12_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT12_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT12_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT12_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT12_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT12_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT12_VAL[0]="none";;
       esac
@@ -4556,6 +4810,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT13_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT13_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT13_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT13_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT13_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT13_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT13_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT13_VAL[0]="none";;
       esac
@@ -4628,6 +4892,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT14_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT14_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT14_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT14_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT14_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT14_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT14_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT14_VAL[0]="none";;
       esac
@@ -4700,6 +4974,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT15_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT15_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT15_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT15_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT15_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT15_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT15_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT15_VAL[0]="none";;
       esac
@@ -4772,6 +5056,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT16_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT16_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT16_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT16_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT16_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT16_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT16_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT16_VAL[0]="none";;
       esac
@@ -4844,6 +5138,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT17_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT17_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT17_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT17_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT17_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT17_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT17_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT17_VAL[0]="none";;
       esac
@@ -4916,6 +5220,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT18_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT18_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT18_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT18_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT18_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT18_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT18_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT18_VAL[0]="none";;
       esac
@@ -4988,6 +5302,16 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT19_VAL[0]=Sound_4 ;;
         SOUND_4)
           vAUTO_ACT19_VAL[0]=Sound_5 ;;
+        SOUND_5)
+          vAUTO_ACT19_VAL[0]=Sound_6 ;;
+        SOUND_6)
+          vAUTO_ACT19_VAL[0]=Sound_7 ;;
+        SOUND_7)
+          vAUTO_ACT19_VAL[0]=Sound_8 ;;
+        SOUND_8)
+          vAUTO_ACT19_VAL[0]=Sound_9 ;;
+        SOUND_9)
+          vAUTO_ACT19_VAL[0]=Sound_10 ;;
         none)
           vAUTO_ACT19_VAL[0]="none";;
       esac
@@ -5064,7 +5388,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -5082,6 +5405,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT0_VAL[1]}" NAME="auto_act0_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT0_VAL[2]}" NAME="auto_act0_val_2">min
@@ -5178,7 +5506,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -5196,6 +5523,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT1_VAL[1]}" NAME="auto_act1_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT1_VAL[2]}" NAME="auto_act1_val_2">min
@@ -5292,7 +5624,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
-
 <OPTION VALUE="IREXEC_0">${ALIAS_DO[8]}
 <OPTION VALUE="IREXEC_1">${ALIAS_DO[9]}
 <OPTION VALUE="IREXEC_2">${ALIAS_DO[10]}
@@ -5310,6 +5641,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT2_VAL[1]}" NAME="auto_act2_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT2_VAL[2]}" NAME="auto_act2_val_2">min
@@ -5425,6 +5761,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT3_VAL[1]}" NAME="auto_act3_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT3_VAL[2]}" NAME="auto_act3_val_2">min
@@ -5538,6 +5879,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT4_VAL[1]}" NAME="auto_act4_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT4_VAL[2]}" NAME="auto_act4_val_2">min
@@ -5651,6 +5997,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT5_VAL[1]}" NAME="auto_act5_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT5_VAL[2]}" NAME="auto_act5_val_2">min
@@ -5764,6 +6115,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT6_VAL[1]}" NAME="auto_act6_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT6_VAL[2]}" NAME="auto_act6_val_2">min
@@ -5877,6 +6233,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT7_VAL[1]}" NAME="auto_act7_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT7_VAL[2]}" NAME="auto_act7_val_2">min
@@ -5990,6 +6351,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT8_VAL[1]}" NAME="auto_act8_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT8_VAL[2]}" NAME="auto_act8_val_2">min
@@ -6103,6 +6469,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT9_VAL[1]}" NAME="auto_act9_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT9_VAL[2]}" NAME="auto_act9_val_2">min
@@ -6216,6 +6587,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT10_VAL[1]}" NAME="auto_act10_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT10_VAL[2]}" NAME="auto_act10_val_2">min
@@ -6329,6 +6705,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT11_VAL[1]}" NAME="auto_act11_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT11_VAL[2]}" NAME="auto_act11_val_2">min
@@ -6442,6 +6823,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT12_VAL[1]}" NAME="auto_act12_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT12_VAL[2]}" NAME="auto_act12_val_2">min
@@ -6555,6 +6941,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT13_VAL[1]}" NAME="auto_act13_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT13_VAL[2]}" NAME="auto_act13_val_2">min
@@ -6668,6 +7059,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT14_VAL[1]}" NAME="auto_act14_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT14_VAL[2]}" NAME="auto_act14_val_2">min
@@ -6781,6 +7177,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT15_VAL[1]}" NAME="auto_act15_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT15_VAL[2]}" NAME="auto_act15_val_2">min
@@ -6894,6 +7295,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT16_VAL[1]}" NAME="auto_act16_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT16_VAL[2]}" NAME="auto_act16_val_2">min
@@ -7007,6 +7413,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT17_VAL[1]}" NAME="auto_act17_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT17_VAL[2]}" NAME="auto_act17_val_2">min
@@ -7120,6 +7531,11 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT18_VAL[1]}" NAME="auto_act18_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT18_VAL[2]}" NAME="auto_act18_val_2">min
@@ -7233,6 +7649,12 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_5">Sound_6
+<OPTION VALUE="SOUND_6">Sound_7
+<OPTION VALUE="SOUND_7">Sound_8
+<OPTION VALUE="SOUND_8">Sound_9
+<OPTION VALUE="SOUND_9">Sound_10
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:36px;text-align:right;" VALUE="${vAUTO_ACT19_VAL[1]}" NAME="auto_act19_val_1">ms&nbsp;
 <INPUT TYPE="text" style="width:28px;text-align:center;" VALUE="${vAUTO_ACT19_VAL[2]}" NAME="auto_act19_val_2">min
@@ -7320,7 +7742,8 @@ web password
 </DD>
 </DL>
 
-<INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./wait_for.cgi'">&nbsp;
+<INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
+
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <TABLE ALIGN=RIGHT>
 <TR><TD><FONT SIZE="-1">&copy;2022-2025 pepolinux.com&nbsp;

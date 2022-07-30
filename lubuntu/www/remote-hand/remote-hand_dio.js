@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.5.4
-* remote-hand_dio.js  ver0.04 2022.5.4
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.7.28
+* remote-hand_dio.js  ver0.04 2022.7.28
 */
 function blink(){
   if (!document.all){ return; }
@@ -2817,47 +2817,43 @@ function update_di(item){
         }
 // Disp Sound File
         if (di2json.disp_sound_0){
-           val = di2json.disp_sound_0;
+          val = di2json.disp_sound_0;
           $("#disp_sound_0").text(val);
         }
         if (di2json.disp_sound_1){
-           val = di2json.disp_sound_1;
+          val = di2json.disp_sound_1;
           $("#disp_sound_1").text(val);
         }
         if (di2json.disp_sound_2){
-           val = di2json.disp_sound_2;
+          val = di2json.disp_sound_2;
           $("#disp_sound_2").text(val);
         }
         if (di2json.disp_sound_3){
-           val = di2json.disp_sound_3;
+          val = di2json.disp_sound_3;
           $("#disp_sound_3").text(val);
         }
         if (di2json.disp_sound_4){
-           val = di2json.disp_sound_4;
+          val = di2json.disp_sound_4;
           $("#disp_sound_4").text(val);
         }
         if (di2json.disp_sound_5){
-           val = di2json.disp_sound_5;
+          val = di2json.disp_sound_5;
           $("#disp_sound_5").text(val);
         }
         if (di2json.disp_sound_6){
-           val = di2json.disp_sound_6;
+          val = di2json.disp_sound_6;
           $("#disp_sound_6").text(val);
         }
         if (di2json.disp_sound_7){
-           val = di2json.disp_sound_7;
+          val = di2json.disp_sound_7;
           $("#disp_sound_7").text(val);
         }
         if (di2json.disp_sound_8){
-           val = di2json.disp_sound_8;
+          val = di2json.disp_sound_8;
           $("#disp_sound_8").text(val);
         }
-        if (di2json.disp_sound_8){
-           val = di2json.disp_sound_4;
-          $("#disp_sound_4").text(val);
-        }
         if (di2json.disp_sound_9){
-           val = di2json.disp_sound_9;
+          val = di2json.disp_sound_9;
           $("#disp_sound_9").text(val);
         }
        },
@@ -3005,6 +3001,7 @@ function user_ck(user,pass){
     alert("User name or password is blank");
     return -1;
   }
+  if (pass == "*") return -1;
   if(user.match(/[^0-9A-Za-z]+/)){
     alert("Please be Input only with the user name is alphanumeric");
     return -1;

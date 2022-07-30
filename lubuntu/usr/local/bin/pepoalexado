@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2022.5.29
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2022.7.30
 # pepoalexado ; For raspberry pi , and scripts to run the Remote DIO and TOCOS .
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 PROG=pepoalexado
@@ -16,11 +16,12 @@ REMOTE_CGI=$REMOTE_DIR/ip_do_ajax.cgi
 WORK=$LOCAL_DIR/.${PROG}
 tWORK=$LOCAL_DIR/.${PROG}.tmp
 ALIAS_DI=$LOCAL_DIR/.alias_di
-USERAGENT="Chrome/83.0.4103.116"
+USERAGENT="Chrome/103.0.5060.134"
 GETSIZE="1024"
 LOCK=$LOCAL_DIR/.${PROG}.pid
 LOCKWAIT=30
 MSLEEP=100
+MAXLOCKWAIT_SEC=10
 usage(){
   echo "usage $0 host user password [write->chno:0-17 [DO:0|1] [timer->1 to 300000ms]] or read->json_name" >/dev/stderr
   exit
@@ -34,6 +35,9 @@ while [ -e $LOCK ];do
   msleep $MSLEEP
   CT=$(($CT + 1))
   [ $CT -gt $LOCKWAIT ] && exit
+  NOWTIME=`date +%s`
+  timeSTAMP=`date +%s -r $LOCK`
+  [ $(($NOWTIME - $timeSTAMP)) -gt $MAXLOCKWAIT_SEC ] && rm $LOCK
 done
 echo -en $$ >$LOCK
 error(){

@@ -1,15 +1,18 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2012.7.8 update 2018.2.24
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2012.7.8 update 2022.6.5
 # peposendmail
 # peposendmail $1:mail_to, $2:subject, $3:message ,$4:image.jpeg
+# peposendmail $1:linenotify $2:subject, $3:message ,$4:image.jpeg
 if [ $# -lt 3 -o $# -gt 4 ];then
   echo "usage: $0 mail_to subject message | image(remote.mp4|remote.jpg)"
   exit
 fi
 DIR=/www/remote-hand/tmp
+SERVERCONF=$DIR/.startup.s.tmp
 MUA="/usr/bin/mutt -n -F /root/.mutt/muttrc"
 MAIL_LOG=/var/mail/mail
+LINENOTIFY=/usr/local/bin/pepolinemsgsend
 prog=peposendmail
 pidfile=/var/run/$prog.pid
 MAIL_TO=$1
@@ -18,6 +21,13 @@ SUBJECT=`echo $2 | awk '{gsub(/\+/," ",$0);printf $0}'`
 SUBJECT="$HOSTNAME $SUBJECT"
 MESSAGE=`echo $3 | awk '{gsub(/\+/," ",$0);printf $0}'`
 IMAGEFILE=$4
+tMAIL_TO=`echo -en $MAIL_TO | tr A-Z a-z`
+if [ $tMAIL_TO = "linenotify" ];then
+  MESSAGE=${SUBJECT}${MESSAGE}
+  tMESSAGE=`echo -en $MESSAGE | tr " " "+"`
+  $LINENOTIFY $tMESSAGE $IMAGEFILE
+  exit
+fi
 error(){
   [ -e $pidfile ] && rm -f $pidfile
   exit 0

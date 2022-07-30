@@ -1,0 +1,33 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2022.5.24 update 2022.6.5
+# pepolinemsgsend
+# pepolinemsgsend $1:subject ,$2:image
+if [ $# -lt 1 -o $# -gt 2 ];then
+  echo "usage: $0 subject | image(.png | .jpg)"
+  exit
+fi
+WORKDIR=/www/remote-hand/tmp
+WORK=$DIR/.pepolinemsgsend
+LINENOTIFY_FILE=/etc/rc.pepo/linenotify
+LINENOTIFYURL=https://notify-api.line.me/api/notify
+prog=pepolinemsgsend
+pidfile=/var/run/$prog.pid
+BLOCKWAIT=30000
+[ ! -e $LINENOTIFY_FILE ] && exit
+[ -e $pidfile ] && exit
+LINENOTIFY=`cat $LINENOTIFY_FILE`
+SUBJECT=$1
+tSUBJECT=`echo -en $SUBJECT | tr "+" " "`
+IMAGE=$2
+if [ $# = 2 ];then
+  FILE=$WORKDIR/$IMAGE
+  if [ -e $FILE ];then
+    curl -s -X POST -H "Authorization: Bearer ${LINENOTIFY}" -F "message = ${tSUBJECT}" -F "imageFile=@${FILE}" $LINENOTIFYURL >$WORK
+  fi
+else
+  curl -s -X POST -H "Authorization: Bearer ${LINENOTIFY}" -F "message=${tSUBJECT}" $LINENOTIFYURL >$WORK
+fi
+[ -e $IMAGE ] && rm $IMAGE
+msleep $BLOCKWAIT
+[ -e ${pidfile} ] && rm ${pidfile}
