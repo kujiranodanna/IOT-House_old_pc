@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.11.5 update 2021.5.5
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.11.5 update 2022.8.1
 # pepousbttyck for detect ANDDIO,TOCOS,MODEM,CP2112
 prog=pepousbttyck
 DIR=/www/remote-hand/tmp
@@ -227,7 +227,7 @@ for dev in ttyUSBMODEM ttyUSBTWE-Lite ttyUSB0 ttyUSB1 ttyUSB2 ttyUSB3 ;do
   fi
 done
 if [ "$tDI_TTY" = "none" -a -z "$piface_ip" -a $dev = "ttyUSB3" ];then
-  dev="cp2112"
+  dev="gpio"
   if [ -e "$ALIAS_DI" ];then
     cat "$ALIAS_DI"|grep -v "DI_TTY" >${tALIAS_DI}
     echo "DI_TTY="${dev} >>${tALIAS_DI}
