@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2020.3.20 update 2022.3.1
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2022.8.10
 
 echo -en '
 <HTML>
@@ -8,7 +8,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
 <META NAME="Copyright" content="pepolinux.com">
-<META NAME="Build" content="2022.2.22">
+<META NAME="Build" content="2018.2.24">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Ping monitoring and digital output</TITLE>
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Ping monitoring and digital output</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>
 '
@@ -57,8 +57,8 @@ for n in 0 1 2 3 ; do
         cat "$PING_DON" | grep -F -v "${ip[$n]}" > "$PING_TMP"
         mv "$PING_TMP" "$PING_DON"
       fi
-      [ -z "${ping_don_time[$n]}" ] && ping_don_wtime[$n]="*" || ping_don_wtime[$n]=ping_don_time[$n]
-      echo "$PING_WATCH" "${ip[$n]}" "${ping_don[$n]}" "${ping_don_wtime[$n]}" "${interval[0]}" >> "$PING_DON"
+      [ -z "${ping_don_time[$n]}" ] && ping_don_time[$n]="*" || ping_don_time[$n]=${ping_don_time[$n]}
+      echo "$PING_WATCH" "${ip[$n]}" "${ping_don[$n]}" "${ping_don_time[$n]}" "${interval[0]}" >> "$PING_DON"
       if [ -e "$PING_CRON" ];then
         cat "$PING_CRON" | grep -F -v "$PING_WATCH" > "$tPING_CRON"
         cat "$PING_CRON" | grep -F "$PING_WATCH" | grep -F -v "${ip[$n]}" > "$PING_TMP"
