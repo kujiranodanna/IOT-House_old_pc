@@ -1,0 +1,34 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2022.8.25
+# install open-jtalk ,dic ,hts-voice
+# sudo apt install open-jtalk open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001
+# wget https://sourceforge.net/projects/mmdagent/files/MMDAgent_Example/MMDAgent_Example-1.8/MMDAgent_Example-1.8.zip
+# unzip MMDAgent_Example-1.8.zip
+# mv MMDAgent_Example-1.8/Voice/mei /usr/share/hts-voice/
+# pepojtak; speaks air conditions that Alexa cannot.
+
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+DIR=/www/remote-hand
+DIR_TMP=$DIR/tmp
+JSONRD=/www/remote-hand/.di_read_data.json
+VOICE_PITCH=0.7
+WAIT=4000
+INTERVAL=5
+error(){
+  exit 0
+}
+trap error SIGTERM SIGHUP SIGKILL SIGINT
+while true
+do
+  tVOICE_REQ=`cat $JSONRD |jq -r .voice_req`
+  if [ $tVOICE_REQ != "none" ];then
+    NOWSECOND=`date +%s`
+    JSONRD_STAMP=`date +%s -r $JSONRD`
+    if [ $(($NOWSECOND - $JSONRD_STAMP)) -lt $INTERVAL ];then
+      VOICE_RE=`echo -en $tVOICE_REQ |awk '{gsub("@","",$0);print}'`
+      echo -en $VOICE_RE |open_jtalk -r $VOICE_PITCH -x /var/lib/mecab/dic/open-jtalk/naist-jdic -m /usr/share/hts-voice/mei/mei_normal.htsvoice -ow /dev/stdout |aplay -
+    fi
+  fi
+  msleep $WAIT
+done

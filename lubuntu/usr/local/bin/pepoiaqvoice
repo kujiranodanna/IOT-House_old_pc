@@ -1,0 +1,36 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2022.8.22
+# pepoiaqvoice ;For raspberry pi & i386,IAQ request to Open jtalk.
+
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+DIR=/www/remote-hand
+DIR_TMP=$DIR/tmp
+JSON_DATA=$DIR/.di_read_data.json
+VOICEREQ=$DIR_TMP/.pepoiaqvoice
+ALEXADO=/usr/local/bin/pepoalexado
+RMHOST=iot01f.local
+USER=remote
+PASSWORD=hand
+CH="voice_req"
+CPU_TEMP=`cat $JSON_DATA |jq -r .cpu_temp`
+TEMP=`cat $JSON_DATA |jq -r .gpio_i2c.temp`
+HUM=`cat $JSON_DATA |jq -r .gpio_i2c.hum`
+PRES=`cat $JSON_DATA |jq -r .gpio_i2c.pres`
+IAQ=`cat $JSON_DATA |jq -r .gpio_i2c.iaq`
+IAQ_STATUS="good"
+if [ $IAQ -lt 51 ];then
+  IAQ_STATUS="よい"
+elif [ $IAQ -lt 101 ];then
+  IAQ_STATUS="ふつう"
+elif [ $IAQ -lt 151 ];then
+  IAQ_STATUS="少しわるい"
+elif [ $IAQ -lt 201 ];then
+  IAQ_STATUS="わるい"
+elif [ $IAQ -lt 301 ];then
+  IAQ_STATUS="とってもわるい"
+elif [ $IAQ -gt 300 ];then
+  IAQ_STATUS="さいあく"
+fi
+VOICIAQ=`echo -en "@部屋の温度,${TEMP},湿度,${HUM},気圧,${PRES},空気の状態,${IAQ}で${IAQ_STATUS}です"`
+$ALEXADO $RMHOST $USER $PASSWORD $CH $VOICIAQ
