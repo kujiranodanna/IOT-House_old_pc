@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2022.8.22
+# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2022.8.25
 # pepoiaqvoice ;For raspberry pi & i386,IAQ request to Open jtalk.
 
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
@@ -14,9 +14,9 @@ USER=remote
 PASSWORD=hand
 CH="voice_req"
 CPU_TEMP=`cat $JSON_DATA |jq -r .cpu_temp`
-TEMP=`cat $JSON_DATA |jq -r .gpio_i2c.temp`
+TEMP=`cat $JSON_DATA |jq -r .gpio_i2c.temp |awk '{gsub(/[^0-9\.]+/,"",$0);printf $0}'`
 HUM=`cat $JSON_DATA |jq -r .gpio_i2c.hum`
-PRES=`cat $JSON_DATA |jq -r .gpio_i2c.pres`
+PRES=`cat $JSON_DATA |jq -r .gpio_i2c.pres |awk '{gsub(/[^0-9\.]+/,"",$0);printf $0}'`
 IAQ=`cat $JSON_DATA |jq -r .gpio_i2c.iaq`
 IAQ_STATUS="good"
 if [ $IAQ -lt 51 ];then
@@ -32,5 +32,5 @@ elif [ $IAQ -lt 301 ];then
 elif [ $IAQ -gt 300 ];then
   IAQ_STATUS="さいあく"
 fi
-VOICIAQ=`echo -en "@部屋の温度,${TEMP},湿度,${HUM},気圧,${PRES},空気の状態,${IAQ}で${IAQ_STATUS}です"`
+VOICIAQ=`echo -en "@部屋の温度,${TEMP}ど,湿度,${HUM},気圧,${PRES}ヘクトパスカル,空気の状態,${IAQ}で${IAQ_STATUS}です"`
 $ALEXADO $RMHOST $USER $PASSWORD $CH $VOICIAQ
