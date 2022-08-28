@@ -1,13 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2022.8.26
+# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2022.8.28
 # pepoiaqvoice ;For raspberry pi & i386,IAQ request to Open jtalk.
 
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 DIR=/www/remote-hand
 DIR_TMP=$DIR/tmp
 JSON_DATA=$DIR/.di_read_data.json
-VOICEREQ=$DIR_TMP/.pepoiaqvoice
 ALEXADO=/usr/local/bin/pepoalexado
 RMHOST=iot01f.local
 USER=remote
@@ -32,5 +31,5 @@ elif [ $IAQ -lt 301 ];then
 elif [ $IAQ -gt 300 ];then
   IAQ_STATUS="さいあく"
 fi
-VOICIAQ=`echo -en "@部屋の温度,${TEMP}度,湿度,${HUM},気圧,${PRES}ヘクトパスカル,空気の状態,${IAQ}で${IAQ_STATUS}です"`
-$ALEXADO $RMHOST $USER $PASSWORD $CH $VOICIAQ
+VOICEIAQ=`echo -en "@部屋の温度,${TEMP}度,湿度,${HUM},気圧,${PRES}ヘクトパスカル,空気の状態,${IAQ}で${IAQ_STATUS}です"`
+$ALEXADO $RMHOST $USER $PASSWORD $CH $VOICEIAQ
