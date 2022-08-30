@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2022.5.24 update 2022.6.5
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2022.5.24 update 2022.8.30
 # pepolinemsgsend
 # pepolinemsgsend $1:subject ,$2:image
 if [ $# -lt 1 -o $# -gt 2 ];then
@@ -18,16 +18,16 @@ BLOCKWAIT=30000
 [ -e $pidfile ] && exit
 LINENOTIFY=`cat $LINENOTIFY_FILE`
 SUBJECT=$1
-tSUBJECT=`echo -en $SUBJECT | tr "+" " "`
+tSUBJECT=`echo -en $SUBJECT | tr "+" " " | tr "@" " "`
 IMAGE=$2
 if [ $# = 2 ];then
   FILE=$WORKDIR/$IMAGE
   if [ -e $FILE ];then
     curl -s -X POST -H "Authorization: Bearer ${LINENOTIFY}" -F "message = ${tSUBJECT}" -F "imageFile=@${FILE}" $LINENOTIFYURL >$WORK
+    [ -e $FILE ] && rm $FILE
   fi
 else
   curl -s -X POST -H "Authorization: Bearer ${LINENOTIFY}" -F "message=${tSUBJECT}" $LINENOTIFYURL >$WORK
 fi
-[ -e $IMAGE ] && rm $IMAGE
 msleep $BLOCKWAIT
 [ -e ${pidfile} ] && rm ${pidfile}

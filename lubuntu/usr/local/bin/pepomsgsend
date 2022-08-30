@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2012.7.8 update 2022.6.1
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2012.7.8 update 2022.8.30
 # pepomsgsend
 # pepomsgsend $1:mail_to, $2:subject, $3:message ,$4:image.jpeg
 # pepomsgsend $1:linenotify $2:subject, $3:message ,$4:image.jpeg
@@ -19,7 +19,7 @@ pidfile=/var/run/$prog.pid
 MAIL_TO=$1
 SUBJECT=`echo $2 | awk '{gsub(/\+/," ",$0);printf $0}'`
 MESSAGE=`echo $3 | awk '{gsub(/\+/," ",$0);printf $0}'`
-VAL=`echo $4 | awk '{gsub(/\+/," ",$0);printf $0}'`
+IMAGEFILE=$4
 tMAIL_TO=`echo -en $MAIL_TO | tr A-Z a-z`
 if [ $tMAIL_TO = "linenotify" ];then
   MESSAGE=${SUBJECT}${MESSAGE}
@@ -46,7 +46,6 @@ if [ $EMAIL_YES_NO = "NO" ];then
 fi
 HOSTNAME=`/bin/hostname`
 SUBJECT="$HOSTNAME $SUBJECT"
-IMAGEFILE=$4
 error(){
   [ -e $pidfile ] && rm -f $pidfile
   exit 0
