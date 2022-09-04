@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2022.7.30
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2022.9.2
 # pepoalexado ; For raspberry pi , and scripts to run the Remote DIO and TOCOS .
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 PROG=pepoalexado
@@ -32,12 +32,12 @@ if [ $# -lt 4 ];then
 fi
 CT=0
 while [ -e $LOCK ];do
-  msleep $MSLEEP
-  CT=$(($CT + 1))
-  [ $CT -gt $LOCKWAIT ] && exit
   NOWTIME=`date +%s`
   timeSTAMP=`date +%s -r $LOCK`
   [ $(($NOWTIME - $timeSTAMP)) -gt $MAXLOCKWAIT_SEC ] && rm $LOCK
+  msleep $MSLEEP
+  CT=$(($CT + 1))
+  [ $CT -gt $LOCKWAIT ] && exit
 done
 echo -en $$ >$LOCK
 error(){
