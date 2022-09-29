@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.22
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.8.9
 
 echo -en '
 <HTML>
@@ -9,7 +9,7 @@ echo -en '
 <META NAME="Auther" content="yamauchi.isamu">
 <META NAME="Copyright" content="pepolinux.com">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
-<META NAME="Build" content="2022.2.22">
+<META NAME="Build" content="2018.2.24">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Setting in Ping monitoring and phone</TITLE>
 <script type="text/javascript">
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Setting in Ping monitoring and phone</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>'
 

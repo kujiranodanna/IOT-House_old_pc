@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2022.5.28
+# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2022.9.28
 PATH=$PATH:/usr/local/bin
 # for i386
 DIR=/www/remote-hand/tmp
@@ -203,6 +203,7 @@ if [ -e \$STARTUP ];then
   . \$tSTARTUP
   echo "vWEBUSER=\$SET_WEBUSER" >> \$tSTARTUP
   echo "vWEBPASSWORD=\$SET_WEBPASSWORD" >> \$tSTARTUP
+  echo "vLINENOTIFY=\$SET_LINENOTIFY" >> \$tSTARTUP
   chown www-data.www-data \$tSTARTUP
 fi
 EOF

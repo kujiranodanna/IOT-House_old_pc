@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.8.10
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.9.29
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2022.8.10"
+DATE="2022.9.29"
 VERSION="ver:0.04&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
@@ -139,7 +139,7 @@ if [ $SMART_PHONE = "YES" ];then
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_dio.min.js" type="text/javascript"></script>
+<script src="remote-hand_gpio.js" type="text/javascript"></script>
 <TITLE>$DIST_NAME Smart Phone Control</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
@@ -281,7 +281,7 @@ END
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_dio.min.js" type="text/javascript"></script>
+<script src="remote-hand_gpio.js" type="text/javascript"></script>
 <TITLE>IOT-House Temperature&Humidity</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
@@ -327,7 +327,7 @@ cat >$PAGE1<<END
 <link rel="stylesheet" href="pepo_ui.tabs.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
 <script src="jquery-ui.min.js" type="text/javascript"></script>
-<script src="remote-hand_dio.min.js" type="text/javascript"></script>
+<script src="remote-hand_gpio.js" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
   \$(function() {
@@ -7707,6 +7707,7 @@ END
 tSTARTUP=$DIR/.startup.s.tmp
 [ -e $tSTARTUP ] && . $tSTARTUP
 [ ! -z $vWEBPASSWORD ] && vWEBPASSWORD="*"
+[ ! -z $vLINENOTIFY ] && vLINENOTIFY="*"
 cat >>$PAGE1<<END
 <DL id="menu13dl">
 <DT><FONT SIZE="+1"><B>Server configuration and save</B></FONT></DT>
@@ -7727,6 +7728,9 @@ web user
 <BR>
 web password
 <INPUT TYPE="password" size="22" style="width:110px;" VALUE="$vWEBPASSWORD" NAME="server_val_1">
+<BR>
+LINE Notify
+<INPUT TYPE="password" size="22" style="width:110px;" VALUE="$vLINENOTIFY" NAME="server_val_2">
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Run" onClick="return menu13_ck()" ;>
 <INPUT style="text-align:center" TYPE="reset" VALUE="Clear">

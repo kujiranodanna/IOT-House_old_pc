@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.7.28
-* remote-hand_dio.js  ver0.04 2022.7.28
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.9.29
+* remote-hand_pi_gpio.js  ver0.21 2022.9.29
 */
 function blink(){
   if (!document.all){ return; }
@@ -136,22 +136,26 @@ function initWebVoice(state){
 }
 function CheckBrowser(){
   var userAgent = window.navigator.userAgent.toLowerCase();
+  if(userAgent.indexOf('edg') != -1)     { return "Edge";   }
   if(userAgent.indexOf('chrome') != -1)   { return "Chrome";  }
-  if(userAgent.indexOf('apple') != -1)    { return "Safari";  }
+  if(userAgent.indexOf('safari') != -1)    { return "Safari";  }
+  if(userAgent.indexOf('iphone') != -1)    { return "Safari";  }
+  if(userAgent.indexOf('ipad') != -1)    { return "Safari";  }
   if(userAgent.indexOf('firefox') != -1)  { return "FireFox"; }
-  if(userAgent.indexOf('msie') != -1)     { return "MS_IE";   }
   if(userAgent.indexOf('opera') != -1)    { return "Opera";   }
   return "Unknown";
 }
 function speak_exec(voice,lang){
   var Browser = CheckBrowser();
   var lang_temp;
-  if(Browser == "Chrome" | Browser == "FireFox"){
+  if(Browser == "Chrome" | Browser == "FireFox" | Browser == "Edge" | Browser == "Safari"){
     var utterance = new SpeechSynthesisUtterance();
     if (lang == "en") lang_temp = "en-US";
     if (lang == "ja") lang_temp = "ja";
     utterance.text = voice;
     utterance.lang = lang_temp;
+    utterance.pitch = 1.2;
+    utterance.rate = 0.8;
     speechSynthesis.speak(utterance);
   }
 }
@@ -178,6 +182,7 @@ function google_speak(voice_t,voice_l){
 }
 function google_speak_none(voice_t,voice_l){
   if (voice_l == "en"){
+//    voice_t = voice_t + " do not understand";
       voice_t = "Because" + voice_t + "can not understand, I searched it with google";
   }
   else {
@@ -229,7 +234,7 @@ function irkit_reg(ir_num,ir_id){
       $("#irkit_ip").text("Server-Success!");
     },
     error: function(){
-      $("#irkit_ip").text("Server-Timout!");
+      $("#irkit_ip").text("Server-Timeout!");
     }
   });
 }
@@ -269,7 +274,7 @@ function irkit_post(do_ch,do_time){
       $("#irkit_ip").text("Server-Success!");
     },
     error: function(){
-      $("#irkit_ip").text("Server-Timout!");
+      $("#irkit_ip").text("Server-Timeout!");
     }
   });
 }
@@ -292,9 +297,10 @@ function disp_irdata(irdata,val){
 // IP address search of IRKit
 function irkit_search(){
   var irkit_ip = document.menu5.irkit_ip.value;
-  if (ipaddr_ck(irkit_ip) == -1){
+/*  if (ipaddr_ck(irkit_ip) == -1){
     irkit_ip = "none";
   }
+*/
   $.ajax({
     url: "irkit_search.cgi",
     dataType: "text",
@@ -307,7 +313,7 @@ function irkit_search(){
       $("#irkit_ip").text("Server-Success!");
     },
     error: function(){
-      $("#irkit_ip").text("Server-Timout!");
+      $("#irkit_ip").text("Server-Timeout!");
    }
   });
 }
@@ -342,7 +348,7 @@ function disp_di_log(url_di_log){
 // Processing of live photo
 function start_photo(dev){
   var ip = $("#live_server").val();
-  var live_close_timer = 30000;
+  var live_close_timer = 60000;
   var live_timer = 0;
   var video_dev = dev;
   var liveimg_status = "none";
@@ -357,7 +363,7 @@ function start_photo(dev){
     if (wait_photo === null)
     {
       var child_url = "http://" + ip + wait_url;
-      wait_photo = window.open(child_url,dev,"width=640,height=480,resizable=yes,scrollbars=no");
+      wait_photo = window.open(child_url,dev,"width=320,height=240,resizable=yes,scrollbars=no");
     }
     $.ajax({
       url: ".di_read_data.json",
@@ -375,7 +381,7 @@ function start_photo(dev){
                 clearTimeout(id);
                 wait_photo.close();
                 child_url = "http://" + ip + live_url;
-                var live_photo = window.open(child_url,dev,"width=640,height=480,resizable=yes,scrollbars=no");
+                var live_photo = window.open(child_url,dev,"width=320,height=240,resizable=yes,scrollbars=no");
                 var id = setTimeout(function(){
                   live_photo.close();
                 },live_close_timer);
@@ -395,7 +401,7 @@ function start_photo(dev){
         });
       },
       error: function(){
-        $("#disp_menu5").text("Server-Timout Live Photo!");
+        $("#disp_menu5").text("Server-Timeout Live Photo!");
         return false;
       }
     });
@@ -411,7 +417,7 @@ function start_photo(dev){
       $("#disp_menu5").text("Server-Success!");
     },
     error: function(){
-      $("#disp_menu5").text("Server-Timout Live Photo!");
+      $("#disp_menu5").text("Server-Timeout Live Photo!");
       return false;
     }
   });
@@ -448,17 +454,17 @@ function start_video(dev){
   }
   live_timer = live_timer * 1 + 5;
   if (video_dev == "vchiq"){
-    live_close_timer = live_timer * 1000 * 3.0;
+    live_close_timer = live_timer * 1000 * 4.0;
   }
   else {
-    live_close_timer = live_timer * 1000 * 3.0;
+    live_close_timer = live_timer * 1000 * 4.0;
   }
   var wait_photo = null;
   function wait_img(){
     if (wait_photo === null)
     {
       var child_url = "http://" + ip + wait_url;
-      wait_photo = window.open(child_url,dev,"width=640,height=480,resizable=yes,scrollbars=no");
+      wait_photo = window.open(child_url,dev,"width=320,height=240,resizable=yes,scrollbars=no");
     }
     $.ajax({
       url: ".di_read_data.json",
@@ -476,7 +482,7 @@ function start_video(dev){
                 clearTimeout(id);
                 wait_photo.close();
                 child_url = "http://" + ip + live_url;
-                var live_photo = window.open(child_url,dev,"width=640,height=480,resizable=yes,scrollbars=no");
+                var live_photo = window.open(child_url,dev,"width=320,height=240,resizable=yes,scrollbars=no");
                 var id = setTimeout(function(){
                   live_photo.close();
                 },live_close_timer);
@@ -496,7 +502,7 @@ function start_video(dev){
         });
       },
       error: function(){
-        $("#disp_menu5").text("Server-Timout Live Photo!");
+        $("#disp_menu5").text("Server-Timeout Live Photo!");
         return false;
       }
     });
@@ -512,7 +518,7 @@ function start_video(dev){
       $("#disp_menu5").text("Server-Success!");
     },
     error: function(){
-      $("#disp_menu5").text("Server-Timout Live Photo!");
+      $("#disp_menu5").text("Server-Timeout Live Photo!");
       return false;
     }
   });
@@ -533,7 +539,7 @@ function streaming_start_stop(dev,start_stop){
       $(function(){
         if (start_stop == "start"){
           setTimeout(function(){
-            alert("Please be Start the vlc player , http://" + server_ip + ":8554 / please visit");
+            alert("Please be Start the vlc player , http://" + server_ip + ":8554 please visit");
           },5000);
         }
         else {
@@ -545,7 +551,7 @@ function streaming_start_stop(dev,start_stop){
       });
     },
     error: function(){
-      $("#disp_menu5").text("Server-Timout " + start_stop + "streming");
+      $("#disp_menu5").text("Server-Timeout " + start_stop + "streming");
       return false;
     }
   });
@@ -566,7 +572,7 @@ function send_do(do_ch,do_val,do_time){
         $("#disp_menu5").text("Digtal Out Success!");
       },
       error: function(do_sel){
-        $("#disp_menu5").text("Server-Timout!");
+        $("#disp_menu5").text("Server-Timeout!");
        }
     });
   }
@@ -674,7 +680,7 @@ function s_phone_update_do(tdo_id){
         send_do(tdo_ch,tdo_val,tdo_time);
       },
       error: function(do_id_val){
-        $("#disp_menu5").text("Server-Timout!");
+        $("#disp_menu5").text("Server-Timeout!");
         return;
        }
     });
@@ -694,7 +700,7 @@ function sendmail_pic(pic_val,mail_address){
       $("#disp_menu5").text("Mail send Success!");
     },
     error: function(do_sel){
-      $("#disp_menu5").text("Server-Timout!");
+      $("#disp_menu5").text("Server-Timeout!");
     }
   });
 }
@@ -1455,25 +1461,31 @@ function voice_do(do_sel,results_voice){
       }
       if (i == 78){
         tdo_ch = array_voice_alias[78];
-        tdo_id = di2json.gpio_i2c.iaq;
-        if (tdo_id != "none"){
-          var iaq_val = tdo_id;
+        var tdo_temp = di2json.gpio_i2c.temp;
+        var tdo_hum = di2json.gpio_i2c.hum;
+        var tdo_pres = di2json.gpio_i2c.pres;
+        var tdo_iaq = di2json.gpio_i2c.iaq;
+        if (tdo_iaq != "none"){
+          var iaq_val = tdo_iaq;
           var iaq_color = "";
           if ( iaq_val <= 50) {
-            iaq_color = "good";
+            iaq_color = "良い";
           } else if ( iaq_val <= 100) {
-            iaq_color = "average";
+            iaq_color = "普通";
           } else if ( iaq_val <= 150) {
-            iaq_color = "littlebad";
+            iaq_color = "少し悪い";
           } else if ( iaq_val <= 200) {
-             iaq_color = "bad";
+             iaq_color = "かなり悪い";
           } else if ( iaq_val <= 300) {
-            iaq_color = "worse";
+            iaq_color = "かなり悪い";
           } else if ( iaq_val > 300) {
-            iaq_color = "verybad";
+            iaq_color = "大変悪い";
           }
-          tdo_id = tdo_id + "で" + iaq_color;
+          tdo_id = tdo_iaq + "で" + iaq_color + "です";
         }
+         voice_tmp = tdo_ch + ",温度," + tdo_temp + ",湿度," + tdo_hum + ",気圧," +　tdo_pres + ",空気質," + tdo_id;
+　　      speak_main(voice_tmp,voice_lang);
+        return;
       }
       if (i == 79 || i == 80){
          voice_tmp = "どう致しまして";
@@ -2858,7 +2870,7 @@ function update_di(item){
         }
        },
        error: function(di2json){
-          $("#disp_menu5").text("Server-Timout");
+          $("#disp_menu5").text("Server-Timeout");
        }
     });
   });
@@ -4185,8 +4197,4 @@ function menu15_ck(item){
       return false
     }
   }
-}
-
-function server_setting(){
-   　location.href='../setup.cgi' ;
 }

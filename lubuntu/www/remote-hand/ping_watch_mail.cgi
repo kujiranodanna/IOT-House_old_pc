@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2022.2.22
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.8.9
 
 echo -en '
 <HTML>
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Ping monitoring and e-mail in the configuration</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD><TR></TABLE>
 </BODY>
 </HTML>'
 
@@ -45,7 +45,6 @@ PING_TMP=/www/remote-hand/tmp/.ping_mail_list.tmp
 PING_CRON=/www/remote-hand/tmp/.ping_watch.cron
 tPING_CRON=/www/remote-hand/tmp/.ping_watch.cron.tmp
 PING_WATCH=/www/pepolinux/mail/ping_watch_mail
-RUNDIR=/pepolinux/ping_mail
 LOCKDIR=/www/remote-hand/tmp
 CONV=./conv_get.cgi
 . $CONV
