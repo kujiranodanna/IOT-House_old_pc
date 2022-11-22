@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2022.5.5 update 2022.5.6
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2022.5.5 update 2022.10.18
 # Scan GPIO IAQ & LED Display for ubuntu.
 # pepoiaq2led
 # Connect physical Pin 2 ->Red Led, Pin 3 ->Green Led
@@ -12,41 +12,41 @@ LIGHT=1500
 DSLEEP="/usr/local/bin/msleep $DEEP"
 LSLEEP="/usr/local/bin/msleep $LIGHT"
 GPIOCTL_DO="/usr/local/bin/pepocp2112ctl"
-GREEN="$GPIOCTL_DO 3 1"
-RED="$GPIOCTL_DO 2 1"
-BLACK="$GPIOCTL_DO 2 0; $GPIOCTL_DO 3 0"
-YELLOW="$GREEN ;$RED"
-
+GREEN_ON="$GPIOCTL_DO 3 1"
+RED_ON="$GPIOCTL_DO 2 1"
+RED_OFF="$GPIOCTL_DO 2 0"
+GREEN_OFF="$GPIOCTL_DO 3 0"
+$RED_OFF >/dev/null 2>&1
+$GREEN_OFF >/dev/null 2>&1
 while true;do
   if [ -e $GPIORD ];then
-    if [ -e $GPIOWD ];then
-      . $GPIOWD
-    else
-      DO[0]=0
-      DO[1]=0
-    fi
     while true;do
       IAQ=`cat $GPIORD|awk 'BEGIN{FS=","};{printf $6}'`
       [ ! -z "$IAQ" ] && break
       $DSLEEP
     done
-    IAQ_COLOR=$GREEN
     if [ $IAQ -lt 51 ];then
-      IAQ_COLOR=$GREEN
+      $GREEN_ON >/dev/null 2>&1
+      $RED_OFF >/dev/null 2>&1
     elif [ $IAQ -lt 101 ];then
-      IAQ_COLOR=$GREEN
+      $GREEN_ON >/dev/null 2>&1
+      $RED_OFF >/dev/null 2>&1
     elif [ $IAQ -lt 151 ];then
-      IAQ_COLOR=$YELLOW
+      $GREEN_ON >/dev/null 2>&1
+      $RED_ON >/dev/null 2>&1
     elif [ $IAQ -lt 201 ];then
-      IAQ_COLOR=$YELLOW
+      $GREEN_ON >/dev/null 2>&1
+      $RED_ON >/dev/null 2>&1
     elif [ $IAQ -lt 301 ];then
-      IAQ_COLOR=$RED
-    else
-      IAQ_COLOR=$RED
+      $GREEN_ON >/dev/null 2>&1
+      $RED_ON >/dev/null 2>&1
+    elif [ $IAQ -gt 300 ];then
+      $GREEN_OFF >/dev/null 2>&1
+      $RED_ON >/dev/null 2>&1
     fi
-    $IAQ_COLOR >/dev/null 2>&1
     $LSLEEP
-    $BLACK >/dev/null 2>&1
+    $RED_OFF >/dev/null 2>&1
+    $GREEN_OFF >/dev/null 2>&1
   fi
   $DSLEEP
 done
