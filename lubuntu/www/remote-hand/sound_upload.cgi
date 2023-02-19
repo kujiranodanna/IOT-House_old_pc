@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.10.24
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.2.19
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,13 +9,13 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2022.10.24">
-<META http-equiv="Refresh" content="30;URL=/remote-hand/wait_for.cgi">
+<META NAME="build" content="2023.2.19">
+<META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Upload Sound File settings</TITLE>
 <script type="text/javascript">
 function blink() {
-//  if (!document.all) { return; }
+  // if (!document.all) { return; }
   for (i = 0; i < document.all.length; i++) {
     obj = document.all(i);
     if (obj.className == "blink") {
@@ -35,27 +35,34 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Processing Upload Sound File settings</TD></TR></TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2023-2026 pepolinux.com</TD><TR></TABLE>
 </BODY>'
 
 DIR=/www/remote-hand/tmp
 FILE_NAME=$DIR/.sound_file_name
-tFILE_NAME=$DIR/.sound_file_name_tmp
-SOUND_FILE=$DIR/.sound_file
-tSOUND_FILE=$DIR/.sound_file_tmp
-ttSOUND_FILE=${tSOUND_FILE}.tmp
-CMD=$DIR/sound_upload.pepocmd
-if [ -e $tSOUND_FILE ];then
-  cat >$ttSOUND_FILE
-  rm $ttSOUND_FILE
-  echo -en '
-  </HTML>'
-  exit
-fi
+tFILE_NAME=$DIR/.$$sound_file_name_tmp
+SOUND_FILE=$DIR/.$$sound_file
+tSOUND_FILE=$DIR/.$$sound_file_tmp
+CMD=$DIR/$$sound_upload.pepocmd
+MAXFILESIZE=$((1024 * 1024))
 cat >$tSOUND_FILE
 cat $tSOUND_FILE | sed -n 6,6p|awk '{gsub("\r","",$0);gsub(";","",$0);printf("%s\n%s\n",$3,$4)}' >$tFILE_NAME
 . $tFILE_NAME
 SIZE=`cat $tSOUND_FILE | awk 'NR == 4{gsub("\r","",$0);printf $1}'`
+if [ $SIZE -gt $MAXFILESIZE ];then
+  [ -e $tSOUND_FILE ] && rm $tSOUND_FILE
+  [ -e $tFILE_NAME ] && rm $tFILE_NAME
+  [ -e $SOUND_FILE ] && rm $SOUND_FILE
+  echo -en '
+  </HTML>'
+  exit
+fi
+tSIZE=$(wc -c $tSOUND_FILE | awk '{print $1}')
+while [ $tSIZE -lt $SIZE ];do
+  msleep 1000
+  cat >> $tSOUND_FILE
+  tSIZE=$(wc -c $tSOUND_FILE | awk '{print $1}')
+done
 case $name in
   "sound_file_0")
      tmp="sound_file[0]"
@@ -98,21 +105,17 @@ case $name in
      n=9
   ;;
 esac
-M4A_YES_NO=`echo $filename |awk 'BEGIN{TMP="NO"};/m4a$/{TMP="YES"};END{printf TMP}'`
-WAV_YES_NO=`echo $filename |awk 'BEGIN{TMP="NO"};/wav$/{TMP="YES"};END{printf TMP}'`
-tmpFILENAME=$filename
-convertFILE="NO"
-if [ $M4A_YES_NO = "YES" ];then
-  tmpFILENAME=`echo $filename |awk '{sub("m4a","mp3",$0);printf $0}'`
-  convertFILE="YES"
-fi
-if [ $WAV_YES_NO = "YES" ];then
-  tmpFILENAME=`echo $filename |awk '{sub("wav","mp3",$0);printf $0}'`
-  convertFILE="YES"
+CONVERT_YES_NO=`echo $filename |awk 'BEGIN{TMP="YES"};/mp3$/{TMP="NO"};END{printf TMP}'`
+if [ $CONVERT_YES_NO = "YES" ];then
+  tmpFILENAME=`echo $filename |awk -F "." '{printf("%s",$1".mp3")}'`
+else
+  tmpFILENAME=$filename
 fi
 if [ -e $FILE_NAME ];then
   . $FILE_NAME
-  [ -e $DIR/${sound_file[$n]} ] && rm -f $DIR/${sound_file[$n]}
+  if [ $(echo -en ${sound_file[$n]} | wc -c) -ne 0 ];then
+    [ -e $DIR/${sound_file[$n]} ] && rm $DIR/${sound_file[$n]}
+  fi
   cat $FILE_NAME |grep -F -v $tmp >$tFILE_NAME
   echo "$tmp"="$tmpFILENAME" >> $tFILE_NAME
   mv $tFILE_NAME $FILE_NAME
@@ -127,9 +130,11 @@ cat>$CMD<<EOF
 #!/bin/bash
 cat $tSOUND_FILE | sed '1,8d' >$SOUND_FILE
 dd if=$SOUND_FILE of=$inputFILE bs=1 count=$SIZE
-if [ $convertFILE = "YES" ];then
+if [ $CONVERT_YES_NO = "YES" ];then
   ffmpeg -i $inputFILE -ab 64k -y $outputFILE >/dev/null 2>&1
-  rm -f $inputFILE
+  [ -e $inputFILE ] && rm $inputFILE
 fi
-rm -f $tSOUND_FILE $tFILE_NAME $SOUND_FILE
+[ -e $tSOUND_FILE ] && rm $tSOUND_FILE
+[ -e $tFILE_NAME ] && rm $tFILE_NAME
+[ -e $SOUND_FILE ] && rm $SOUND_FILE
 EOF

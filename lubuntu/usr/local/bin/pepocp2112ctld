@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2022.5.22
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2023.2.19
 # Scan CP2112GPIO for i386.
 # pepocp2112ctld
 GPIOINT="/usr/local/bin/pepocp2112ctl 9"
@@ -23,10 +23,10 @@ EPOCHOLD=`date -ud "0 second ago" +%s`
 EPOC5MIN=300
 gpio_i2c="-1"
 DIR=/www/remote-hand/tmp
-GPIOGPIORD=$DIR/.gpiodi_read_data
-tGPIOGPIORD=$DIR/.gpiodi_read_data.tmp
-GPIOGPIOWD=$DIR/.gpiodo_write_data
-tGPIOGPIOWD=$DIR/.gpiodo_write_data.tmp
+GPIORD=$DIR/.gpiodi_read_data
+tGPIORD=$DIR/.gpiodi_read_data.tmp
+GPIOWD=$DIR/.gpiodo_write_data
+tGPIOWD=$DIR/.gpiodo_write_data.tmp
 DOWDHELP=$DIR/.do_write_cp2112_helper
 ALIAS_DI=$DIR/.alias_di
 tALIAS_DI=$DIR/.alias_di_pepogpioctld
@@ -36,19 +36,19 @@ ISLIVEBME680="NO"
 BME680_RD=$DIR/.pepocp2112bme680
 WAITUPBME680=10000
 error(){
-  [ -e $tGPIOGPIORD ] && rm -f $tGPIORD
-  [ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
-  [ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
+  [ -e $tGPIORD ] && rm -f $tGPIORD
+  [ -e $GPIORD ] && rm -f $GPIORD
+  [ -e $GPIOWD ] && rm -f $GPIOWD
   [ -e $GPIO_INIT_FILE ] && rm -f $GPIO_INIT_FILE
   $GPIO_INIT_FILE
   pkill -f "$GPIOCTL_I2CBME680"
   exit 0
 }
 trap error SIGTERM SIGHUP SIGKILL SIGINT SIGQUIT
-[ -e $tGPIOGPIORD ] && rm -f $tGPIOGPIORD
-[ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
-[ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
-[ -e $tGPIOGPIOWD ] && rm -f $tGPIOGPIOWD
+[ -e $tGPIORD ] && rm -f $tGPIORD
+[ -e $GPIORD ] && rm -f $GPIORD
+[ -e $GPIOWD ] && rm -f $GPIOWD
+[ -e $tGPIOWD ] && rm -f $tGPIOWD
 [ -e $GPIO_INIT_FILE ] && rm -f $GPIO_INIT_FILE
 LOOPDO=${LOOPDOCT}
 LOOPI2C=${LOOPI2CT}
@@ -65,8 +65,8 @@ while true;do
   unset DI_TTY
   [ -e $ALIAS_DI ] && . $ALIAS_DI
   if [ "$DI_TTY" = "none" ];then
-    [ -e $GPIOGPIORD ] && rm -f $GPIOGPIORD
-    [ -e $GPIOGPIOWD ] && rm -f $GPIOGPIOWD
+    [ -e $GPIORD ] && rm -f $GPIORD
+    [ -e $GPIOWD ] && rm -f $GPIOWD
     GPIO_INIT_FLAG="YES"
     LOOPTIME=$LOOPSLEEP
     msleep $LOOPTIME
@@ -119,6 +119,15 @@ while true;do
   if [ $LOOPI2C = 0 ];then
     ISLIVEBME680="NO"
     LOOPI2C=$LOOPI2CT
+    if [ -e $BME680_RD ];then
+      if [ $(($(date  "+%s") - $(date "+%s" -r $BME680_RD))) -gt 10 ];then
+        rm $BME680_RD
+      else
+        if [ $(cat $BME680_RD| wc -c) -lt 20 ];then
+          rm $BME680_RD
+        fi
+      fi
+    fi
     if [ -e $BME680_RD ];then
       LOOPI2C=$LOOPI2CT_BME680
       gpio_i2c=`cat $BME680_RD | awk 'BEGIN{FS=","};{split($1,I,"/");split($4,J,".");printf("%s,%s,%s,%s,%s",I[4],$2,$3,J[1],$5)}'`
@@ -214,6 +223,8 @@ while true;do
       if [ $NUM = "YES" ];then
         NOWDATE=`date '+%H:%M'|awk '{printf("%s",$1)}'`
         gpio_i2c=`echo -en ${NOWDATE} ${RD}|awk '{printf("%s,%s,%s",$1,$2,$3)}'`
+      else
+        gpio_i2c="-1"
       fi
     fi
   else
@@ -239,22 +250,22 @@ while true;do
     done
   else
     GPIO_INIT_FLAG="YES"
-    rm -f $GPIOGPIORD $GPIOGPIOWD
+    rm -f $GPIORD $GPIOWD
   fi
-  cat>$tGPIOGPIORD<<END
+  cat>$tGPIORD<<END
 di[0]=${old[4]}
 di[1]=${old[5]}
 di[2]=${old[6]}
 di[3]=${old[7]}
 gpio_i2c=${gpio_i2c}
 END
-cat>$tGPIOGPIOWD<<END
+cat>$tGPIOWD<<END
 do[0]=${old[0]}
 do[1]=${old[1]}
 do[2]=${old[2]}
 do[3]=${old[3]}
 END
-  chown www-data.www-data $tGPIOGPIORD $tGPIOGPIOWD
-  mv $tGPIOGPIORD $GPIOGPIORD ; mv $tGPIOGPIOWD $GPIOGPIOWD
+  chown www-data.www-data $tGPIORD $tGPIOWD
+  mv $tGPIORD $GPIORD ; mv $tGPIOWD $GPIOWD
   msleep $LOOPTIME
 done
