@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2022.8.26
+# Copyright (c) 2022-2028 Isamu.Yamauchi , 2022.8.22 update 2023.2.28
 # install open-jtalk ,dic ,hts-voice
 # sudo apt install open-jtalk open-jtalk-mecab-naist-jdic hts-voice-nitech-jp-atr503-m001
 # wget https://sourceforge.net/projects/mmdagent/files/MMDAgent_Example/MMDAgent_Example-1.8/MMDAgent_Example-1.8.zip
@@ -11,20 +11,41 @@
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 OPENJTALK=/usr/bin/open_jtalk
 DIR=/www/remote-hand/tmp
-CMD=$DIR/pepoltalk.pepocmd
+CMD=$DIR/pepojtalk.pepocmd
+UPLOAD_WAV=$DIR/voice_req.wav
+DOCFILE=$DIR/pepojtalk.tmp
 VOICEREQ=$DIR/.voice_req.tmp
 VOICE_PITCH=0.7
 INTERVAL=5
+RETRYTIME=10
+RETRY=1
+GETSIZE="1024"
+RM_HOST=
+USERAGENT="Chrome/87.0.4280.88"
+START_UP=$DIR/.startup.s.tmp
+[ -e $START_UP ] && . $START_UP
+USER=$SET_WEBUSER
+PASSWORD=$SET_WEBPASSWORD
+RM_CGI=remote-hand/sound_curl_rec.cgi
+
 [ ! -e $VOICEREQ ] && exit
+[ -e $CMD ] && exit
 tVOICEREQ=`cat $VOICEREQ`
 if [ $tVOICEREQ != "none" ];then
   NOWSECOND=`date +%s`
   VOICEREQ_STAMP=`date +%s -r $VOICEREQ`
   if [ $(($NOWSECOND - $VOICEREQ_STAMP)) -lt $INTERVAL ];then
-    VOICE=`echo -en $tVOICEREQ |awk '{gsub("@","",$0);print}'`
     cat >$CMD<<END
 #!/bin/bash
-echo -en $VOICE |$OPENJTALK -r $VOICE_PITCH -x /var/lib/mecab/dic/open-jtalk/naist-jdic -m /usr/share/hts-voice/mei/mei_normal.htsvoice -ow /dev/stdout |aplay -
+VOICE=`echo -en $tVOICEREQ |awk '{gsub("@","",$0);print}'`
+echo -en \$VOICE |$OPENJTALK -r $VOICE_PITCH -x /var/lib/mecab/dic/open-jtalk/naist-jdic -m /usr/share/hts-voice/mei/mei_normal.htsvoice -ow $UPLOAD_WAV
+if [  ! -z "$RM_HOST" ];then
+  UPLOAD_SIZE=\$(wc -c $UPLOAD_WAV | awk '{printf("filesize=%s",\$1)}')
+  curl -s --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --user-agent ${USERAGENT} --tlsv1 -k -u ${USER}:${PASSWORD} -X POST -F 'filesize='\${UPLOAD_SIZE} -F upfile=@/${UPLOAD_WAV} http://${RM_HOST}/${RM_CGI} >${DOCFILE}
+else
+  aplay $UPLOAD_WAV
+fi
+rm $UPLOAD_WAV ${DOCFILE}
 END
   fi
 fi

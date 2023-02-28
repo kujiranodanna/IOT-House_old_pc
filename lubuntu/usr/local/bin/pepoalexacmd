@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2022-2027 Isamu.Yamauchi , 2022.8.15 update 2022.9.3
+# Copyright (c) 2022-2027 Isamu.Yamauchi , 2022.8.15 update 2023.2.28
 # pepoalexacmd ; For raspberry pi & i386, and scripts to run the Remote DIO and TOCOS .
 # ln -s pepoalexacmd ./pepoalexacmd_on; ln -s pepoalexacmd ./pepoalexacmd_off
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 DIR=/www/remote-hand/tmp
 PROG=pepoalexacmd
-CMD=$DIR/${PROG}.pepocmd
+CMD=$DIR/$$${PROG}.pepocmd
 ALEXADO=/usr/local/bin/pepoalexado
 usage(){
   echo "usage $0 host user password [write->chno:0-17 [DO:0|1] [timer->1 to 300000ms]] or read->json_name" >/dev/stderr

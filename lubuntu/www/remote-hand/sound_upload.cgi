@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.2.19
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.2.26
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.com">
-<META NAME="build" content="2023.2.19">
+<META NAME="build" content="2023.2.26">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.com">
 <TITLE>Upload Sound File settings</TITLE>
@@ -129,7 +129,7 @@ echo -en '
 cat>$CMD<<EOF
 #!/bin/bash
 cat $tSOUND_FILE | sed '1,8d' >$SOUND_FILE
-dd if=$SOUND_FILE of=$inputFILE bs=1 count=$SIZE
+dd if=$SOUND_FILE of=$inputFILE bs=$SIZE count=1
 if [ $CONVERT_YES_NO = "YES" ];then
   ffmpeg -i $inputFILE -ab 64k -y $outputFILE >/dev/null 2>&1
   [ -e $inputFILE ] && rm $inputFILE
