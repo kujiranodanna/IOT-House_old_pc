@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2023.2.19
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2023.3.8
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2023.2.19"
+DATE="2023.3.8"
 VERSION="ver:0.04&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
@@ -1488,7 +1488,8 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1558,7 +1559,8 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1699,7 +1701,8 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1769,7 +1772,8 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1839,7 +1843,8 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1909,7 +1914,8 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1979,7 +1985,8 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -2049,7 +2056,8 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -4067,9 +4075,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT4_VAL[0]=Sound_3 ;;
         SOUND_3)
           vAUTO_ACT4_VAL[0]=Sound_4 ;;
-        SOUND_4)
-          vAUTO_ACT4_VAL[0]=Sound_5 ;;
-
         SOUND_4)
           vAUTO_ACT4_VAL[0]=Sound_5 ;;
         SOUND_5)
@@ -7648,7 +7653,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
-<OPTION VALUE="SOUND_4">Sound_5
 <OPTION VALUE="SOUND_4">Sound_5
 <OPTION VALUE="SOUND_5">Sound_6
 <OPTION VALUE="SOUND_6">Sound_7
