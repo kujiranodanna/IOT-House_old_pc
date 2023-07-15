@@ -12,10 +12,10 @@ echo -en '
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
-<META NAME="copyright" content="pepolinux.com">
+<META NAME="copyright" content="pepolinux.osdn.jp">
 <META NAME="build" content="2018.2.24">
 <META http-equiv="Refresh" content="0;URL=/remote-hand/wait_for.cgi">
-<META NAME="reply-to" content="izamu@pepolinux.com">
+<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
 <TITLE>Digital -out is being modified</TITLE>
 <script type="text/javascript">
 function blink() {

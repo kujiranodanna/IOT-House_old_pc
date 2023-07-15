@@ -8,10 +8,10 @@ echo -en '
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
-<META NAME="copyright" content="pepolinux.com">
+<META NAME="copyright" content="pepolinux.osdn.jp">
 <META NAME="build" content="2022.2.13">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
-<META NAME="reply-to" content="izamu@pepolinux.com">
+<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
 <TITLE>DIO settings</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -35,7 +35,7 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Processing DIO settings</TD></TR></TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.osdn.jp</TD><TR></TABLE>
 </BODY>'
 
 CONV=./conv_get.cgi

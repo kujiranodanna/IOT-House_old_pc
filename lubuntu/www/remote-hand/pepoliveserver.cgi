@@ -16,9 +16,9 @@ echo -en '
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=utf-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.com">
+<META NAME="Copyright" content="pepolinux.osdn.jp">
 <META NAME="Build" content="2018.5.8">
-<META NAME="reply-to" content="izamu@pepolinux.com">
+<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
 <TITLE>Live Webcam</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -40,7 +40,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>動画配信中です</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2020-2022 pepolinux.osdn.jp</TD><TR></TABLE>
 </BODY>
 </HTML>
 '

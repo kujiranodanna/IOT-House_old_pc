@@ -8,10 +8,10 @@ echo -en '
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.com">
+<META NAME="Copyright" content="pepolinux.osdn.jp">
 <META http-equiv="Refresh" content="0;URL=/remote-hand/wait_for.cgi">
 <META NAME="Build" content="2018.10.14">
-<META NAME="reply-to" content="izamu@pepolinux.com">
+<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
 <TITLE>Setting in DIO operation in Gmail</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Setting in DIO operation in Gmail</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.osdn.jp</TD></TR></TABLE>
 </BODY>
 </HTML>'
 CONV=./conv_get.cgi

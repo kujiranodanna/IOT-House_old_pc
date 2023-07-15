@@ -7,9 +7,9 @@ echo -en '
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.com">
+<META NAME="Copyright" content="pepolinux.osdn.jp">
 <META NAME="Build" content="2019.6.4">
-<META NAME="reply-to" content="izamu@pepolinux.com">
+<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
 <META http-equiv="Refresh" content="10;URL=/remote-hand/tmp/gpio_gas.png">
 <TITLE>GPIO Gas Graph Create</TITLE>
 <script type="text/javascript">
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>GPIO Gas graph create</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.com</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.osdn.jp</TD><TR></TABLE>
 </BODY>
 </HTML>'
 WORKDIR=/www/remote-hand

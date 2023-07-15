@@ -1,7 +1,7 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2022.3.27 update 2022.3.28
-# pepoalexahelp is daemon, Help the content that Alexa can not answer
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2022.3.27 update 2022.4.17
+# pepoalexahelp makes it easier to read the value of the environment sensor BME680 
 
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 DIR=/www/remote-hand
@@ -15,16 +15,16 @@ PRES=`cat $JSON_DATA |jq -r .gpio_i2c.pres`
 IAQ=`cat $JSON_DATA |jq -r .gpio_i2c.iaq`
 IAQ_STATUS="good"
 if [ $IAQ -lt 51 ];then
-  IAQ_STATUS="good"
+  IAQ_STATUS="よい"
 elif [ $IAQ -lt 101 ];then
-  IAQ_STATUS="average"
+  IAQ_STATUS="ふつう"
 elif [ $IAQ -lt 151 ];then
-  IAQ_STATUS="littlebad"
+  IAQ_STATUS="少しわるい"
 elif [ $IAQ -lt 201 ];then
-  IAQ_STATUS="bad"
+  IAQ_STATUS="わるい"
 elif [ $IAQ -lt 301 ];then
-  IAQ_STATUS="worse"
+  IAQ_STATUS="とってもわるい"
 elif [ $IAQ -gt 300 ];then
-  IAQ_STATUS="verybad"
+  IAQ_STATUS="さいあく"
 fi
-echo -en "@cpu温度${CPU_TEMP},部屋の温度,${TEMP},湿度,${HUM},気圧,${PRES},空気質,${IAQ}で${IAQ_STATUS}です">$VOICEREQ
+echo -en "@CPU温度${CPU_TEMP},部屋の温度,${TEMP},湿度,${HUM},気圧,${PRES},空気質,${IAQ}で${IAQ_STATUS}です">$VOICEREQ
