@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2023.2.19
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2023.8.18
 # Scan CP2112GPIO for i386.
 # pepocp2112ctld
 GPIOINT="/usr/local/bin/pepocp2112ctl 9"
@@ -218,13 +218,21 @@ while true;do
       [ $IAQ -gt 500 ] && IAQ=500
       gpio_i2c=`echo -en $gpio_i2c,$IAQ`
     else
-      RD=`$GPIOCTL_I2C 2>&1`
-      NUM=`echo -en $RD | awk 'BEGIN{I="YES"};{if(/[a-z|A-Z]+/){I="NO"};printf I}'`
-      if [ $NUM = "YES" ];then
-        NOWDATE=`date '+%H:%M'|awk '{printf("%s",$1)}'`
-        gpio_i2c=`echo -en ${NOWDATE} ${RD}|awk '{printf("%s,%s,%s",$1,$2,$3)}'`
+      if [ ! -z $EPOCHNOW ];then
+        tEPOCHNOW=$(date -ud "0 second ago" +%s)
+        if [ $(($tEPOCHNOW - $EPICONOW)) -gt $BME680_ALIVE ];then
+          $GPIOCTL_I2CBME680 &
+        fi
       else
-        gpio_i2c="-1"
+        RD="-1" ;gpio_i2c="-1"         
+        RD=`$GPIOCTL_I2C 2>&1`
+        if [ $RD != "-1" ];then
+          NUM=`echo -en $RD | awk 'BEGIN{I="YES"};{if(/[a-z|A-Z]+/){I="NO"};printf I}'`
+          if [ $NUM = "YES" ];then
+            NOWDATE=`date '+%H:%M'|awk '{printf("%s",$1)}'`
+            gpio_i2c=`echo -en ${NOWDATE} ${RD}|awk '{printf("%s,%s,%s",$1,$2,$3)}'`
+          fi
+        fi
       fi
     fi
   else

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.4.26
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.8.15
 
 echo -en '
 <HTML>
@@ -649,10 +649,3 @@ elif [ "${auto_act19_val[9]}" = "del" ];then
 fi
 echo -en '
 </HTML>'
-if [ $DI_TTY = "gpio" ];then
-  ./pi_int_gpio.cgi
-elif [ $DI_TTY = "piface" ];then
-  ./pi_int.cgi
-elif [ $DI_TTY = "cp2112" ];then
-  ./pi_int_cp2112.cgi
-fi

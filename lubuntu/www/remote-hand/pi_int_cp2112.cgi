@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2023.3.8
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2023.8.15
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
@@ -461,12 +461,12 @@ else
 fi
 if [ -n "${DI_TTY}" ];then
   case ${DI_TTY} in
-    gpio) vTTY="cp2112" ;;
+    gpio) vTTY="gpio" ;;
     none) vTTY="none" ;;
     *) vTTY="none" ;;
   esac
 else
-   DI_TTY="gpio" ; vTTY="cp2112"
+   DI_TTY="gpio" ; vTTY="gpio"
 fi
 MODEM=$DIR/.modem
 [ -e $MODEM ] && . $MODEM || modem_dev=none
@@ -1062,7 +1062,7 @@ Slice<INPUT TYPE="text" style="width:24px;" NAME="slice_ai_23" VALUE="${SLICE_AI
 <HR>
 Interface<SELECT NAME="DI_TTY">
 <OPTION VALUE="${DI_TTY}" SELECTED>${vTTY}
-<OPTION VALUE="gpio">cp2112
+<OPTION VALUE="gpio">gpio
 <OPTION VALUE="none">none
 </SELECT>&nbsp;&nbsp;
 remote_ip<INPUT TYPE="text" style="width:120px;" NAME="piface_ip" VALUE="${piface_ip}">

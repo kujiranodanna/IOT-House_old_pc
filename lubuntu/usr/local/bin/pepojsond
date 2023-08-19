@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2022.8.26
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2023.8.7
 # pepojsond is for daemon make json data
 
 USR_BIN=/usr/bin/dio
@@ -10,6 +10,7 @@ PATH=$PATH:/usr/local/bin:/usr/local/sbin
 DIR=/www/remote-hand/tmp
 ALIAS_DI=$DIR/.alias_di
 SLICE_AI=$DIR/.slice_ai
+tSLICE_AI=$DIR/.slice_ai.tmp
 ALIAS_DO=$DIR/.alias_do
 ALIAS_VDO=$DIR/.alias_vdo
 DIORD=$DIR/.di_read_data
@@ -341,7 +342,7 @@ END
     unset gpio_i2c
     [ -e $DIRDIP ] && . $DIRDIP
     [ -e $GPIORD ] && . $GPIORD
-    if [ $gpio_i2c != "-1" ];then
+    if [ "$gpio_i2c" != "-1" ];then
       gpio_i2c=`echo -en $gpio_i2c | awk '{gsub(","," ",$0);printf $0}'`
       echo -e $gpio_i2c| awk '{J=split($0,I," ");if(J>3){printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%shPa\",\"gas\":\"%sΩ\",\"iaq\":\"%s\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}else{printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%snone\",\"gas\":\"%snone\",\"iaq\":\"%snone\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}}' >>$tJSONRD
       GPIO_TEMP=`echo ${gpio_i2c} | awk '{gsub(","," ",$0);printf $2}'`
@@ -369,9 +370,19 @@ END
       fi
     else
       echo -e \"gpio_i2c\":\"none\", >>$tJSONRD
+      old[25]="-1"
+      old[26]="-1"
+      old[33]="-1"
+      old[34]="-1"
+      old[35]="-1"
     fi
   else
     echo -e \"gpio_i2c\":\"none\", >>$tJSONRD
+    old[25]="-1"
+    old[26]="-1"
+    old[33]="-1"
+    old[34]="-1"
+    old[35]="-1"
   fi
   if [ -e $TCOSRD ];then
     unset i2c
@@ -391,6 +402,8 @@ END
       fi
     else
       echo -e \"i2ctemp\":\"none\", >>$tJSONRD
+      old[27]="-1"
+      old[28]="-1"
     fi
     [ ! -z "$VAI1" ] &&  echo -e \"vai1\":\"$VAI1\", >>$tJSONRD || echo -e \"vai1\":\"none\", >>$tJSONRD
     [ ! -z "$VAI2" ] &&  echo -e \"vai2\":\"$VAI2\", >>$tJSONRD || echo -e \"vai2\":\"none\", >>$tJSONRD
@@ -415,8 +428,10 @@ END
   CPU_TEMP=`echo ${CPU_TEMP} | awk '{gsub(/Ž/,"",$0);split($0,J,".");printf J[1]}'`
   if [ ! -z "$CPU_TEMP" -a ! -z "${slice_ai[16]}" ];then
     [ $CPU_TEMP -lt ${slice_ai[16]} ] && old[24]=0 || old[24]=1
+  else
+    old[24]="-1"
   fi
-  cat>$SLICE_AI<<END
+  cat>$tSLICE_AI<<END
 old[24]=${old[24]}
 old[25]=${old[25]}
 old[26]=${old[26]}
@@ -426,6 +441,7 @@ old[33]=${old[33]}
 old[34]=${old[34]}
 old[35]=${old[35]}
 END
+  mv $tSLICE_AI $SLICE_AI
   voice_req="none"
   if [ ! -e "${tVOICEREQ}" ];then
     if [ -e ${VOICEREQ} ];then

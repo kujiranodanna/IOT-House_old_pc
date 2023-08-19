@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2022.10.5
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.8.15
 # di_control_pi2.cgi
 
 PATH=$PATH:/usr/local/bin
@@ -764,10 +764,3 @@ fi
 echo -en '
 </HTML>'
 msleep 5000
-if [ $DI_TTY = "gpio" ];then
-  ./pi_int_gpio.cgi
-elif [ $DI_TTY = "piface" ];then
-  ./pi_int.cgi
-elif [ $DI_TTY = "cp2112" ];then
-  ./pi_int_cp2112.cgi
-fi
