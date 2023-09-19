@@ -1,12 +1,12 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2023.8.15
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2023.9.18
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2023.3.8"
+DATE="2023.9.18"
 VERSION="ver:0.04&nbsp;$DATE"
 DIST_NAME=IOT-House_old_pc
 echo -en '
@@ -299,6 +299,9 @@ END
 <BR>
 <span id="s_phone_gpio_csv"></span>
 <span id="s_phone_tocos_temp_hum"></span>
+<BR>
+<BR>
+<img border="0" src="./google-microphone.png" width="300" height="300" alt="microphone" onclick="startWebVoiceRecognition();"/>
 <BR>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Home" onclick="location.href='./pi_int_cp2112.html'";/>

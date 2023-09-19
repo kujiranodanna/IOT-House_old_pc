@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.2.10 update 2021.11.28 for i386 & raspberry pi.
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.2.10 update 2023.9.16 for i386 & raspberry pi.
 # pepotocsctl for contorl TWE-Lite DIP:Ver1.6 or later(monowireless engine) digital-IN/digital-OUT signal.
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 usage(){
@@ -64,7 +64,7 @@ tTCOSRD=$DIR/.tocos_write_data_tmp
 [ -e $ALIAS_DI ] && . "$ALIAS_DI"
 [ ! -z "${TOCOS_TTY}" ] && DIO_DEV="/dev/"${TOCOS_TTY} || DIO_DEV=/dev/none_tocos
 if [ ! -e $DIO_DEV ];then
-  [ -e $TCOSWD ] && rm -f $TCOSWD
+# [ -e $TCOSWD ] && rm -f $TCOSWD
   [ -e $TCOSRD ] && rm -f $TCOSRD
   [ -e $tTCOSWD ] && rm -f $tTCOSWD
   [ -e $tTCOSRD ] && rm -f $tTCOSRD
