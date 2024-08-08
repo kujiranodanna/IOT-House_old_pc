@@ -1,0 +1,47 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2024.7.3 update 2024.7.3
+# pepotocosfake
+# Make the I2C data obtained from the remote host into the TWLite I2C temperature and humidity 
+DIR=/www/remote-hand/tmp
+TCOSRD=$DIR/.tocos_read_data
+tTCOSRD=$DIR/.tocos_read_data_tmp.tmp
+RMHOST=iot002.local
+while true;do 
+  TMP=`pepoalexado $RMHOST remote hand i2ctemp`
+  if [ -e $TCOSRD ];then
+#    cat >$TCOSRD<<END
+#TI1=0
+#TI2=0
+#TI3=0
+#VAI1=650
+#VAI2=4080
+#VAI3=4080
+#VAI4=4080
+#AI1=0
+#AI2=1
+#AI3=1
+#AI4=1
+#END
+    cat $TCOSRD | grep -v "i2c" >$tTCOSRD
+echo $TMP|awk '{gsub(/"date":|"temp":|"hum":|{|}|"| /,"",$0);gsub(","," ",$0);printf("i2c=\"%s\"",$0)}' >>$tTCOSRD
+    mv $tTCOSRD $TCOSRD
+  else
+echo $TMP|awk '{gsub(/"date":|"temp":|"hum":|{|}|"| /,"",$0);gsub(","," ",$0);printf("i2c=\"%s\"",$0)}' >$tTCOSRD
+#cat >>$tTCOSRD<<EOF
+#TI1=0
+#TI2=0
+#TI3=0
+#VAI1=650
+#VAI2=4080
+#VAI3=4080
+#VAI4=4080
+#AI1=0
+#AI2=1
+#AI3=1
+#AI4=1
+#EOF
+    mv $tTCOSRD $TCOSRD
+  fi
+  msleep 10000
+done

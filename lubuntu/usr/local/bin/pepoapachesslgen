@@ -1,0 +1,28 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2022-2027 Isamu.Yamauchi , 2023.12.31 update 2024.2.23
+# pepoapachesslgen ; For raspberry pi & i386, and scripts to apache2 ssl_key genarete
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+DIR=/www/remote-hand/tmp
+PROG=pepoapachesslgen
+PASSWD=pepolinux
+APACHESSL_DIR=/etc/apache2/ssl
+tSERVER_KEY=$DIR/server.key
+tSERVER_CSR=$DIR/server.csr
+tSERVER_CRT=$DIR/server.crt
+SERVER_FQDN=$(hostname).local
+Country_Name=JP
+State=Osaka
+Locality_Name=Osaka-City
+Organization_Name=PepoLinux
+Organizational_Unit_Name=IOT-House
+Common_Name=kujiranodanna
+Email_Address=pepopa@pepolinux.dokokaodare.jp
+
+echo -en "$Country_Name\n$State\n$Locality_Name\n$Organization_Name\n$Organizational_Unit_Name\n$Common_Name\n$Email_Address\n" |openssl req -x509 -nodes -days 3650 -newkey rsa:4096 -keyout $tSERVER_KEY -out $tSERVER_CRT
+echo -en "$Country_Name\n$State\n$Locality_Name\n$Organization_Name\n$Organizational_Unit_Name\n$tSERVER_FQDN\n$Email_Address\n.\n.\n" |openssl req -new -key  $tSERVER_KEY > $tSERVER_CSR
+openssl x509 -in $tSERVER_CSR -req -signkey $tSERVER_KEY -days 3650 -out $tSERVER_CRT
+mv $tSERVER_KEY $APACHESSL_DIR
+mv $tSERVER_CSR $APACHESSL_DIR
+mv $tSERVER_CRT $APACHESSL_DIR
+sed -i "s/ServerName .*/ServerName $SERVER_FQDN/" /etc/apache2/sites-available/remote-hand-ssl.conf

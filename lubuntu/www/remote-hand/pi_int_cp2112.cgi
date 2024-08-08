@@ -1,22 +1,22 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2023.9.18
+# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2024.7.28
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2023.9.18"
-VERSION="ver:0.04&nbsp;$DATE"
-DIST_NAME=IOT-House_old_pc
+DATE="2024.7.28"
+VERSION="ver:0.06&nbsp;$DATE"
+DIST_NAME=IOT-House_docker
 echo -en '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=utf-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.osdn.jp">
+<META NAME="Copyright" content="pepolinux.jpn.org">
 <META NAME="Build" content="$DATE">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>$DIST_NAME command execution</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -58,7 +58,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2023-2026 pepolinux.osdn.jp</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2023-2026 pepolinux.jpn.org</TD></TR></TABLE>
 </BODY>
 </HTML>'
   exit -1
@@ -70,6 +70,7 @@ PAGE2=pi_int_cp2112.html
 PAGE3=setup.html.tmp
 PAGE4=setup.html
 PAGE5=temp_hum.html
+PAGE6=button_ope.html
 echo_f() {
   local DT FL
   DT=$1
@@ -123,6 +124,96 @@ while [ $n -lt 34 ];do
   [ -n "${alias_vdo[$n]}" ] && ALIAS_VDO[$n]="${alias_vdo[$n]}" || ALIAS_VDO[$n]=""
   n=$(($n + 1))
 done
+cat >$PAGE6<<END
+<!DOCTYPE HTML>
+<HTML LANG="ja">
+<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
+<META name="Auther" content="yamauchi.isamu">
+<META name="Copyright" content="pepolinux">
+<META name="Build" content="$DATE">
+<META name="reply-to" content="izamu@pepolinux.jpn.org">
+<META http-equiv="content-style-type" content="text/css" />
+<META http-equiv="content-script-type" content="text/javascript" />
+<link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
+<script src="jquery-3.5.1.min.js" type="text/javascript"></script>
+<script src="remote-hand_gpio.js" type="text/javascript"></script>
+<TITLE>$DIST_NAME Button Control</TITLE>
+</HEAD>
+<BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
+<META http-equiv="Refresh" content="120;URL=/remote-hand/$PAGE6">
+<DIV style="text-align:center"><FONT size="5" color="green">$DIST_NAME<FONT size="2">&nbsp;$VERSION</FONT></FONT></DIV>
+<BR>
+<FONT SIZE="+1"><B>Digital output Button Operation</B></FONT>
+<BR>
+<BR>
+<span id="s_phone_button_do0"></span>
+<span id="s_phone_button_do1"></span>
+<span id="s_phone_button_do2"></span>
+<span id="s_phone_button_do3"></span>
+<span id="s_phone_button_do8"></span>
+<span id="s_phone_button_do9"></span>
+<span id="s_phone_button_do10"></span>
+<span id="s_phone_button_do11"></span>
+<span id="s_phone_button_do12"></span>
+<span id="s_phone_button_do13"></span>
+<span id="s_phone_button_do14"></span>
+<span id="s_phone_button_do15"></span>
+<span id="s_phone_button_do16"></span>
+<HR>
+<FONT SIZE="+1"><B>Digital input Button Operation</B></FONT>
+<BR>
+<span id="s_phone_button_di0"></span>
+<span id="s_phone_button_di1"></span>
+<span id="s_phone_button_di2"></span>
+<span id="s_phone_button_di3"></span>
+<span id="s_phone_button_di4"></span>
+<span id="s_phone_button_di5"></span>
+<span id="s_phone_button_di6"></span>
+<span id="s_phone_button_di7"></span>
+<span id="s_phone_button_di8"></span>
+<span id="s_phone_button_di9"></span>
+<span id="s_phone_button_di10"></span>
+</FORM>
+<HR>
+<BR>
+<img border="0" src="./google-microphone.png" width="300" height="300" alt="microphone" onclick="startWebVoiceRecognition();"/>
+<BR>
+<span id="voice_sel">
+Voice control
+<input id="voice_val" type="text" style="width:120px;" NAME="voice_val" VALUE="" onkeydown="if(event.keyCode == 13 || event.keyCode == 9) update_do('voice_sel')" placeholder="Command" autofocus />
+<SELECT NAME="voice_lang" id="voice_lang">
+<OPTION VALUE="ja" SELECTED>Japanese
+<OPTION VALUE="en">English
+</SELECT>
+</span>
+<BR>
+Computer name:
+<input id="computer_name" type="text" style="width:240px;" NAME="computer_name" VALUE="" placeholder="$Wake_Up_Word" autofocus />
+Continuous
+<SELECT NAME="Continuous" id="voice_continuous">
+<OPTION VALUE="Yes" SELECTED>Yes
+<OPTION VALUE="Yes">Yes
+<OPTION VALUE="No">No
+</SELECT>
+<BR>
+State:<span id="recognition_state" >Stop</span>
+<HR>
+<BR>
+<BR>
+<INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
+<BR>
+<BR>
+<INPUT style="text-align:center" TYPE="button" VALUE="Setup" onclick="location.href='./$PAGE2'";>
+<BR>
+<BR>
+<INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
+<BR>
+<BR>
+&copy;2024 pepolinux.jpn.org&nbsp;
+</H1>
+</BODY>
+</HTML>
+END
 
 SMART_PHONE=`echo "$HTTP_USER_AGENT" |awk 'BEGIN{S_PHONE="NO"};/(iPhone|Android)/{S_PHONE="YES"};END{printf S_PHONE}'`
 if [ $SMART_PHONE = "YES" ];then
@@ -134,12 +225,12 @@ if [ $SMART_PHONE = "YES" ];then
 <META name="Auther" content="yamauchi.isamu">
 <META name="Copyright" content="pepolinux">
 <META name="Build" content="$DATE">
-<META name="reply-to" content="izamu@pepolinux.osdn.jp">
+<META name="reply-to" content="izamu@pepolinux.jpn.org">
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_gpio.min.js" type="text/javascript"></script>
+<script src="remote-hand_gpio.js" type="text/javascript"></script>
 <TITLE>$DIST_NAME Smart Phone Control</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
@@ -260,7 +351,7 @@ Voice control
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <BR>
 <BR>
-&copy;2023-2026 pepolinux.osdn.jp&nbsp;
+&copy;2023-2026 pepolinux.jpn.org&nbsp;
 </H1>
 </BODY>
 </HTML>
@@ -276,12 +367,12 @@ END
 <META name="Auther" content="yamauchi.isamu">
 <META name="Copyright" content="pepolinux">
 <META name="Build" content="$DATE">
-<META name="reply-to" content="izamu@pepolinux.osdn.jp">
+<META name="reply-to" content="izamu@pepolinux.jpn.org">
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
-<script src="remote-hand_gpio.min.js" type="text/javascript"></script>
+<script src="remote-hand_gpio.js" type="text/javascript"></script>
 <TITLE>IOT-House Temperature&Humidity</TITLE>
 </HEAD>
 <BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
@@ -301,13 +392,10 @@ END
 <span id="s_phone_tocos_temp_hum"></span>
 <BR>
 <BR>
-<img border="0" src="./google-microphone.png" width="300" height="300" alt="microphone" onclick="startWebVoiceRecognition();"/>
-<BR>
-<BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Home" onclick="location.href='./pi_int_cp2112.html'";/>
 <BR>
 <BR>
-&copy;2023-2026 pepolinux.osdn.jp&nbsp;
+&copy;2023-2026 pepolinux.jpn.org&nbsp;
 <span id="server_time" style="text-align:left"></span>
 </H1>
 </BODY>
@@ -324,13 +412,13 @@ cat >$PAGE1<<END
 <META name="Auther" content="yamauchi.isamu">
 <META name="Copyright" content="pepolinux">
 <META name="Build" content="$DATE">
-<META name="reply-to" content="izamu@pepolinux.osdn.jp">
+<META name="reply-to" content="izamu@pepolinux.jpn.org">
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="pepo_ui.tabs.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
 <script src="jquery-ui.min.js" type="text/javascript"></script>
-<script src="remote-hand_gpio.min.js" type="text/javascript"></script>
+<script src="remote-hand_gpio.js" type="text/javascript"></script>
 <script type="text/javascript">
 <!--
   \$(function() {
@@ -358,6 +446,7 @@ cat >$PAGE1<<END
 <LI><a href="#menu10dl" title="DIO Control-2"><span>DIO Control2</span></a></LI>
 <LI><a href="#menu11dl" title="Mail Settings"><span>Mail Settings</span></a></LI>
 <LI><a href="#menu12dl" title="Auto Process"><span>Auto Process</span></a></LI>
+<LI><a href="#menu16dl" title="Voice Control"><span>Voice Control</span></a></LI>
 <LI><a href="#menu13dl" title="Server Control"><span>Server Control</span></a></LI>
 </UL>
 END
@@ -464,12 +553,12 @@ else
 fi
 if [ -n "${DI_TTY}" ];then
   case ${DI_TTY} in
-    gpio) vTTY="gpio" ;;
+    gpio) vTTY="cp2112" ;;
     none) vTTY="none" ;;
     *) vTTY="none" ;;
   esac
 else
-   DI_TTY="gpio" ; vTTY="gpio"
+   DI_TTY="gpio" ; vTTY="cp2112"
 fi
 MODEM=$DIR/.modem
 [ -e $MODEM ] && . $MODEM || modem_dev=none
@@ -1065,7 +1154,7 @@ Slice<INPUT TYPE="text" style="width:24px;" NAME="slice_ai_23" VALUE="${SLICE_AI
 <HR>
 Interface<SELECT NAME="DI_TTY">
 <OPTION VALUE="${DI_TTY}" SELECTED>${vTTY}
-<OPTION VALUE="gpio">gpio
+<OPTION VALUE="gpio">cp2112
 <OPTION VALUE="none">none
 </SELECT>&nbsp;&nbsp;
 remote_ip<INPUT TYPE="text" style="width:120px;" NAME="piface_ip" VALUE="${piface_ip}">
@@ -1491,8 +1580,7 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1562,8 +1650,7 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1704,8 +1791,7 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1775,8 +1861,7 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1846,8 +1931,7 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1917,8 +2001,7 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1988,8 +2071,7 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -2059,8 +2141,7 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video
-<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -4078,6 +4159,9 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT4_VAL[0]=Sound_3 ;;
         SOUND_3)
           vAUTO_ACT4_VAL[0]=Sound_4 ;;
+        SOUND_4)
+          vAUTO_ACT4_VAL[0]=Sound_5 ;;
+
         SOUND_4)
           vAUTO_ACT4_VAL[0]=Sound_5 ;;
         SOUND_5)
@@ -7657,6 +7741,7 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
+<OPTION VALUE="SOUND_4">Sound_5
 <OPTION VALUE="SOUND_5">Sound_6
 <OPTION VALUE="SOUND_6">Sound_7
 <OPTION VALUE="SOUND_7">Sound_8
@@ -7750,14 +7835,175 @@ LINE Notify
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Run" onClick="return menu14_ck()" ;>
 <INPUT style="text-align:center" TYPE="reset" VALUE="Clear">
+</FORM>
 </DD>
 </DL>
+END
 
+VOM=$DIR/.vomdi
+[ -e $VOM ] && . $VOM
+for n in 0 1 2 3 4 5 6 7 8 9 10;do
+  [ -z ${vom_val[$n]} ] && VOM_VAL[$n]="" || VOM_VAL[$n]=${vom_val[$n]}
+  [ -z ${vom_ans[$n]} ] && VOM_ANS[$n]="はい" || VOM_ANS[$n]=${vom_ans[$n]} 
+  [ -z ${vom_var[$n]} ] && VOM_VAR[$n]="high" || VOM_VAR[$n]=${vom_var[$n]} 
+done 
+cat >>$PAGE1<<END
+<DL id="menu16dl">
+<DT><FONT SIZE="+1"><B>Voice Match DI Action(/usr/bin/dioNhigh|low)</B></FONT></DT>
+<DD>
+<FORM NAME="menu16" id="menu16_form" ACTION="voice_match_set.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
+Voice Match1<INPUT TYPE="text" style="width:240px;" NAME="vom_val_0" VALUE="${VOM_VAL[0]}">&nbsp;
+Ans.<INPUT id="vom_ans_0" type="text" style="width:120px;" NAME="vom_ans_0" VALUE="${VOM_ANS[0]}">
+&nbsp;&nbsp;dio0<SELECT NAME="vom_var_0">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[0]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_0">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match2<INPUT TYPE="text" style="width:240px;" NAME="vom_val_1" VALUE="${VOM_VAL[1]}">&nbsp;
+Ans.<INPUT id="vom_ans_1" type="text" style="width:120px;" NAME="vom_ans_1" VALUE="${VOM_ANS[1]}">
+&nbsp;&nbsp;dio1<SELECT NAME="vom_var_1">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[1]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_1">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match3<INPUT TYPE="text" style="width:240px;" NAME="vom_val_2" VALUE="${VOM_VAL[2]}">&nbsp;
+Ans.<INPUT id="vom_ans_2" type="text" style="width:120px;" NAME="vom_ans_2" VALUE="${VOM_ANS[2]}">
+&nbsp;&nbsp;dio2<SELECT NAME="vom_var_2">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[2]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_2">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match4<INPUT TYPE="text" style="width:240px;" NAME="vom_val_3" VALUE="${VOM_VAL[3]}">&nbsp;
+Ans.<INPUT id="vom_ans_3" type="text" style="width:120px;" NAME="vom_ans_3" VALUE="${VOM_ANS[3]}">
+&nbsp;&nbsp;dio3<SELECT NAME="vom_var_3">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[3]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_3">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match5<INPUT TYPE="text" style="width:240px;" NAME="vom_val_4" VALUE="${VOM_VAL[4]}">&nbsp;
+Ans.<INPUT id="vom_ans_4" type="text" style="width:120px;" NAME="vom_ans_4" VALUE="${VOM_ANS[4]}">
+&nbsp;&nbsp;dio4<SELECT NAME="vom_var_4">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[4]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_4">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match6<INPUT TYPE="text" style="width:240px;" NAME="vom_val_5" VALUE="${VOM_VAL[5]}">&nbsp;
+Ans.<INPUT id="vom_ans_5" type="text" style="width:120px;" NAME="vom_ans_5" VALUE="${VOM_ANS[5]}">
+&nbsp;&nbsp;dio5<SELECT NAME="vom_var_5">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[5]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_5">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match7<INPUT TYPE="text" style="width:240px;" NAME="vom_val_6" VALUE="${VOM_VAL[6]}">&nbsp;
+Ans.<INPUT id="vom_ans_6" type="text" style="width:120px;" NAME="vom_ans_6" VALUE="${VOM_ANS[6]}">
+&nbsp;&nbsp;dio6<SELECT NAME="vom_var_6">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[6]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_6">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match8<INPUT TYPE="text" style="width:240px;" NAME="vom_val_7" VALUE="${VOM_VAL[7]}">&nbsp;
+Ans.<INPUT id="vom_ans_7" type="text" style="width:120px;" NAME="vom_ans_7" VALUE="${VOM_ANS[7]}">
+&nbsp;&nbsp;dio7<SELECT NAME="vom_var_7">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[7]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_7">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match9<INPUT TYPE="text" style="width:240px;" NAME="vom_val_8" VALUE="${VOM_VAL[8]}">&nbsp;
+Ans.<INPUT id="vom_ans_8" type="text" style="width:120px;" NAME="vom_ans_8" VALUE="${VOM_ANS[8]}">
+&nbsp;&nbsp;dio8<SELECT NAME="vom_var_8">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[8]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_8">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match10<INPUT TYPE="text" style="width:240px;" NAME="vom_val_9" VALUE="${VOM_VAL[9]}">&nbsp;
+Ans.<INPUT id="vom_ans_9" type="text" style="width:120px;" NAME="vom_ans_9" VALUE="${VOM_ANS[9]}">
+&nbsp;&nbsp;dio9<SELECT NAME="vom_var_9">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[9]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_9">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+Voice Match11<INPUT TYPE="text" style="width:240px;" NAME="vom_val_10" VALUE="${VOM_VAL[10]}">&nbsp;
+Ans.<INPUT id="vom_ans_10" type="text" style="width:120px;" NAME="vom_ans_10" VALUE="${VOM_ANS[10]}">
+&nbsp;&nbsp;dio10<SELECT NAME="vom_var_10">
+<OPTION VALUE="high" SELECTED>${VOM_VAR[10]}
+<OPTION VALUE="high">high
+<OPTION VALUE="low">low
+</SELECT>&nbsp;
+<SELECT NAME="vom_reg_10">
+<OPTION VALUE="none" SELECTED>none
+<OPTION VALUE="reg">Entry
+<OPTION VALUE="del">Delete
+</SELECT>
+<BR>
+<INPUT style="text-align:center" TYPE="button" VALUE="Run" onClick="return menu16_ck()" ;/>
+<INPUT style="text-align:center" TYPE="reset" VALUE="Clear">
+</FORM>
+</DD>
+</DL>
 <INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
-
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <TABLE ALIGN=RIGHT>
-<TR><TD><FONT SIZE="-1">&copy;2023-2026 pepolinux.osdn.jp&nbsp;
+<TR><TD><FONT SIZE="-1">&copy;2024 pepolinux.jpn.org&nbsp;
 <span id="server_time" style="text-align:left"></span>&nbsp;
 </TR>
 </TABLE>

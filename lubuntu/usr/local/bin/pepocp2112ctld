@@ -1,12 +1,11 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2023.8.18
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2024.8.8
 # Scan CP2112GPIO for i386.
 # pepocp2112ctld
 GPIOINT="/usr/local/bin/pepocp2112ctl 9"
 GPIOCTL_I2CBME680="/usr/local/bin/pepocp2112ctl 10"
 GPIOCTL="/usr/local/bin/pepocp2112ctl 8"
-GPIOCTL_I2C="/usr/local/bin/pepocp2112ctl 5"
 GPIOCTL_0="/usr/local/bin/pepocp2112ctl 0 0"
 GPIOCTL_1="/usr/local/bin/pepocp2112ctl 1 0"
 GPIOCTL_2="/usr/local/bin/pepocp2112ctl 2 0"
@@ -222,16 +221,6 @@ while true;do
         tEPOCHNOW=$(date -ud "0 second ago" +%s)
         if [ $(($tEPOCHNOW - $EPICONOW)) -gt $BME680_ALIVE ];then
           $GPIOCTL_I2CBME680 &
-        fi
-      else
-        RD="-1" ;gpio_i2c="-1"         
-        RD=`$GPIOCTL_I2C 2>&1`
-        if [ $RD != "-1" ];then
-          NUM=`echo -en $RD | awk 'BEGIN{I="YES"};{if(/[a-z|A-Z]+/){I="NO"};printf I}'`
-          if [ $NUM = "YES" ];then
-            NOWDATE=`date '+%H:%M'|awk '{printf("%s",$1)}'`
-            gpio_i2c=`echo -en ${NOWDATE} ${RD}|awk '{printf("%s,%s,%s",$1,$2,$3)}'`
-          fi
         fi
       fi
     fi

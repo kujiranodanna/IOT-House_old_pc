@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 PATH=$PATH:/usr/local/bin
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2014.10.17 update 2020.12.29
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2014.10.17 update 2024.7.14
 # pepoirkitpost ir_num timer
-# pepoirkitpost,Post of IR data for IRKit
+# pepoirkitpost,Post of IR data for IRKit and Nature Remo
+# 2024.7.12 add Nature Remo proc
+# 2023.12.3 Added dummy reading processing as it sometimes slows down
 DIR=/www/remote-hand/tmp
 IRKIT_IP=$DIR/.IRKit_IP
 DOCFILE=$DIR/irkit_out_document
@@ -27,8 +29,8 @@ fi
 IRNUM=$1
 TIMER=$2
 IRFILE=$DIR/.irdata_${IRNUM}
-RETRYTIME=10
-RETRY=1
+RETRYTIME=20
+RETRY=0
 if [ -e ${IRKIT_IP} ];then
   IP=`cat ${IRKIT_IP}`
   if [ -e ${IRFILE} ];then
@@ -44,10 +46,38 @@ else
   echo IRKit Device not found!
   exit
 fi
-USERAGENT="X-Requested-With: Chrome/87.0.4280.88"
-curl -s -m $RETRYTIME --retry $RETRY --header "${USERAGENT}" -X POST -F upfile=@/${IRFILE} http://${IP}/messages >${DOCFILE}
-if [ ${TIMER}X != "X" ];then
-  msleep ${TIMER}
-  curl -s -m $RETRYTIME --retry $RETRY --header "${USERAGENT}" -X POST -F upfile=@/${IRFILE} http://${IP}/messages >${DOCFILE}
+REMO3_MAC="0c:8b:95"
+IRKIT_MAC="20:f8:5e"
+ping -c 1 $IP >${DOCFILE}
+tREMO3_MAC=$(arp $IP|grep $REMO3_MAC|wc -l)
+tIRKIT_MAC=$(arp $IP|grep $IRKIT_MAC|wc -l)
+if [ $tREMO3_MAC != 0 ];then
+  tMAC=REMO
+elif [ $tIRKIT_MAC != 0 ];then
+  tMAC=IRKIT
+else
+  echo $IP Neither IRKit or Nature Remo
+  exit
 fi
-[ -e ${DOCFILE} ] && rm ${DOCFILE}
+
+USERAGENT="Chrome/126.0.6478.127"
+if [ $tMAC = "IRKIT" ];then
+  curl -s -m $RETRYTIME --retry $RETRY --user-agent ${USERAGENT} http://${IP}/messages --header "X-Requested-With: PepoLinux" >${DOCFILE}
+  msleep 1000
+  curl -s -m $RETRYTIME --retry $RETRY --header "${USERAGENT}" -X POST -F upfile=@/${IRFILE} http://${IP}/messages >${DOCFILE}
+  if [ ${TIMER}X != "X" ];then
+    msleep ${TIMER}
+    curl -s -m $RETRYTIME --retry $RETRY --header "${USERAGENT}" -X POST -F upfile=@/${IRFILE} http://${IP}/messages >${DOCFILE}
+  fi
+elif [ $tMAC="REMO" ];then
+  IRDATA=$(cat ${IRFILE})
+  curl -s http://${IP}/messages -H "X-Requested-With: local" -d $IRDATA >${DOCFILE}
+  if [ ${TIMER}X != "X" ];then
+    msleep ${TIMER}
+    curl -s http://${IP}/messages -H "X-Requested-With: local" -d $IRDATA >${DOCFILE}
+  fi
+fi
+if [ -e ${DOCFILE} ];then
+  msleep 1000
+  rm ${DOCFILE}
+fi

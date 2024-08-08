@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2022.11.27
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2023.11.23
 # pepostart_remote-hand ; start remote-hand for old_pc
 hdparm -S 60 /dev/sda
 /etc/init.d/svscan stop

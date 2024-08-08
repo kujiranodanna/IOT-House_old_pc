@@ -1,16 +1,16 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.8.15
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2024.6.23
 
-echo -en '
+echo -n '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
-<META NAME="copyright" content="pepolinux.osdn.jp">
-<META NAME="build" content="2022.4.26">
+<META NAME="copyright" content="pepolinux.jpn.org">
+<META NAME="build" content="2024.6.23">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>Automatic process settings</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -34,7 +34,7 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Digital output automatic processing</TD></TR></TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.osdn.jp</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.jpn.org</TD><TR></TABLE>
 </BODY>'
 
 DIR=/www/remote-hand/tmp
@@ -349,7 +349,7 @@ END
     WORK[4]="${WORK[4]}/${WORK[5]}"
   fi
   if [ -e $PING_CRON ];then
-    cat $PING_CRON | awk "! /($CRON_NAME)/{print}" > $tPING_CRON
+    cat $PING_CRON | mawk "! /($CRON_NAME)/{print}" > $tPING_CRON
     mv $tPING_CRON $PING_CRON
     echo "${WORK[2]}" "${WORK[4]}" "${WORK[6]}" "${WORK[7]}" "${WORK[8]}" "cp -f $DO_EXEC $CMD" >>"$PING_CRON"
   elif [ ! -e $PING_CRON ];then
@@ -357,24 +357,24 @@ END
    fi
   crontab $PING_CRON
   if [ -e $AUTO_ACT_LIST ];then
-    cat $AUTO_ACT_LIST | awk "! /($CRON_COND_NAME|$CRON_NAME)/{print}" > $tAUTO_ACT_LIST
-    cat $QUERY | awk "/($CRON_COND_NAME|$CRON_NAME)/{print}" >> $tAUTO_ACT_LIST
+    cat $AUTO_ACT_LIST | mawk "! /($CRON_COND_NAME|$CRON_NAME)/{print}" > $tAUTO_ACT_LIST
+    cat $QUERY | mawk "/($CRON_COND_NAME|$CRON_NAME)/{print}" >> $tAUTO_ACT_LIST
     mv $tAUTO_ACT_LIST $AUTO_ACT_LIST
   elif [ ! -e $AUTO_ACT_LIST ];then
-    cat $QUERY | awk "/($CRON_COND_NAME|$CRON_NAME)/{print}" > $AUTO_ACT_LIST
+    cat $QUERY | mawk "/($CRON_COND_NAME|$CRON_NAME)/{print}" > $AUTO_ACT_LIST
   fi
 }
 
 auto_cron_del() {
   DO_EXEC=$DIR/$CRON_NAME
   if [ -e $AUTO_ACT_LIST ];then
-    cat $AUTO_ACT_LIST | awk "! /($CRON_COND_NAME|$CRON_NAME)/{print}" > $tAUTO_ACT_LIST
+    cat $AUTO_ACT_LIST | mawk "! /($CRON_COND_NAME|$CRON_NAME)/{print}" > $tAUTO_ACT_LIST
     mv $tAUTO_ACT_LIST $AUTO_ACT_LIST
     WLEN=`cat $AUTO_ACT_LIST | wc -l`
     [ $WLEN = 0 ] && rm -f $AUTO_ACT_LIST
   fi
   if [ -e $PING_CRON ];then
-    cat $PING_CRON | awk "! /($CRON_NAME)/{print}" > $tPING_CRON
+    cat $PING_CRON | mawk "! /($CRON_NAME)/{print}" > $tPING_CRON
     mv $tPING_CRON $PING_CRON
     LEN=`cat $PING_CRON | wc -l`
     if [ $LEN != 0 ];then
@@ -647,5 +647,5 @@ if [ "${auto_act19_val[9]}" = "reg" ];then
 elif [ "${auto_act19_val[9]}" = "del" ];then
   auto_cron_del
 fi
-echo -en '
+echo -n '
 </HTML>'

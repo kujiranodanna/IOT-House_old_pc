@@ -1,17 +1,17 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.8.15
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2024.6.23
 # di_control_pi1.cgi
 
 PATH=$PATH:/usr/local/bin
-echo -en '
+echo -n '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.osdn.jp">
-<META NAME="Build" content="2022.10.5">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="Copyright" content="pepolinux.jpn.org">
+<META NAME="Build" content="2024.6.23">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <TITLE>DI in the action setting for( digital-in)</TITLE>
 <script type="text/javascript">
@@ -36,7 +36,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>DIO action-1 settings</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.osdn.jp</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.jpn.org</TD></TR></TABLE>
 </BODY>'
 
 DIR=/www/remote-hand/tmp
@@ -78,22 +78,22 @@ di_clear() {
   if [ ! -e $bin ];then
     cat > $file <<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 if [ -e $count ];then
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
   mv ${count}.tmp $count
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
 fi
 rm \$LOCK
 EOF
@@ -112,23 +112,23 @@ irkit_exec() {
   time=$3
 cat > $file <<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 $IRKITPOST $ir_num $timer
 if [ -e $count ];then
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
   mv ${count}.tmp $count
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
 fi
 rm \$LOCK
 EOF
@@ -150,11 +150,11 @@ tocos_high_low() {
   cmd=/usr/local/bin/pepotocoshelp
   cat > $file <<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 high_low=$high_low
 if [ $invert != "none" ];then
@@ -165,13 +165,13 @@ $cmd $ch \$high_low $time
 if [ -e $count ];then
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
   mv ${count}.tmp $count
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
 fi
 rm \$LOCK
 EOF
@@ -192,11 +192,11 @@ do_high_low() {
   cmd=/usr/local/bin/pepodioctl
   cat > $file <<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 high_low=$high_low
 if [ $invert != "none" ];then
@@ -207,13 +207,13 @@ $cmd $ch \$high_low $time
 if [ -e $count ];then
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
   mv ${count}.tmp $count
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
 fi
 rm \$LOCK
 EOF
@@ -231,29 +231,29 @@ di_tel() {
   tel_file="$3"
   cat > $file <<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 echo $tel >$tel_file
 if [ -e $count ];then
-  LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+  LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
   if [ -e \$LOCK ];then
     exit
   else
-    echo -en \$\$ >\$LOCK
+    echo -n \$\$ >\$LOCK
   fi
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
   mv ${count}.tmp $count
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
 fi
 rm \$LOCK
 EOF
@@ -274,11 +274,11 @@ di_wgetmail() {
   FFMPEGCTL=/usr/local/bin/pepomp4ctl
   cat >$file<<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 WGETMAIL=/usr/local/bin/peposendmail
 if [ $act = "mail" ];then
@@ -286,12 +286,12 @@ if [ $act = "mail" ];then
   SUBJECT=$msg
 elif [ $act = "mail_message" ];then
   WGETMAIL=/usr/local/bin/pepomsgsend
-  SUBJECT=`echo -en $msg_box |awk '{gsub(/ /,"+",$0);printf $0}'`
+  SUBJECT=`echo -n $msg_box |mawk '{gsub(/ /,"+",$0);printf $0}'`
 elif [ $act = "web_camera_still" ];then
   IMAGE=remote_hand.jpg
   $FFMPEGCTL /dev/video0 \$IMAGE \$$
   if [ ! -z "$msg_box" ];then
-    SUBJECT=`echo -en $msg_box |awk '{gsub(/ /,"+",$0);printf $0}'`
+    SUBJECT=`echo -n $msg_box |mawk '{gsub(/ /,"+",$0);printf $0}'`
   else
     SUBJECT=$msg
   fi
@@ -299,7 +299,7 @@ elif [ $act = "web_camera_video" ];then
   IMAGE=remote_hand.mp4
   $FFMPEGCTL /dev/video0 \$IMAGE \$$
   if [ ! -z "$msg_box" ];then
-    SUBJECT=`echo -en $msg_box |awk '{gsub(/ /,"+",$0);printf $0}'`
+    SUBJECT=`echo -n $msg_box |mawk '{gsub(/ /,"+",$0);printf $0}'`
   else
     SUBJECT=$msg
   fi
@@ -307,7 +307,7 @@ elif [ $act = "mod_camera_still" ];then
   IMAGE=remote_hand.jpg
   $FFMPEGCTL /dev/vchiq \$IMAGE \$$
   if [ ! -z "$msg_box" ];then
-    SUBJECT=`echo -en $msg_box |awk '{gsub(/ /,"+",$0);printf $0}'`
+    SUBJECT=`echo -n $msg_box |mawk '{gsub(/ /,"+",$0);printf $0}'`
   else
     SUBJECT=$msg
   fi
@@ -315,7 +315,7 @@ elif [ $act = "mod_camera_video" ];then
   IMAGE=remote_hand.mp4
   \$FFMPEGCTL /dev/vchiq \$IMAGE \$$
   if [ ! -z "$msg_box" ];then
-    SUBJECT=`echo -en $msg_box |awk '{gsub(/ /,"+",$0);printf $0}'`
+    SUBJECT=`echo -n $msg_box |mawk '{gsub(/ /,"+",$0);printf $0}'`
   else
     SUBJECT=$msg
   fi
@@ -323,20 +323,20 @@ fi
 if [ -e $count ];then
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
   mv ${count}.tmp $count
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
   WTMP=$DIR/.dio_low_high.tmp.\$$
 # .dio0high.count --> dio0high
   DIO=$count
-  echo Count=\"\`cat \$DIO |awk '/^#[0-9]+/{N=\$1;gsub(/\#/,"",N);print N }'\`\" >\$WTMP
-  echo Reset=\"\`cat \$DIO |grep -E "Reset " |awk '{gsub(/Reset /,"",\$0);print \$0}'\`\" >>\$WTMP
-  echo Event=\"\`cat \$DIO |grep -E "Update "|awk '{gsub(/Update /,"",\$0);split(\$0,yy," ");split(yy[1],mm,"/");m=mm[2]"/"mm[3];print m,yy[2]}'\`\" >>\$WTMP
-  MESSAGE=\`cat \$WTMP|awk '{gsub(/ /,"+",\$0);printf \$0"+++"}'\`
+  echo Count=\"\`cat \$DIO |mawk '/^#[0-9]+/{N=\$1;gsub(/\#/,"",N);print N }'\`\" >\$WTMP
+  echo Reset=\"\`cat \$DIO |grep -E "Reset " |mawk '{gsub(/Reset /,"",\$0);print \$0}'\`\" >>\$WTMP
+  echo Event=\"\`cat \$DIO |grep -E "Update "|mawk '{gsub(/Update /,"",\$0);split(\$0,yy," ");split(yy[1],mm,"/");m=mm[2]"/"mm[3];print m,yy[2]}'\`\" >>\$WTMP
+  MESSAGE=\`cat \$WTMP|mawk '{gsub(/ /,"+",\$0);printf \$0"+++"}'\`
   rm \$WTMP
   unset WTMP
   \$WGETMAIL "$mail_to" \$SUBJECT \$MESSAGE \$IMAGE
@@ -358,11 +358,11 @@ di_sendmail() {
   hostname=`hostname`
   cat > $file <<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 msg_file="$file".mailmsg
 cat >\$msg_file<<END
@@ -373,12 +373,12 @@ nkf -j --overwrite \$msg_file
 if [ -e $count ];then
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
   cat $count >>\$msg_file
 fi
 /usr/sbin/sendmail -i \"$mail\" <\$msg_file
@@ -399,23 +399,23 @@ di_sound(){
   cmd=/usr/local/bin/peposound
   cat > $file <<EOF
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 $cmd $ch $time
 if [ -e $count ];then
   cat $count |grep -E "Reset" >${count}.tmp
   echo Update \`date '+%Y/%m/%d %T'\` >>${count}.tmp
-  cat $count |awk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
+  cat $count |mawk '/^\#[0-9]+/{N=\$1;gsub(/\#/,"",N); N++ ;print "#"N }' >>${count}.tmp
   mv ${count}.tmp $count
-  cat $count | awk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
-  cat $log | awk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
-  cat $count | awk '{if(/Reset/)print \$0}' >>${log}.tmp
+  cat $count | mawk '{if(/Update/)printf \$0" ";if(/#/)print \$0}' >>$log
+  cat $log | mawk '{if(!/Reset/)print \$0}' |sort -r |head -n $LOGCOUNT >${log}.tmp
+  cat $count | mawk '{if(/Reset/)print \$0}' >>${log}.tmp
   mv ${log}.tmp $log
-  chown www-data.www-data $count $log
+  chown www-data:www-data $count $log
 fi
 rm \$LOCK
 EOF
@@ -433,11 +433,11 @@ del_all() {
   CMD=$DIR/dio_control_del_$1.pepocmd
   cat >$CMD<<END
 #!/bin/bash
-LOCK=${DIR}/`echo $file |awk 'BEGIN{FS="/"};{print $NF}'`.lock
+LOCK=${DIR}/`echo $file |mawk 'BEGIN{FS="/"};{print $NF}'`.lock
 if [ -e \$LOCK ];then
   exit
 else
-  echo -en \$\$ >\$LOCK
+  echo -n \$\$ >\$LOCK
 fi
 if [ -e $count ];then
   rm -f $file $count $log
@@ -831,5 +831,5 @@ if [ -e "$sDICH" ];then
   fi
 END
 fi
-echo -en '
+echo -n '
 </HTML>'

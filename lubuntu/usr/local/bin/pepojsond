@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2023.8.7
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2013.7.15 update 2024.7.28
 # pepojsond is for daemon make json data
 
 USR_BIN=/usr/bin/dio
@@ -29,12 +29,15 @@ TCOSWD=$DIR/.tocos_write_data
 TCOSRD=$DIR/.tocos_read_data
 SOUND_FILE_NAME=$DIR/.sound_file_name
 HOMEPAGE=/www/remote-hand/pi_int.html
+HOMEBRIDEGE_CONF=/www/remote-hand/.homebridge/config.json
+VOM_DI=$DIR/.vomdi
+WHAT_POP=what_pop.*
 #HOMEPAGE=/www/remote-hand/pi_int_cp2112.html
 prog=pepojsond
 pidfile=/var/run/$prog.pid
 MAX_TMP_FILE_LIVE=180
 CMD=$DIR/$prog.pepocmd
-echo -en $$ >$pidfile
+echo -n $$ >$pidfile
 WAIT=2000
 error(){
   [ -e "$JSONRD" ] && rm -f $JSONRD
@@ -42,7 +45,7 @@ error(){
   [ -e $pidfile ] && rm -f $pidfile
   exit 0
 }
-trap error SIGTERM SIGHUP SIGKILL SIGINT
+trap error TERM HUP KILL INT
 [ -e "$JSONRD" ] && rm -f $JSONRD
 [ -e "$tJSONRD" ] && rm -f $tJSONRD
 [ -e $pidfile ] && rm -f $pidfile
@@ -310,9 +313,9 @@ END
   if [ -n `echo $CT | wc -w` ];then
     for DIO in $CT ; do
       DIOCONT=$DIR/$DIO
-      tDIO=`echo -en $DIO |awk '{gsub("\\\.","");sub("count","");print $0}'`
-      echo -en \"$tDIO\":{ >>$tJSONRD
-      cat $DIOCONT |awk '
+      tDIO=`echo -n $DIO |mawk '{gsub("\\\.","");sub("count","");print $0}'`
+      echo -n \"$tDIO\":{ >>$tJSONRD
+      cat $DIOCONT |mawk '
   /^Reset/{printf("%creset%c:%c%s %s%c,",34,34,34,$2,$3,34)}
   /^Update/{printf("%cupdate%c:%c%s %s%c,",34,34,34,$2,$3,34)}
   /^#/{sub("#","");printf("%ccount%c:%c%s%c},\n",34,34,34,$1,34)}
@@ -343,28 +346,28 @@ END
     [ -e $DIRDIP ] && . $DIRDIP
     [ -e $GPIORD ] && . $GPIORD
     if [ "$gpio_i2c" != "-1" ];then
-      gpio_i2c=`echo -en $gpio_i2c | awk '{gsub(","," ",$0);printf $0}'`
-      echo -e $gpio_i2c| awk '{J=split($0,I," ");if(J>3){printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%shPa\",\"gas\":\"%sΩ\",\"iaq\":\"%s\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}else{printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%snone\",\"gas\":\"%snone\",\"iaq\":\"%snone\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}}' >>$tJSONRD
-      GPIO_TEMP=`echo ${gpio_i2c} | awk '{gsub(","," ",$0);printf $2}'`
-      GPIO_TEMP=`echo ${GPIO_TEMP} | awk '{gsub(/Ž/,"",$0);split($0,J,".");printf J[1]}'`
+      gpio_i2c=`echo -n $gpio_i2c | mawk '{gsub(","," ",$0);printf $0}'`
+      echo -e $gpio_i2c| mawk '{J=split($0,I," ");if(J>3){printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%shPa\",\"gas\":\"%sΩ\",\"iaq\":\"%s\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}else{printf("\"gpio_i2c\":{\"date\":\"%s\",\"temp\":\"%s℃\",\"hum\":\"%s％\",\"pres\":\"%snone\",\"gas\":\"%snone\",\"iaq\":\"%snone\"},\n",I[1],I[2],I[3],I[4],I[5],I[6])}}' >>$tJSONRD
+      GPIO_TEMP=`echo ${gpio_i2c} | mawk '{gsub(","," ",$0);printf $2}'`
+      GPIO_TEMP=`echo ${GPIO_TEMP} | mawk '{gsub(/Ž/,"",$0);split($0,J,".");printf J[1]}'`
       if [ ! -z "$GPIO_TEMP" -a ! -z "${slice_ai[17]}" ];then
         [ $GPIO_TEMP -lt ${slice_ai[17]} ] && old[25]=0 || old[25]=1
       fi
-      GPIO_HUM=`echo ${gpio_i2c} | awk '{gsub(","," ",$0);printf $3}'`
-      GPIO_HUM=`echo ${GPIO_HUM} | awk '{gsub(/%/,"",$0);split($0,J,".");printf J[1]}'`
+      GPIO_HUM=`echo ${gpio_i2c} | mawk '{gsub(","," ",$0);printf $3}'`
+      GPIO_HUM=`echo ${GPIO_HUM} | mawk '{gsub(/%/,"",$0);split($0,J,".");printf J[1]}'`
       if [ ! -z "$GPIO_HUM" -a ! -z "${slice_ai[18]}" ];then
         [ $GPIO_HUM -lt ${slice_ai[18]} ] && old[26]=0 || old[26]=1
       fi
-      GPIO_PRES=`echo ${gpio_i2c} | awk '{gsub(","," ",$0);printf $4}'`
+      GPIO_PRES=`echo ${gpio_i2c} | mawk '{gsub(","," ",$0);printf $4}'`
       if [ ! -z "$GPIO_PRES" -a ! -z "${slice_ai[21]}" ];then
         [ $GPIO_PRES -lt ${slice_ai[21]} ] && old[33]=0 || old[33]=1
       fi
-      GPIO_GAS=`echo ${gpio_i2c} | awk '{gsub(","," ",$0);printf $5}'`
-      GPIO_GAS=`echo ${GPIO_GAS} | awk '{gsub(/[^0-9]+/,"",$0);printf $0}'`
+      GPIO_GAS=`echo ${gpio_i2c} | mawk '{gsub(","," ",$0);printf $5}'`
+      GPIO_GAS=`echo ${GPIO_GAS} | mawk '{gsub(/[^0-9]+/,"",$0);printf $0}'`
       if [ ! -z "$GPIO_GAS" -a ! -z "${slice_ai[22]}" ];then
         [ $GPIO_GAS -lt ${slice_ai[22]} ] && old[34]=0 || old[34]=1
       fi
-      GPIO_IAQ=`echo ${gpio_i2c} | awk '{gsub(","," ",$0);printf $6}'`
+      GPIO_IAQ=`echo ${gpio_i2c} | mawk '{gsub(","," ",$0);printf $6}'`
       if [ ! -z "$GPIO_IAQ" -a ! -z "${slice_ai[23]}" ];then
         [ $GPIO_IAQ -lt ${slice_ai[23]} ] && old[35]=0 || old[35]=1
       fi
@@ -388,15 +391,15 @@ END
     unset i2c
     . $TCOSRD
     if [ ! -z "$i2c" ];then
-      i2ctemp=`echo -en $i2c |awk '{gsub(","," ",$0);printf $0}'`
-      echo  $i2ctemp| awk '{split($0,I," ");printf("\"i2ctemp\":{\"date\":\"%s\",\"temp\":\"%s\",\"hum\":\"%s\"},\n",I[1],I[2],I[3])}' >>$tJSONRD
-      I2C_TEMP=`echo ${i2c} | awk '{gsub(","," ",$0);printf $2}'`
-      I2C_TEMP=`echo ${I2C_TEMP} | awk '{gsub(/Ž/,"",$0);split($0,I,".");printf I[1]}'`
+      i2ctemp=`echo -n $i2c |mawk '{gsub(","," ",$0);printf $0}'`
+      echo  $i2ctemp| mawk '{split($0,I," ");printf("\"i2ctemp\":{\"date\":\"%s\",\"temp\":\"%s\",\"hum\":\"%s\"},\n",I[1],I[2],I[3])}' >>$tJSONRD
+      I2C_TEMP=`echo ${i2c} | mawk '{gsub(","," ",$0);printf $2}'`
+      I2C_TEMP=`echo ${I2C_TEMP} | mawk '{gsub(/Ž/,"",$0);split($0,I,".");printf I[1]}'`
       if [ ! -z "$I2C_TEMP" -a ! -z "${slice_ai[19]}" ];then
         [ $I2C_TEMP -lt ${slice_ai[19]} ] && old[27]=0 || old[27]=1
       fi
-      I2C_HUM=`echo -en ${i2c} | awk '{gsub(","," ",$0);printf $3}'`
-      I2C_HUM=`echo ${I2C_HUM} | awk '{gsub(/%/,"",$0);split($0,J,".");printf J[1]}'`
+      I2C_HUM=`echo -n ${i2c} | mawk '{gsub(","," ",$0);printf $3}'`
+      I2C_HUM=`echo ${I2C_HUM} | mawk '{gsub(/%/,"",$0);split($0,J,".");printf J[1]}'`
       if [ ! -z "$I2C_HUM" -a ! -z "${slice_ai[20]}" ];then
         [ $I2C_HUM -lt ${slice_ai[20]} ] && old[28]=0 || old[28]=1
       fi
@@ -423,9 +426,21 @@ END
   [ ! -z "${sound_file[7]}" ] && echo -e \"disp_sound_7\":\"${sound_file[7]}\", >>$tJSONRD || echo -e \"disp_sound_7\":\"none\", >>$tJSONRD
   [ ! -z "${sound_file[8]}" ] && echo -e \"disp_sound_8\":\"${sound_file[8]}\", >>$tJSONRD || echo -e \"disp_sound_8\":\"none\", >>$tJSONRD
   [ ! -z "${sound_file[9]}" ] && echo -e \"disp_sound_9\":\"${sound_file[9]}\", >>$tJSONRD || echo -e \"disp_sound_9\":\"none\", >>$tJSONRD
-  CPU_TEMP=`cat /sys/class/thermal/thermal_zone0/temp|awk '{printf(substr($1,1,2)"."substr($1,3,1)"℃")}'`
+  [ -e $VOM_DI ] && . $VOM_DI
+  [ ! -z "${vom_val[0]}" ] && echo -e \"vom_0\":{\"vom_val_0\":\"${vom_val[0]}"\",\"vom_ans_0\":\"${vom_ans[0]}\",\"vom_var_0\":\"${vom_var[0]}\"}," >>$tJSONRD || echo -e \"vom_0\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[1]}" ] && echo -e \"vom_1\":{\"vom_val_1\":\"${vom_val[1]}"\",\"vom_ans_1\":\"${vom_ans[1]}\",\"vom_var_1\":\"${vom_var[1]}\"}," >>$tJSONRD || echo -e \"vom_1\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[2]}" ] && echo -e \"vom_2\":{\"vom_val_2\":\"${vom_val[2]}"\",\"vom_ans_2\":\"${vom_ans[2]}\",\"vom_var_2\":\"${vom_var[2]}\"}," >>$tJSONRD || echo -e \"vom_2\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[3]}" ] && echo -e \"vom_3\":{\"vom_val_3\":\"${vom_val[3]}"\",\"vom_ans_3\":\"${vom_ans[3]}\",\"vom_var_3\":\"${vom_var[3]}\"}," >>$tJSONRD || echo -e \"vom_3\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[4]}" ] && echo -e \"vom_4\":{\"vom_val_4\":\"${vom_val[4]}"\",\"vom_ans_4\":\"${vom_ans[4]}\",\"vom_var_4\":\"${vom_var[4]}\"}," >>$tJSONRD || echo -e \"vom_4\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[5]}" ] && echo -e \"vom_5\":{\"vom_val_5\":\"${vom_val[5]}"\",\"vom_ans_5\":\"${vom_ans[5]}\",\"vom_var_5\":\"${vom_var[5]}\"}," >>$tJSONRD || echo -e \"vom_5\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[6]}" ] && echo -e \"vom_6\":{\"vom_val_6\":\"${vom_val[6]}"\",\"vom_ans_6\":\"${vom_ans[6]}\",\"vom_var_6\":\"${vom_var[6]}\"}," >>$tJSONRD || echo -e \"vom_6\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[7]}" ] && echo -e \"vom_7\":{\"vom_val_7\":\"${vom_val[7]}"\",\"vom_ans_7\":\"${vom_ans[7]}\",\"vom_var_7\":\"${vom_var[7]}\"}," >>$tJSONRD || echo -e \"vom_7\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[8]}" ] && echo -e \"vom_8\":{\"vom_val_8\":\"${vom_val[8]}"\",\"vom_ans_8\":\"${vom_ans[8]}\",\"vom_var_8\":\"${vom_var[8]}\"}," >>$tJSONRD || echo -e \"vom_8\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[9]}" ] && echo -e \"vom_9\":{\"vom_val_9\":\"${vom_val[9]}"\",\"vom_ans_9\":\"${vom_ans[9]}\",\"vom_var_9\":\"${vom_var[9]}\"}," >>$tJSONRD || echo -e \"vom_9\":\"none\", >>$tJSONRD
+  [ ! -z "${vom_val[10]}" ] && echo -e \"vom_10\":{\"vom_val_10\":\"${vom_val[10]}"\",\"vom_ans_10\":\"${vom_ans[10]}\",\"vom_var_10\":\"${vom_var[10]}\"}," >>$tJSONRD || echo -e \"vom_10\":\"none\", >>$tJSONRD
+  CPU_TEMP=`cat /sys/class/thermal/thermal_zone0/temp|mawk '{printf(substr($1,1,2)"."substr($1,3,1)"℃")}'`
   echo -e \"cpu_temp\":\"$CPU_TEMP\", >>$tJSONRD
-  CPU_TEMP=`echo ${CPU_TEMP} | awk '{gsub(/Ž/,"",$0);split($0,J,".");printf J[1]}'`
+  CPU_TEMP=`echo ${CPU_TEMP} | mawk '{gsub(/Ž/,"",$0);split($0,J,".");printf J[1]}'`
   if [ ! -z "$CPU_TEMP" -a ! -z "${slice_ai[16]}" ];then
     [ $CPU_TEMP -lt ${slice_ai[16]} ] && old[24]=0 || old[24]=1
   else
@@ -441,6 +456,7 @@ old[33]=${old[33]}
 old[34]=${old[34]}
 old[35]=${old[35]}
 END
+  chown www-data:www-data $tSLICE_AI 
   mv $tSLICE_AI $SLICE_AI
   voice_req="none"
   if [ ! -e "${tVOICEREQ}" ];then
@@ -475,17 +491,28 @@ END
     fi
   fi
   echo -e \"liveimg\":\"${liveimg}\", >>$tJSONRD
-  echo -e \"livevideo\":\"${livevideo}\" >>$tJSONRD
+  echo -e \"livevideo\":\"${livevideo}\", >>$tJSONRD
+  if [ -e $HOMEBRIDEGE_CONF ];then
+    cat $HOMEBRIDEGE_CONF |jq .accessories|mawk '{gsub("\\[","",$0);gsub(" ","",$0);print $0}'
+  fi
+  if [ -e $DIR/$WHAT_POP ];then
+    TMP=$(cd $DIR;ls $WHAT_POP)
+    echo -e \"what_pop\":\"${TMP}\" >>$tJSONRD
+  else
+    echo -e \"what_pop\":\"none\" >>$tJSONRD
+  fi
   echo "}" >>$tJSONRD
   mv $tJSONRD $JSONRD
-  chown www-data.www-data $JSONRD
+  chown www-data:www-data $JSONRD
   #temp file delete
   TMP_FILE_PNG=`ls $DIR/|grep ".png"`;CT_PNG=`echo $TMP_FILE_PNG|wc -w`
   TMP_FILE_JPG=`ls $DIR/|grep ".jpg"`;CT_JPG=`echo $TMP_FILE_JPG|wc -w`
   TMP_FILE_TXT=`ls $DIR/|grep ".txt"`;CT_TXT=`echo $TMP_FILE_TXT|wc -w`
-  TOTAL=$(($CT_PNG + $CT_JPG + $CT_TXT))
+  TMP_FILE_GIF=`ls $DIR/|grep ".gif"`;CT_GIF=`echo $TMP_FILE_GIF|wc -w`
+  TMP_FILE_MP4=`ls $DIR/|grep ".mp4"`;CT_MP4=`echo $TMP_FILE_MP4|wc -w`
+  TOTAL=$(($CT_PNG + $CT_JPG + $CT_TXT + $CT_GIF + $CT_MP4))
   if [ $TOTAL -gt 0 ];then
-    for TMP in $TMP_FILE_PNG $TMP_FILE_JPG $TMP_FILE_TXT ;do
+    for TMP in $TMP_FILE_PNG $TMP_FILE_JPG $TMP_FILE_TXT $TMP_FILE_GIF $TMP_FILE_MP4;do
       TM=`date +%s -r $DIR/$TMP`
       if [ $(($NOWSECOND - $TM)) -gt $MAX_TMP_FILE_LIVE ];then
         rm $DIR/$TMP

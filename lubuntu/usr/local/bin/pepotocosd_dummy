@@ -1,7 +1,7 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2016.1.2 update 2020.10.8
-# monowireless TWELITE & ToCoStick wireless dio, ai, i2c, for rasberry pi.
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2016.1.2 update 2024.7.13
+# Convert from gpio to fake twlite data, MonoWireless TWELITE & ToCoStick Wireless dio, ai, i2c, Raspberry Pi
 DIR=/www/remote-hand/tmp
 CMDWIREDIO="/usr/local/bin/pepotocosctl 0"
 CMDWIREAI="/usr/local/bin/pepotocosctl 6"
@@ -13,25 +13,25 @@ TCOSRD=$DIR/.tocos_read_data
 tTCOSRD=$DIR/.tocos_read_data_tmp
 TCOSRDCMD=$DIR/pepotocosctl.*
 ALIAS_DI=$DIR/.alias_di
-GPIOGPIORD=$DIR/.gpiodi_read_data
+GPIORD=$DIR/.gpiodi_read_data
 I2CLOOP=10
 error(){
   [ -e $TCOSRDCMD ] && rm -f $TCOSRDCMD
   [ -e $TCOSRD ] && rm -f $TCOSRD
   exit 0
 }
-trap error SIGTERM SIGHUP SIGKILL SIGINT
+trap error TERM HUP KILL INT
 [ -e $TCOSRDCMD ] && rm -f $TCOSRDCMD
 [ -e $TCOSRD ] && rm -f $TCOSRD
 
 while true;do
   unset tocos_ip TOCOS_TTY
   [ -e $ALIAS_DI ] && . $ALIAS_DI
-  while true;do
-    if [ -e $GPIOGPIORD ];then
-      TEMP=`cat $GPIOGPIORD|awk '/gpio_i2c/{split($1,I,",");printf I[2]}'`
-      HUM=`cat $GPIOGPIORD|awk '/gpio_i2c/{split($1,I,",");printf I[3]}'`
-      TIME=`cat $GPIOGPIORD|awk '/gpio_i2c/{gsub(/gpio_i2c=/,"",$0);split($1,I,":");printf("%d:%d",I[1],I[2])}'`
+  if [ -e $GPIORD ];then
+    TEMP=`cat $GPIORD|mawk '/gpio_i2c/{split($1,I,",");printf I[2]}'`
+    HUM=`cat $GPIORD|mawk '/gpio_i2c/{split($1,I,",");printf I[3]}'`
+    TIME=`cat $GPIORD|mawk '/gpio_i2c/{gsub(/gpio_i2c=/,"",$0);split($1,I,":");printf("%s:%s",I[1],I[2])}'`
+    if [ ! -e $TCOSRD ];then
       cat >$tTCOSRD<<END
 i2c="$TIME $TEMP℃ $HUM％"
 TI1=1
@@ -47,10 +47,15 @@ VAI3=4080
 AI4=-1
 VAI4=4080
 END
-      mv $tTCOSRD $TCOSRD
-      msleep $(($I2CLOOP * 1000))
+    else
+      cat $TCOSRD |grep -v "i2c" >$tTCOSRD
+      cat >>$tTCOSRD<<END
+i2c="$TIME $TEMP℃ $HUM％"
+END
     fi
-  done
+    mv $tTCOSRD $TCOSRD
+    msleep $(($I2CLOOP * 1000))
+  fi
   while [ "$TOCOS_TTY" = "none" ];do
     [ -e $ALIAS_DI ] && . $ALIAS_DI
     msleep  1000
@@ -103,8 +108,8 @@ END
     fi
     if [ "${RD}" != "-1" ];then
       WRD="-1"
-      DI=`echo -en $RD |awk '{split($0,I,";");printf I[1]}'`
-      AI=`echo -en $RD |awk '{split($0,I,";");printf I[2]}'`
+      DI=`echo -n $RD |mawk '{split($0,I,";");printf I[1]}'`
+      AI=`echo -n $RD |mawk '{split($0,I,";");printf I[2]}'`
       for i in 1 2 4 8;do
         case "$i" in
           1) tDI="$(($((0x$DI & 1)) / 1))" ; TI1=${tDI} ;;
@@ -117,19 +122,19 @@ END
       continue
     fi
     if [ "${AI}" != "-1" ];then
-      VAI1=`echo ${AI}|awk '{split($0,I,",");printf I[1]}'`
+      VAI1=`echo ${AI}|mawk '{split($0,I,",");printf I[1]}'`
       if [ -n "${slice_ai[12]}" ];then
         [ "${VAI1}" -lt "${slice_ai[12]}" ] && AI1="0" || AI1="1"
       fi
-      VAI2=`echo ${AI}|awk '{split($0,I,",");printf I[2]}'`
+      VAI2=`echo ${AI}|mawk '{split($0,I,",");printf I[2]}'`
       if [ -n "${slice_ai[13]}" ];then
         [ "${VAI2}" -lt "${slice_ai[13]}" ] && AI2="0" || AI2="1"
       fi
-      VAI3=`echo ${AI}|awk '{split($0,I,",");printf I[3]}'`
+      VAI3=`echo ${AI}|mawk '{split($0,I,",");printf I[3]}'`
       if [ -n "${slice_ai[14]}" ];then
         [ "${VAI3}" -lt "${slice_ai[14]}" ] && AI3="0" || AI3="1"
       fi
-      VAI4=`echo ${AI}|awk '{split($0,I,",");printf I[4]}'`
+      VAI4=`echo ${AI}|mawk '{split($0,I,",");printf I[4]}'`
       if [ -n "${slice_ai[15]}" ];then
         [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"
       fi
@@ -168,34 +173,9 @@ AI4=$AI4
 VAI4=$VAI4
 END
     fi
-    chown www-data.www-data $tTCOSRD
+    chown www-data:www-data $tTCOSRD
     mv $tTCOSRD $TCOSRD
     LOOP=$(($LOOP - 1))
     msleep 3000
   done
-#Tcos i2c read
-echo pepo1
-  RETRY_I2C=3
-  while [ $RETRY_I2C -ne 0 ]
-  do
-    RD=`${CMDWIREI2C} 2>&1`
-    if [ "${RD}" != "-1" ];then
-      break
-    fi
-    RETRY_I2C=$(($RETRY_I2C - 1))
-    msleep 1000
-  done
-  LEN=`echo -n "${RD}" |wc -c`
-  if [ "${LEN}" -lt 34 ];then
-    continue
-  fi
-  if [ "${RD}" != "-1" ];then
-    if [ -e ${TCOSRD} ];then
-      cat ${TCOSRD} |grep -v "i2c" >${tTCOSRD}
-      echo -en i2c=\"`echo -en $RD | awk '{split($0,I,",");printf("%s %s %s",substr(I[2],1,5),I[3],I[4])}'`\" >> ${tTCOSRD}
-    else
-      echo -en i2c=\"`echo -en $RD | awk '{split($0,I,",");printf("%s %s %s",substr(I[2],1,5),I[3],I[4])}'`\" > ${tTCOSRD}
-    fi
-    mv  ${tTCOSRD} ${TCOSRD}
-  fi
 done

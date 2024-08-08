@@ -1,0 +1,30 @@
+#!/bin/sh
+# The MIT License
+# Copyright (c) 2022-2028 Isamu.Yamauchi , 2024.7.24 update 2024.7.24
+# pepofileupload; upload file to remote cgi.
+
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+DIR=/www/remote-hand/tmp
+prog=pepofileupload
+CMD=$DIR/${prog}_$$.pepocmd
+UPLOAD_FILE=$2
+DOCFILE=$DIR/${prog}_$$.tmp
+RETRYTIME=10
+RETRY=1
+GETSIZE="1024"
+RM_HOST=$1
+[ -e $CMD ] && exit
+[ -z "$RM_HOST" ] && exit
+[ -z "$UPLOAD_FILE" ] && exit
+USERAGENT="Chrome/126.0.6478.183"
+START_UP=$DIR/.startup.s.tmp
+[ -e $START_UP ] && . $START_UP
+USER=$SET_WEBUSER
+PASSWORD=$SET_WEBPASSWORD
+RM_CGI=remote-hand/file_rec.cgi
+cat >$CMD<<END
+#!/bin/sh
+UPLOAD_SIZE=\$(wc -c $UPLOAD_FILE | mawk '{printf("filesize=%s",\$1)}')
+curl -s --connect-timeout $RETRYTIME --retry $RETRY --max-filesize $GETSIZE --user-agent ${USERAGENT} --tlsv1 -k -u ${USER}:${PASSWORD} -X POST -F 'filesize='\${UPLOAD_SIZE} -F upfile=@${UPLOAD_FILE} http://${RM_HOST}/${RM_CGI} >${DOCFILE}
+rm ${DOCFILE}
+END
