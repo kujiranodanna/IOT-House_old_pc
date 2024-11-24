@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2022.5.4
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2024.9.26
 # peposound ; Play a sound file
 # usage peposound sound file_Num timer
 if [ $# -lt 1 -o $# -gt 2 ];then
@@ -13,9 +13,11 @@ DIR=/www/remote-hand/tmp
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 SOUND_FILE_NAME=$DIR/.sound_file_name
 # lubuntu
-SOUND_PLAYER=/usr/bin/mplayer
+#SOUND_PLAYER=/usr/bin/mplayer
 # raspbery pi
-#SOUND_PLAYER=/usr/bin/mpg321
+SOUND_PLAYER_MP3=/usr/bin/mpg321
+SOUND_PLAYER_WAV=/usr/bin/aplay
+SOUND_PLAYER_MPL=/usr/bin/mplayer
 MYPROG=/usr/local/bin/peposound
 SOUND_EXEC_CMD=$DIR/sound_player.pepocmd
 if [ -e $SOUND_FILE_NAME ];then
@@ -32,22 +34,49 @@ error(){
   [ -e ${LOCKFILE} ] && rm -f ${LOCKFILE}
   exit 0
 }
-trap error SIGINT SIGTERM SIGHUP
+trap error INT TERM HUP
 lockfile -15 -r 1 ${LOCKFILE} >/dev/null 2>&1
 if [ $? = 0 ];then
-  echo -en $$ >${LOCKFILE}
+  echo -n $$ >${LOCKFILE}
 else
   exit
 fi
-cat>$SOUND_EXEC_CMD<<END
-#!/bin/bash
+MP3_YES_NO=$(echo ${SOUND_FILE} |mawk 'BEGIN{TMP="NO"};/mp3$/{TMP="YES"};END{printf TMP}')
+WAV_YES_NO=$(echo ${SOUND_FILE} |mawk 'BEGIN{TMP="NO"};/wav$/{TMP="YES"};END{printf TMP}')
+if [ $MP3_YES_NO = "YES" ];then
+  SOUND_PLAYER=$SOUND_PLAYER_MP3
+elif [ $WAV_YES_NO = "YES" ];then
+  SOUND_PLAYER=$SOUND_PLAYER_WAV
+else
+  SOUND_PLAYER=$SOUND_PLAYER_MPL
+fi
+[ $(uname -a|grep microsoft|wc -l) -gt 0 ] && IS_MSCONTAINER="YES" || IS_MSCONTAINER="NO"
+if [ $IS_MSCONTAINER = "YES" ];then
+  cp ${SOUND_FILE} ${SOUND_FILE}.tmp
+  if [ $MP3_YES_NO = "YES" ];then
+    WHAT_POP=$DIR/what_pop.mp3
+    mv ${SOUND_FILE}.tmp $WHAT_POP
+  elif [ $WAV_YES_NO = "YES" ];then
+    WHAT_POP=$DIR/what_pop.wav
+    mv ${SOUND_FILE}.tmp $WHAT_POP
+  fi
+  if [ ! -z $TM ];then
+    msleep $TM
+    cp $WHAT_POP
+  fi
+  rm -f ${LOCKFILE}
+  exit
+else
+  cat>$SOUND_EXEC_CMD<<END
+#!/bin/sh
 ${SOUND_PLAYER} ${SOUND_FILE} >/dev/null 2>&1
 rm -f ${LOCKFILE}
 END
+fi
 if [ ! -z $TM ];then
   msleep $TM
   cat>$SOUND_EXEC_CMD<<END
-#!/bin/bash
+#!/bin/sh
 ${SOUND_PLAYER} ${SOUND_FILE} >/dev/null 2>&1
 rm -f ${LOCKFILE}
 END
