@@ -32,8 +32,9 @@ Disklabel type: dos
 Disk identifier: 0x15ae16d5
 ```
 2. Download the binaries from here:New Release2024.12.29
-[iot-house_old_pc.img.7z](https://pepolinux.jpn.org/iot-house_images/iot-house_old_pc.img.7z)
-3. Extract the downloaded iot-house_old_img.7z and write iot-house_old_pc.img to the flash memory,SSD recommended
+  [iot-house_old_pc.img.7z](https://pepolinux.jpn.org/iot-house_images/iot-house_old_pc.img.7z) about 2GB,
+  Download security is the same as the following 8
+4. Extract the downloaded iot-house_old_img.7z and write iot-house_old_pc.img to the flash memory,SSD recommended
 5. Write iot-house_old_pc.img to flash memory with the dd command,For example
 - dd if=iot-house_old_pc.img of=/dev/sdb bs=100M count=80
 5. Attach it to the USB of the flash memory notebook PC and start it by turning on the power.
