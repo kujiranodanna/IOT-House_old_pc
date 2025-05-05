@@ -1,17 +1,17 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 update 2020.6.29
 
 PATH=$PATH:/usr/local/bin
 # irkit_search.cgi, search or set IP Address of IRKit
-echo -en '
+echo -n '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=utf-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.osdn.jp">
-<META NAME="Build" content="2018.2.24">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="Copyright" content="pepolinux.jpn.org">
+<META NAME="Build" content="2020.6.29">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>search IP Address of IRKit</TITLE>
 <script type="text/javascript">
 <!--
@@ -34,7 +34,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>This is the IP address during the acquisition of IRKit</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.osdn.jp</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.jpn.org</TD><TR></TABLE>
 </BODY>
 </HTML>
 '
@@ -48,13 +48,13 @@ IRKIT_IP=$DIR/.IRKit_IP
 if [ "$IP" != "none" ];then
 # set IRkit IP
   cat>${CMD}<<END
-#!/bin/bash
+#!/bin/sh
 echo -n $IP >$IRKIT_IP
 END
 else
 # get IRkit IP
   cat>${CMD}<<END
-#!/bin/bash
+#!/bin/sh
 rm -f $IRKIT_IP
 IP=\`${IRKITSERCH}\`
 if [ \${IP} != 0 ];then

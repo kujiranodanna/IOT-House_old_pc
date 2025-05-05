@@ -1,0 +1,201 @@
+#!/bin/sh
+# # The MIT License
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2021.7.7 update 2024.8.26
+# pepoffmpegtimelapse_tapo ; scripts to run the timelapse for periodically rotate and obtain images from a security Tapo camera using curl
+
+prog=pepoffmpegtimelapse_tapo
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+LANG=en_us.utf-8
+WORKDIR=/www/remote-hand/tmp
+REMOTEDIR=remote-hand/tmp/timelapse
+WORK_TMP=$WORKDIR/${prog}.tmp
+# storage period, day week or month
+ROTA_PERIOD="1 month ago"
+# Image acquisition start time(seconds)
+GET_SEC=8
+# Grace time (seconds)
+MARGIN_SEC=$(($GET_SEC + 3))
+IMAGE_DIR=$WORKDIR/time1
+IMAGE_DIR_TMP=$WORKDIR/time1_tmp
+IMAGE_TMP=$WORKDIR/timelapse1_tmp.mp4
+SERVERCONF=$WORKDIR/.startup.s.tmp
+FFMPEGINPUT=$WORKDIR/ffmpeg_input1.txt
+FFMPEG_DIR_TMP=$WORKDIR/ffmpeg_tmp1
+USERAGENT="Chrome/97.0.4692.71"
+RETRYTIME=20
+RETRY=0
+WAIT=5000
+PORT=443
+RMHOST1=iot000
+USER=dokokanodare
+PASSWORD=watashiwadare
+MP_DIR=$WORKDIR/hdd
+IMG_MP_DIR=$MP_DIR/opt/$RMHOST1
+# Physical Disk settings
+DISK=/dev/sda1
+# Windows Workgroup Share Directory　settings
+Win_user=iot-house
+Win_password=pepolinux
+Win_MP=$WORKDIR/smbfs
+Win_RMHOST_DIR="//SMBFS/camera"
+Win_HOST_DIR=$Win_MP/$RMHOST1
+error(){
+  pkill -HUP ffmpeg
+  MOUNT_YES_NO=`mountpoint $MP_DIR| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+  if [ $MOUNT_YES_NO = "YES" ];then
+    umount $MP_DIR
+  fi
+  MOUNT_YES_NO=`mountpoint $Win_MP| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+  if [ $MOUNT_YES_NO = "YES" ];then
+    umount $Win_MP
+  fi
+  [ -e $IMAGE_DIR ] && rm -rf $IMAGE_DIR
+  [ -e $IMAGE_DIR_TMP ] && rm -rf $IMAGE_DIR_TMP
+  [ -e $FFMPEGINPUT ] && rm $FFMPEGINPUT
+  [ -e $FFMPEG_DIR_TMP ] && rm -rf $FFMPEG_DIR_TMP
+  [ -e $WORK_TMP ] && rm $WORK_TMP
+  MOUNT_YES_NO=`mountpoint $MP_DIR| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+  if [ $MOUNT_YES_NO = "YES" ];then
+    umount $MP_DIR
+  fi
+  exit 0
+}
+trap error QUIT INT TERM HUP
+mount_smbfs(){
+# Windows Workgroup Share Directory　settings
+  MOUNT_YES_NO=`mountpoint $Win_MP| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+  if [ $MOUNT_YES_NO = "NO" ];then
+    mount -t cifs -o vers=2.0,sec=ntlmssp,username=$Win_user,password="$Win_password" $Win_RMHOST_DIR $Win_MP
+  fi
+  MOUNT_YES_NO=`mountpoint $Win_MP| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+}
+mount_dev(){
+# Physical Disk settings
+  MOUNT_YES_NO=`mountpoint $MP_DIR| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+  if [ $MOUNT_YES_NO = "NO" ];then
+    mount $DISK $MP_DIR
+  fi
+  MOUNT_YES_NO=`mountpoint $MP_DIR| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+}
+if [ ! -e $IMAGE_DIR ];then
+  mkdir -p $IMAGE_DIR
+else
+  rm -rf $IMAGE_DIR
+  mkdir -p $IMAGE_DIR
+fi
+if [ ! -e $MP_DIR ];then
+  mkdir $MP_DIR
+fi
+if [ ! -e $Win_MP ];then
+  mkdir $Win_MP
+fi
+MOUNT_YES_NO=`mountpoint $MP_DIR| awk 'BEGIN{FS=" "};{if($0=/not/){printf "NO"} else {printf "YES"}}'`
+if [ $MOUNT_YES_NO = "NO" ];then
+  mount_dev
+fi
+while true;do
+  if [ -e $SERVERCONF ];then
+    . $SERVERCONF
+    PASSWORD=$vWEBPASSWORD
+    USER=$vWEBUSER
+  else
+    echo server_conf none !
+    exit
+  fi
+  j=0
+  k=0
+  while true;do
+    NOWSEC=`date +"%S"`; NOWSEC=`expr ${NOWSEC} + 0`
+    if [ $NOWSEC -gt $GET_SEC -a $NOWSEC -lt $MARGIN_SEC ];then
+      NOWMIN=`date +"%M"`; NOWMIN=`expr ${NOWMIN} + 0`
+    else
+      msleep 1000
+      continue
+    fi
+    m=`printf "image%03d.jpg" $j`
+    l=`printf "image%03d.jpg" $k`
+    RT=0
+    while [ $RT -lt 3 ];do
+      if ping -c 1 $RMHOST1 2>&1 >$WORK_TMP ;then
+        ffmpeg -i "rtsp://$USER:$PASSWORD@$RMHOST1:554/stream1" -f image2 -vframes 1 -pix_fmt yuvj420p $IMAGE_DIR/$k >/dev/null 2>&1
+        JPG_YES_NO=`file $IMAGE_DIR/$l| awk 'BEGIN{FS=" "};{if($0=/JPEG image data/){printf "YES"} else {printf "N0"}}'`
+        if [ $JPG_YES_NO = "YES" ];then
+          break
+        else
+          rm $IMAGE_DIR/$l; touch $IMAGE_DIR/$l
+        fi
+      fi
+      RT=$((RT + 1))
+      msleep 2000
+    done
+    k=$(($k + 1)); j=$(($j + 1))
+    if [ $j -gt 59 -o $NOWMIN -eq 10 -o $NOWMIN -eq 20 -o $NOWMIN -eq 30 -o $NOWMIN -eq 40 -o $NOWMIN -eq 50 -o $NOWMIN -eq 59 ];then
+      k=0
+      NOWHOUR=`date +"%H:"`
+      NOWDATE=`date +"%Y-%m-%d_%H"`
+      HOURAGO=`date -d "1 hour ago" +"%Y-%m-%d_%H"`
+      DAYAGO=`date -d "1 day ago" +"%Y-%m-%d"`
+      SOMEDAYSAGO=`date -d "$ROTA_PERIOD" +"%Y-%m-%d"`
+      IMAGE_DIR_COUNT=`ls -l $IMAGE_DIR/image0*.jpg| wc -w`
+      if [ $IMAGE_DIR_COUNT -eq 0 ];then
+        msleep 5000
+        continue
+      fi
+      mv $IMAGE_DIR $FFMPEG_DIR_TMP; mkdir $IMAGE_DIR
+      IMAGE_TIME_MIN=`date +"%Y-%m-%d_%H_%M" -r $FFMPEG_DIR_TMP/$l`
+      IMAGE_TIME_HOUR=`date +"%Y-%m-%d_%H" -r $FFMPEG_DIR_TMP/$l`
+      [ ! -e $IMAGE_DIR_TMP ] && mkdir $IMAGE_DIR_TMP
+      ffmpeg -f image2 -i $FFMPEG_DIR_TMP/image%03d.jpg -vcodec libx264 -y $IMAGE_DIR_TMP/${IMAGE_TIME_MIN}.mp4 >/dev/null 2>&1
+      rm -rf $FFMPEG_DIR_TMP
+      if [ $NOWMIN -eq 59 -o $j -gt 59 ];then
+        ls -l $IMAGE_DIR_TMP/*| grep ${IMAGE_TIME_HOUR}| awk '{printf("file %s\n",$9)}' >$FFMPEGINPUT
+        RMIMAGE=`ls -l $IMAGE_DIR_TMP/*| grep $IMAGE_TIME_HOUR| awk '{printf(" %s",$9)}'`
+        ffmpeg -safe 0 -f concat -i $FFMPEGINPUT -c copy -y $IMAGE_TMP >/dev/null 2>&1
+        for i in $RMIMAGE;do
+          [ -e $i ] && rm $i
+        done
+        mv $IMAGE_TMP $IMAGE_DIR_TMP/${IMAGE_TIME_HOUR}.mp4
+        rm $FFMPEGINPUT
+        break
+      fi
+    fi
+    msleep 10000
+  done
+  if [ $NOWHOUR = "00:" ];then
+    ls -l $IMAGE_DIR_TMP/*| grep $DAYAGO| awk '{printf("file %s\n",$9)}' >$FFMPEGINPUT
+    RMIMAGE=`ls -l $IMAGE_DIR_TMP/*| grep $DAYAGO| awk '{printf(" %s",$9)}'`
+    if [ `echo $RMIMAGE| wc -w` -eq 0 ];then
+      continue
+    fi
+    ffmpeg -safe 0 -f concat -i $FFMPEGINPUT -c copy -y $IMAGE_DIR/${DAYAGO}.mp4
+    mount_dev
+    if [ $MOUNT_YES_NO = "NO" ];then
+      [ -e $IMAGE_DIR/${DAYAGO}.mp4 ] rm $IMAGE_DIR/${DAYAGO}.mp4
+      continue
+    fi
+    if [ ! -e $IMG_MP_DIR ];then
+      mkdir -p $IMG_MP_DIR
+    fi
+    mv $IMAGE_DIR/${DAYAGO}.mp4 $IMG_MP_DIR/
+    ln -s $IMG_MP_DIR/${DAYAGO}.mp4 $IMAGE_DIR_TMP/${DAYAGO}.mp4
+    for i in $RMIMAGE;do
+      [ -e $i ] && rm $i
+    done
+    rm $FFMPEGINPUT
+    mount_smbfs
+    if [ $MOUNT_YES_NO = "YES" ];then
+      if [ ! -e $Win_HOST_DIR ];then
+        mkdir -p $Win_HOST_DIR
+      fi
+      cp $IMG_MP_DIR/${DAYAGO}.mp4 $Win_HOST_DIR
+    fi
+    SOMEDAYSAGO_IMAGE=`ls -l $IMAGE_DIR_TMP/*| grep $SOMEDAYSAGO| awk '{printf("%s ",$9)}'`
+    MP_SOMEDAYSAGO_IMAGE=`ls -l $IMG_MP_DIR/*| grep $SOMEDAYSAGO| awk '{printf("%s",$9)}'`
+    if [ `echo $SOMEDAYSAGO_IMAGE| wc -w` -eq 0 ];then
+      continue
+    else
+      rm $SOMEDAYSAGO_IMAGE
+      rm $MP_SOMEDAYSAGO_IMAGE
+    fi
+  fi
+done

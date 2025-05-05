@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2020.3.20 2017.7.27 update 2020.1.14
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2020.3.20 2017.7.27 update 2024.2.10
 # pepoipdio ; For raspberry pi , and scripts to run the Remote DIO and Twelite.
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
 RETRYTIME=20
@@ -43,7 +43,7 @@ time=$3
 rm -if $WORK
 if [ $ch -gt 7 -a $ch -lt 13 ];then
   ch=$(($ch - 7))
-  pepoirkitpost $ch $val $time
+  pepoirkitpost $ch $val $time  
 elif [ $ch -gt 13 -a $ch -lt 17 ];then
   if [ "$TOCOS_TTY" != "none" ];then
     ch=$(($ch - 13))

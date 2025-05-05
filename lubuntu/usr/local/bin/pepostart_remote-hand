@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2023.11.23
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2025.5.3
 # pepostart_remote-hand ; start remote-hand for old_pc
 hdparm -S 60 /dev/sda
 /etc/init.d/svscan stop
@@ -60,10 +60,54 @@ gmail-smtp.l.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
 *.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
 smtp.gmail.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
 END
+  else
+    cat >/etc/exim4/passwd.client<<END
+# password file used when the local exim is authenticating to a remote
+# host as a client.
+#
+# see exim4_passwd_client(5) for more documentation
+#
+# Example:
+### target.mail.server.example:login:password
+END
+    cat >/etc/exim4/update-exim4.conf.conf<<END
+# /etc/exim4/update-exim4.conf.conf
+#
+# Edit this file and /etc/mailname by hand and execute update-exim4.conf
+# yourself or use 'dpkg-reconfigure exim4-config'
+#
+# Please note that this is _not_ a dpkg-conffile and that automatic changes
+# to this file might happen. The code handling this will honor your local
+# changes, so this is usually fine, but will break local schemes that mess
+# around with multiple versions of the file.
+#
+# update-exim4.conf uses this file to determine variable values to generate
+# exim configuration macros for the configuration file.
+#
+# Most settings found in here do have corresponding questions in the
+# Debconf configuration, but not all of them.
+#
+# This is a Debian specific file
+
+dc_eximconfig_configtype='local'
+dc_other_hostnames=$(hostname)
+dc_local_interfaces='127.0.0.1'
+dc_readhost=''
+dc_relay_domains=''
+dc_minimaldns='false'
+dc_relay_nets=''
+dc_smarthost=''
+CFILEMODE='644'
+dc_use_split_config='false'
+dc_hide_mailname=''
+dc_mailname_in_oh='true'
+dc_localdelivery='mail_spool'
+END
   fi
 else
   echo remote-hand aredy running!
 fi
+update-exim4.conf
 INT=`iw dev|grep Interface|awk '{print $2}'`
 if [ ! -z $INT ];then
   iwconfig $INT power off
@@ -74,10 +118,14 @@ ln -s /www/tmp/.bash_history_remote /home/remote/.bash_history
 rm -f /root/.bash_history
 touch /www/tmp/.bash_history_root
 ln -s /www/tmp/.bash_history_root /root/.bash_history
+[ -e /root/.viminfo ] && rm /root/.viminfo
+[ -e /root/.lesshst ] && rm /root/.lesshst
+[ -e /root/.wget-hsts ] && /root/.wget-hsts
+[ -e /root/.ssh ] && rm -rf /root/.ssh
 rm -rf /var/lib/logrotate
 mkdir /www/tmp/logrotate
 ln -s /www/tmp/logrotate /var/lib/logrotate
-/usr/local/bin/pepousbttyck
+#/usr/local/bin/pepousbttyck
 /etc/init.d/svscan start
 /etc/init.d/rsyslog start
 /etc/init.d/apache2 start

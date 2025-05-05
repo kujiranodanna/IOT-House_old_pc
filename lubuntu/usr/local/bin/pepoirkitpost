@@ -1,7 +1,7 @@
 #!/bin/sh
 PATH=$PATH:/usr/local/bin
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2014.10.17 update 2024.7.14
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2014.10.17 update 2024.8.17
 # pepoirkitpost ir_num timer
 # pepoirkitpost,Post of IR data for IRKit and Nature Remo
 # 2024.7.12 add Nature Remo proc
@@ -46,11 +46,17 @@ else
   echo IRKit Device not found!
   exit
 fi
-REMO3_MAC="0c:8b:95"
-IRKIT_MAC="20:f8:5e"
-ping -c 1 $IP >${DOCFILE}
-tREMO3_MAC=$(arp $IP|grep $REMO3_MAC|wc -l)
-tIRKIT_MAC=$(arp $IP|grep $IRKIT_MAC|wc -l)
+[ -e /.dockerenv ] && IS_CONTAINER="YES" || IS_CONTAINER="NO"
+if [ $IS_CONTAINER = "YES" ];then
+  tREMO3_MAC=1
+  tIRKIT_MAC=0
+else
+  REMO3_MAC="0c:8b:95"
+  IRKIT_MAC="20:f8:5e"
+  ping -c 1 $IP >${DOCFILE}
+  tREMO3_MAC=$(arp $IP|grep $REMO3_MAC|wc -l)
+  tIRKIT_MAC=$(arp $IP|grep $IRKIT_MAC|wc -l)
+fi
 if [ $tREMO3_MAC != 0 ];then
   tMAC=REMO
 elif [ $tIRKIT_MAC != 0 ];then

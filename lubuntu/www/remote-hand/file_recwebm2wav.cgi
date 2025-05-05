@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2024-2027 Isamu.Yamauchi ,2024.7.24 update 2024.9.21
+# Copyright (c) 2024-2027 Isamu.Yamauchi ,2024.10.2 update 2024.10.3
 
 PATH=$PATH:/usr/local/bin
 echo -n '
@@ -9,7 +9,7 @@ echo -n '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.jpn.org">
-<META NAME="build" content="2024.9.21">
+<META NAME="build" content="2024.10.3">
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>Upload Sound File settings</TITLE>
@@ -38,11 +38,10 @@ function blink() {
 </BODY>'
 
 DIR=/www/remote-hand/tmp
-prog=file_rec
+prog=file_rec_webm2wav
 IMAGE_FILE=$DIR/${prog}_file.$$
 TMP=$DIR/${prog}_tmp.$$
 LOCK=$DIR/${prog}.lock
-
 MAXFILESIZE=$((4096 * 1024))
 TRIMSIZE=48
 TRIMSIZE1=46
@@ -88,6 +87,18 @@ elif [ ! -z $filename2 ];then
   FILENAME=$DIR/$filename2
   SIZE=$(($tSIZE - $TRIMSIZE1))
   dd if=$IMAGE_FILE bs=$SIZE count=1 |sed '1,8d' >$FILENAME
+  if [ $filename2 = "voice.webm" ];then
+    conv_file="voice.wav"
+    CONV_FILE=$DIR/$conv_file
+    ffmpeg -i $FILENAME -y $CONV_FILE
+    tmp="sound_file[9]"
+    SOUND_FILE=$DIR/.sound_file_name
+    tSOUNF_FILE=$DIR/.sound_file_name.tmp
+    cat $SOUND_FILE| grep -F -v $tmp >$tSOUNF_FILE
+    echo "${tmp}"="$conv_file" >>$tSOUNF_FILE
+    mv $tSOUNF_FILE $SOUND_FILE
+    rm $FILENAME
+  fi
 fi
 [ -e ${IMAGE_FILE} ] && rm ${IMAGE_FILE}
 [ -e ${TMP} ] && rm ${TMP}

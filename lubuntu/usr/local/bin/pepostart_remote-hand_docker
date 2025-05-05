@@ -1,0 +1,74 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2011.11.28 update 2025.3.28
+# pepostart_remote-hand_docker ; start remote-hand for docker
+TMP=/tmp
+WWWDIR=/www
+SVCDIR=$WWWDIR/pepolinux
+WWWTMP=$WWWDIR/tmp
+WORKDIR=/www/remote-hand
+WORKDIR_TMP=/www/remote-hand/tmp
+if [ ! -e /$WORKDIR_TMP ];then
+  (cd $WWWDIR ; rm -rf $WWWDIR/* ; mkdir -p $WORKDIR $WORKDIR_TMP $WWWTMP; cd $WORKDIR ; tar xfz /usr/src/pepolinux/remote_dio.tar.gz ; chown www-data.www-data $WORKDIR_TMP $WWWTMP)
+  cd $TMP; rm -rf $TMP/* ; mkdir -p run/lock spool log
+  if [ -e /usr/src/pepolinux/spool.tar.gz ];then
+    (cd $TMP ; tar xfz /usr/src/pepolinux/spool.tar.gz)
+  fi
+  if [ -e /usr/src/pepolinux/log.tar.gz ];then
+    (cd $TMP ; tar xfz /usr/src/pepolinux/log.tar.gz)
+  fi
+  cd / ; chmod 777 $TMP;chmod +t $TMP ; rm -rf run ; ln -s $TMP/run run ; cd run ; ln -s $TMP/run/lock lock
+  cd /var ; rm -rf log spool ; ln -s $TMP/spool spool ; ln -s $TMP/log log
+  (cd /usr/bin/ ; rm -f dio*)
+  mkdir -p $SVCDIR ; cd $SVCDIR ; tar xfz /usr/src/pepolinux/pepolinux.tar.gz ; chown root.root $SVCDIR
+  (cd /etc/exim4 ; cp passwd.client.org passwd.client ; cp update-exim4.conf.conf.org update-exim4.conf.conf)
+  if [ -e /usr/src/pepolinux/back_up.tar.gz ];then
+    (cd $WORKDIR ; tar xfz /usr/src/pepolinux/back_up.tar.gz)
+    (cd $WORKDIR_TMP ; rm -f .pepodioctl.* .pepotocsctl.* LCK* .*.rrd .*start_time *.png temperature *.mp4 *.jpg)
+  else
+    (cd $WORKDIR ; rm -f dio_sh.tar.gz)
+  fi
+  sync
+  if [ -e ${WORKDIR}/dio_sh.tar.gz ];then
+    (cd /usr/bin ; tar xfz ${WORKDIR}/dio_sh.tar.gz)
+  fi
+  if [ -e /usr/src/pepolinux/startup.s ];then
+    /usr/src/pepolinux/startup.s
+  else
+    [ -e /usr/src/pepolinux/back_up.tar.gz ] && rm -f /usr/src/pepolinux/back_up.tar.gz
+  fi
+  if [ -e ${WORKDIR_TMP}/.ping_watch.cron ];then
+    crontab -u www-data ${WORKDIR_TMP}/.ping_watch.cron
+  fi
+  if [ -e ${WORKDIR_TMP}/.pepogmail4dio.conf ];then
+    cp /etc/exim4/update-exim4.conf.conf.org  /etc/exim4/update-exim4.conf.conf
+    . ${WORKDIR_TMP}/.pepogmail4dio.conf
+    cat >/etc/exim4/passwd.client<<END
+gmail-smtp.l.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
+*.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
+smtp.gmail.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}
+END
+  fi
+else
+  echo remote-hand aredy running!
+fi
+cp /www/remote-hand/favicon.ico /var/www/html/
+update-exim4.conf
+/etc/init.d/svscan start
+/etc/init.d/rsyslog start
+/etc/init.d/apache2 start
+#/etc/init.d/exim4 start
+/etc/init.d/ssh start
+/etc/init.d/cron start
+crontab /etc/crontab_docker
+touch /www/tmp/.bash_history_remote
+chown remote:remote /www/tmp/.bash_history_remote
+ln -s /www/tmp/.bash_history_remote /home/remote/.bash_history
+rm -f /root/.bash_history
+touch /www/tmp/.bash_history_root
+ln -s /www/tmp/.bash_history_root /root/.bash_history
+rm -rf /var/lib/logrotate
+mkdir /www/tmp/logrotate
+ln -s /www/tmp/logrotate /var/lib/logrotate
+echo -en >/home/remote/.bash_history
+echo -en >/root/.bash_history

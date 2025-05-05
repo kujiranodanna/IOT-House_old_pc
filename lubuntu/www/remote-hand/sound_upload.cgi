@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi ,2023.11.10 update 2024.2.14
+# Copyright (c) 2020-2027 Isamu.Yamauchi ,2023.11.10 update 2024.11.28
 
 PATH=$PATH:/usr/local/bin
 echo -n '
@@ -9,13 +9,11 @@ echo -n '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.jpn.org">
-<META NAME="build" content="2024.2.10">
-<META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
+<META NAME="build" content="2024.11.28">
 <META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>Upload Sound File settings</TITLE>
 <script type="text/javascript">
 function blink() {
-  // if (!document.all) { return; }
   for (i = 0; i < document.all.length; i++) {
     obj = document.all(i);
     if (obj.className == "blink") {
@@ -40,11 +38,13 @@ function blink() {
 
 DIR=/www/remote-hand/tmp
 prog=sound_upload
+LOCK=$DIR/${prog}_lock
+LOCK_OTHER=$DIR/sound_del_lock
+CMD=$DIR/${prog}_$$.pepocmd
 FILE_NAME=$DIR/.sound_file_name
 tFILE_NAME=$DIR/.${prog}.$$
 SOUND_FILE=$DIR/.${prog}_file.$$
 tSOUND_FILE=$DIR/.${prog}_file_tmp.$$
-CMD=$DIR/${prog}_$$.pepocmd
 MAXFILESIZE=$((2048 * 1024))
 error(){
   [ -e ${tFILE_NAME} ] && rm ${tFILE_NAME}
@@ -53,7 +53,13 @@ error(){
   exit 0
 }
 trap error TERM HUP KILL INT QUIT
+msleep 5000
 cat >$tSOUND_FILE
+if [ -e $LOCK -o -e $LOCK_OTHER ];then
+  [ -e $tSOUND_FILE ] && rm $tSOUND_FILE
+  exit
+fi
+echo -en $$ >$LOCK
 if [ -e $tSOUND_FILE ];then
   dd if=$tSOUND_FILE bs=256 count=1 |mawk '/^[a-z]/{gsub("\r","",$0);print}' >$tFILE_NAME
   . $tFILE_NAME  
@@ -142,17 +148,19 @@ else
 fi
 inputFILE=${DIR}/$filename
 outputFILE=${DIR}/$tmpFILENAME
-echo -n '
-</HTML>'
-cat>$CMD<<EOF
-#!/bin/sh
+cat >$CMD<<END
 cat $tSOUND_FILE | sed '1,8d' >$SOUND_FILE
 dd if=$SOUND_FILE of=$inputFILE bs=$SIZE count=1
 if [ $CONVERT_YES_NO = "YES" ];then
   ffmpeg -i $inputFILE -ab 64k -y $outputFILE >/dev/null 2>&1
   [ -e $inputFILE ] && rm $inputFILE
+  chown www-data:www-data $outputFILE
 fi
+[ -e $inputFILE ] && chown www-data:www-data $inputFILE
 [ -e $tSOUND_FILE ] && rm $tSOUND_FILE
 [ -e $tFILE_NAME ] && rm $tFILE_NAME
 [ -e $SOUND_FILE ] && rm $SOUND_FILE
-EOF
+[ -e $LOCK ] && rm $LOCK
+END
+echo -n '
+</HTML>'

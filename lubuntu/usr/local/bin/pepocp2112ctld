@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2024.8.8
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2025.4.17
 # Scan CP2112GPIO for i386.
 # pepocp2112ctld
 GPIOINT="/usr/local/bin/pepocp2112ctl 9"
@@ -11,7 +11,6 @@ GPIOCTL_1="/usr/local/bin/pepocp2112ctl 1 0"
 GPIOCTL_2="/usr/local/bin/pepocp2112ctl 2 0"
 GPIOCTL_3="/usr/local/bin/pepocp2112ctl 3 0"
 GPIOCTL_DO="/usr/local/bin/pepocp2112ctl"
-
 WAIT=5
 LOOPSLEEP=1000
 LOOPDOCT=2
@@ -119,7 +118,7 @@ while true;do
     ISLIVEBME680="NO"
     LOOPI2C=$LOOPI2CT
     if [ -e $BME680_RD ];then
-      if [ $(($(date  "+%s") - $(date "+%s" -r $BME680_RD))) -gt 10 ];then
+      if [ $(($(date "+%s") - $(date "+%s" -r $BME680_RD))) -gt 10 ];then
         rm $BME680_RD
       else
         if [ $(cat $BME680_RD| wc -c) -lt 20 ];then
@@ -129,13 +128,13 @@ while true;do
     fi
     if [ -e $BME680_RD ];then
       LOOPI2C=$LOOPI2CT_BME680
-      gpio_i2c=`cat $BME680_RD | awk 'BEGIN{FS=","};{split($1,I,"/");split($4,J,".");printf("%s,%s,%s,%s,%s",I[4],$2,$3,J[1],$5)}'`
-      BME680TEMP=`cat $BME680_RD | awk 'BEGIN{FS=","};{printf("%s",$2)}'`
-      BME680TEMP=`echo -en $BME680TEMP | awk 'BEGIN{FS="."};{printf("%s",$1)}'`
-      BME680HUM=`cat $BME680_RD | awk 'BEGIN{FS=","};{printf("%s",$3)}'`
-      BME680HUM=`echo -en $BME680HUM | awk 'BEGIN{FS="."};{printf("%s",$1)}'`
-      BME680GAS=`cat $BME680_RD | awk 'BEGIN{FS=","};{printf("%s",$5)}'`
-      BME680GAS=`echo -en $BME680GAS | awk 'BEGIN{FS="."};{printf("%s",$1)}'`
+      gpio_i2c=`cat $BME680_RD | mawk 'BEGIN{FS=","};{split($1,I,"/");split($4,J,".");printf("%s,%s,%s,%s,%s",I[4],$2,$3,J[1],$5)}'`
+      BME680TEMP=`cat $BME680_RD | mawk 'BEGIN{FS=","};{printf("%s",$2)}'`
+      BME680TEMP=`echo -en $BME680TEMP | mawk 'BEGIN{FS="."};{printf("%s",$1)}'`
+      BME680HUM=`cat $BME680_RD | mawk 'BEGIN{FS=","};{printf("%s",$3)}'`
+      BME680HUM=`echo -en $BME680HUM | mawk 'BEGIN{FS="."};{printf("%s",$1)}'`
+      BME680GAS=`cat $BME680_RD | mawk 'BEGIN{FS=","};{printf("%s",$5)}'`
+      BME680GAS=`echo -en $BME680GAS | mawk 'BEGIN{FS="."};{printf("%s",$1)}'`
       HUM_BASELOW=40
       HUM_BASEHIGH=70
       HUM_SCORE=0
@@ -165,6 +164,7 @@ while true;do
         GAS_SUM=0
         GAS[$i]=$BME680GAS
         while [ $i -lt $BASECT ];do
+          GAS[$i]=$((${GAS[$i]} + 0))
           if [ ${GAS[$i]} -ne 0 ];then
             GAS_SUM=$(($GAS_SUM + ${GAS[$i]}))
             j=$(($j + 1))
@@ -176,6 +176,7 @@ while true;do
         done
         i=1
         while [ $i -lt $BASECT ];do
+          tGAS[$i]=$((${tGAS[$i]} + 0))
           if [ ${tGAS[$i]} -ne 0 ];then
             GAS[$i]=${tGAS[$i]}
             i=$(($i + 1))
@@ -188,6 +189,7 @@ while true;do
           if [ -e $ALIAS_DI ];then
             cat $ALIAS_DI | grep -v "slice_ai\[24\]" >$tALIAS_DI
             echo "slice_ai[24]=$GAS_BASE" >> $tALIAS_DI
+            chown www-data:www-data $tALIAS_DI
             mv $tALIAS_DI $ALIAS_DI
           fi
         fi
@@ -229,7 +231,7 @@ while true;do
   fi
   RD="-1"
   RD=`$GPIOCTL 2>&1`
-  LEN=`echo $RD|awk '{print(length($0))}'`
+  LEN=`echo $RD|mawk '{print(length($0))}'`
   if [ "$RD" != "-1" -o "LEN" = 2 ];then
     GPIO_INIT_FLAG="NO"
     for i in 1 2 4 8 16 32 64 128; do
@@ -262,7 +264,7 @@ do[1]=${old[1]}
 do[2]=${old[2]}
 do[3]=${old[3]}
 END
-  chown www-data.www-data $tGPIORD $tGPIOWD
+  chown www-data:www-data $tGPIORD $tGPIOWD
   mv $tGPIORD $GPIORD ; mv $tGPIOWD $GPIOWD
   msleep $LOOPTIME
 done

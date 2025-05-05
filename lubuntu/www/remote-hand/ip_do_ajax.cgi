@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.27 update 2020.12.21
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.27 update 2024.2.10
 
 # ip_do_ajax ; For raspberry pi , and scripts to run the remote voice command or dio [dioXXlow|dioXXhigh] or DIO and TOCOS .
 PATH=$PATH:/usr/local/bin:/usr/local/sbin
@@ -8,15 +8,15 @@ DIOCMD=/www/remote-hand/tmp/ip_do_ajax.pepocmd
 LOCAL_DIR=/www/remote-hand/tmp
 ALIAS_DI=$LOCAL_DIR/.alias_di
 VOICEREQ=$LOCAL_DIR/.voice_req
-echo -en '
+echo -n '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
-<META NAME="copyright" content="pepolinux.osdn.jp">
-<META NAME="build" content="2020.12.21">
+<META NAME="copyright" content="pepolinux.jpn.org">
+<META NAME="build" content="2024.2.10">
 <META http-equiv="Refresh" content="0;URL=/remote-hand/wait_for.cgi">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>ip_do_ajax running</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -38,7 +38,7 @@ function blink() {
 <TABLE ALIGN=CENTER BORDER=0 CELLPADDING=6 CELLSPACING=2>
 <TR ALIGN=CENTER class="blink"><TD>Digital -out is being modified</TD></TR>
 </TABLE>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.osdn.jp</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.jpn.org</TD><TR></TABLE>
 </BODY>
 </HTML>
 '
@@ -49,15 +49,15 @@ CONV=./conv_get.cgi
 [ -e $ALIAS_DI ] && . $ALIAS_DI
 if [[ "$ch" =~ ^dio ]];then
   cat>$DIOCMD<<END
-#!/bin/bash
+#!/bin/sh
 /usr/bin/$ch
 END
   exit
 fi
 if [ "$ch" = "voice_req" ];then
   cat>$DIOCMD<<END
-#!/bin/bash
-  echo -en "$val" >$VOICEREQ
+#!/bin/sh
+  echo -n "$val" >$VOICEREQ
 END
   exit
 fi
@@ -83,6 +83,6 @@ else
   fi
 fi
 cat>$DIOCMD<<END
-#!/bin/bash
+#!/bin/sh
 $cmd $ch $val $time >/dev/null 2>&1
 END

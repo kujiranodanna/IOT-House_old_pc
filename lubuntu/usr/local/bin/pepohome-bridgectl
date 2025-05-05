@@ -1,67 +1,116 @@
 #!/bin/sh
 # The MIT License
-# Copyright (c) 2021-2027 Isamu.Yamauchi , 2021.6.21 update 2024.6.17
-# pepohome-bridgectl, homebridge moniter daemon for rasberry pi zero W.
-LOG=/var/log/homebridge.log
-LOG1=/var/log/homebridge.log.1
-logrote(){
-  if [ ! -e $LOG -a ! -e $LOG1 ];then
-    echo pepo_logstart >$LOG
-    echo pepo_logstart >$LOG1
-  fi
-  TIMESTAMP1=0
-  TIMESTAMP1=0
-  if [ -e $LOG ];then
-    TIMESTAMP1=$(date +%s -r $LOG)
-  fi
-  if [ -e $LOG1 ];then
-    TIMESTAMP2=$(date +%s -r $LOG1)
-  fi
-  if [ $TIMESTAMP1 -gt $TIMESTAMP2 ];then
-    tail -n 100 $LOG >$LOG1
-    homebridge -I >$LOG 2>&1
-  else
-    tail -n 100 $LOG1 >$LOG
-    homebridge -I >$LOG1 2>&1
-  fi
-}
-trap logrote TERM HUP KILL INT QUIT
-P_PID=$(pgrep homebridge)
-if [ ! -z "$P_PID" ];then
-  kill -HUP $P_PID
-  msleep 5000
-fi
-logrote
-while true;do
-  ACTTIME=$(date +%H%M)
-  P_PID=$(pgrep homebridge)
-  if [ $ACTTIME = "2355" ];then
+# Copyright (c) 2021-2027 Isamu.Yamauchi , 2021.6.21 update 2025.3.3
+# pepohome-bridgectl, homebridge moniter daemon for Rasberry pi zero W2.
+LOG1=/var/log/homebridge.log
+LOG2=/var/log/homebridge.log.1
+prog_pid=/root/.homebridge/pepohome-bridgectl_pid
+# logrotate time,0155 -> 155
+LOGROTATE=155
+error(){
+  while true;do
+    P_PID=$(pgrep homebridge)
     if [ ! -z "$P_PID" ];then
       kill -HUP $P_PID
-      msleep 5000
+      msleep 10000
     fi
+    P_PID=$(pgrep homebridge)
+    if [ -z "$P_PID" ];then
+      break
+    fi
+  done
+  rm $prog_pid
+  exit
+}
+logrote(){
+  if [ ! -e $LOG1 -a ! -e $LOG2 ];then
+    echo pepo_logstart >$LOG1
+    msleep 1000
+    echo pepo_logstart >$LOG2
+  fi
+  while true;do
+    P_PID=$(pgrep homebridge)
+    if [ ! -z "$P_PID" ];then
+      kill -HUP $P_PID
+      msleep 10000
+    fi
+    P_PID=$(pgrep homebridge)
+    if [ -z "$P_PID" ];then
+      break
+    fi
+  done
+  TIMESTAMP1=0
+  TIMESTAMP2=0
+  if [ -e $LOG1 ];then
+    TIMESTAMP1=$(date +%s -r $LOG1)
+  fi
+  if [ -e $LOG2 ];then
+    TIMESTAMP2=$(date +%s -r $LOG2)
+  fi
+  if [ $TIMESTAMP1 -gt $TIMESTAMP2 ];then
+    homebridge -I >$LOG2 &
+  else
+    homebridge -I >$LOG1 &
+  fi
+  msleep 10000
+}
+trap error TERM HUP INT QUIT
+while [ -e $prog_pid ];do
+  tPID=$(cat $prog_pid)
+  ctPID=$(ps ax |grep $tPID |wc -l)
+  if [ $ctPID -gt 1 ];then
+    kill -HUP $tPID
+    msleep 10000
+  fi
+  rm $prog_pid
+  P_PID=$(pgrep homebridge)
+  if [ ! -z "$P_PID" ];then
+    kill -HUP $P_PID
+    msleep 10000
+  fi
+done
+echo pepo_logstart >$LOG1
+echo pepo_logstart >$LOG2
+echo -n $$ >$prog_pid
+while true;do
+  P_PID=$(pgrep homebridge)
+  if [ -z "$P_PID" ];then
+    logrote
+  fi
+  LOOP=5
+  while [ $LOOP -gt 0 ];do
+    ACTTIME=$(date +%H%M)
+    ACTTIME=$(expr ${ACTTIME} + 0)
+    if [ $ACTTIME -eq $LOGROTATE ];then
+      logrote
+      msleep 60000
+      break
+    fi
+    LOOP=$(($LOOP - 1))
+    msleep 9998
+  done
+  P_PID=$(pgrep homebridge)
+  if [ -z "$P_PID" ];then
     logrote
   else
-    if [ -e $LOG ];then
-      TIMESTAMP1=$(date +%s -r $LOG)
-    else
-      TIMESTAMP1=0
-    fi
+    TIMESTAMP1=0
+    TIMESTAMP2=0
     if [ -e $LOG1 ];then
+      TIMESTAMP1=$(date +%s -r $LOG)
+    fi
+    if [ -e $LOG2 ];then
       TIMESTAMP2=$(date +%s -r $LOG1)
-    else
-      TIMESTAMP2=0
     fi
     if [ $TIMESTAMP1 -gt $TIMESTAMP2 ];then
-      CT=$(tail -n 100 $LOG |grep EAI_AGAIN |wc -l)
-    else
       CT=$(tail -n 100 $LOG1 |grep EAI_AGAIN |wc -l)
+    else
+      CT=$(tail -n 100 $LOG2 |grep EAI_AGAIN |wc -l)
     fi
+    LIVE=$(netstat -anp|grep 51826 |grep ESTABLISHED|wc -l)
     if [ $CT -gt 0 ];then
       logrote
-    elif [ -z "$P_PID" ];then
+    elif [ $LIVE -eq 0 ];then
       logrote
     fi
   fi
-  msleep 60000
 done

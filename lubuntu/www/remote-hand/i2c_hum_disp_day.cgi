@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2018.10.7
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2018.10.7
 
-echo -en '
+echo -n '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.osdn.jp">
+<META NAME="Copyright" content="pepolinux.jpn.org">
 <META NAME="Build" content="2018.10.7">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <META http-equiv="Refresh" content="10;URL=/remote-hand/tmp/i2c_hum.png">
 <TITLE>Twlite Humidity Graph Create</TITLE>
 <script type="text/javascript">
@@ -34,7 +34,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Twlite Humidity graph create</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.osdn.jp</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.jpn.org</TD><TR></TABLE>
 </BODY>
 </HTML>'
 WORKDIR=/www/remote-hand
@@ -53,7 +53,7 @@ if [ -e ${DSFILE} ];then
   fi
   [ -e $GRAP_TEMPFILE ] && rm -f $GRAP_TEMPFILE
 cat >${CMD}<<EOF
-#!/bin/bash
+#!/bin/sh
 rrdtool graph ${GRAP_TEMPFILE} --width 600 --height 120 --start ${START} --end ${END} --upper-limit 100 --lower-limit 0 DEF:a=${DSFILE}:i2c_hum:MAX LINE1:a#FF0000:"Twlite_Humidity"
 EOF
 fi

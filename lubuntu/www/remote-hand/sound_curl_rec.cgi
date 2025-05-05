@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2023.2.26
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2024.12.3
 
 PATH=$PATH:/usr/local/bin
 echo -en '
@@ -9,7 +9,7 @@ echo -en '
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <META NAME="auther" content="yamauchi.isamu">
 <META NAME="copyright" content="pepolinux.osdn.jp">
-<META NAME="build" content="2023.2.26>
+<META NAME="build" content="2024.12.3>
 <META http-equiv="Refresh" content="2;URL=/remote-hand/wait_for.cgi">
 <META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
 <TITLE>Upload Sound File for curl</TITLE>
@@ -68,7 +68,7 @@ if [ ! -e $LOCK ];then
   cat $tSOUND_FILE | sed '1,8d' >$SOUND_FILE
   dd if=$SOUND_FILE of=$PLAYFILE bs=$filesize count=1
   if [ $MP3_YES_NO = "YES" ];then
-    mpg321 $PLAYFILE
+    mplayer $PLAYFILE
   elif [ $WAV_YES_NO = "YES" ];then
     aplay $PLAYFILE
   fi

@@ -1,17 +1,17 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2018.10.14
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2024.2.10
 
 # gamil_set.cgi
-echo -en '
+echo -n '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.osdn.jp">
+<META NAME="Copyright" content="pepolinux.jpn.org">
 <META http-equiv="Refresh" content="0;URL=/remote-hand/wait_for.cgi">
-<META NAME="Build" content="2018.10.14">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="Build" content="2024.2.10">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>Setting in DIO operation in Gmail</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -35,7 +35,7 @@ function blink() {
 <TR ALIGN=CENTER class="blink"><TD>Setting in DIO operation in Gmail</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2023 pepolinux.osdn.jp</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2021-2025 pepolinux.jpn.org</TD></TR></TABLE>
 </BODY>
 </HTML>'
 CONV=./conv_get.cgi
@@ -72,7 +72,7 @@ JITTER="$jitter"
 LOOPTIME="$looptime"
 END
 cat>$CMD<<END
-#!/bin/bash
+#!/bin/sh
 if [ ! -e ${MAIL_CONF_ORG} ];then
 cat >${MAIL_CONF_ORG}<<EOF
 # password file used when the local exim is authenticating to a remote
@@ -87,7 +87,7 @@ gmail-smtp.l.google.com:YOUR-USER-NAME@gmail.com:YOUR-USER-PASSWORD
 smtp.gmail.com:YOUR-USER-NAME@gmail.com:YOUR-USER-PASSWORD
 EOF
 fi
-cat $MAIL_CONF_ORG | awk '
+cat $MAIL_CONF_ORG | mawk '
 /^gmail-smtp.l.google.com:/{print "gmail-smtp.l.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}";next}
 /^*.google.com:/{print "*.google.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}";next}
 /^smtp.gmail.com:/{print "smtp.gmail.com:${GMAILUSER}@gmail.com:${GMAILPASSWORD}";next}

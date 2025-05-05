@@ -1,22 +1,31 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2024.7.28
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2025.5.3
+# pi_int_cp2112.cgi ;gpio main script
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2024.7.28"
-VERSION="ver:0.06&nbsp;$DATE"
-DIST_NAME=IOT-House_docker
-echo -en '
-<HTML>
+DATE="2025.5.3"
+VERSION="ver:0.14&nbsp;$DATE"
+# Voice ontorl wake up word
+Wake_Up_Word="ジャービス"
+[ -e /.dockerenv ] && IS_CONTAINER="YES" || IS_CONTAINER="NO"
+if [ $IS_CONTAINER = "YES" ];then
+  DIST_NAME=IOT-House_docker
+else
+  DIST_NAME=IOT-House_old_pc
+fi
+echo -n '
+<!DOCTYPE HTML>
+<HTML LANG="ja">
 <HEAD>
-<META http-equiv="Content-Type" content="text/HTML; charset=utf-8">
-<META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.jpn.org">
-<META NAME="Build" content="$DATE">
-<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
+<META http-equiv="Content-Type" content="text/HTML; charset=utf-8" />
+<META NAME="Auther" content="yamauchi.isamu" />
+<META NAME="Copyright" content="pepolinux.jpn.org" />
+<META NAME="Build" content="$DATE" />
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org" />
 <TITLE>$DIST_NAME command execution</TITLE>
 <script type="text/javascript">
 function blink() {
@@ -35,14 +44,13 @@ function blink() {
 }'
 # wait proceed
 BUSY=`ls $DIR/|grep -E ".pepocmd$"|wc -w`
-while [ "$BUSY" != 0 ]
-do
+while [ "$BUSY" != 0 ];do
   msleep 500
   BUSY=`ls $DIR/|grep -E ".pepocmd$"|wc -w`
 done
 lockfile -3 -r 5 ${LOCKFILE} >/dev/null 2>&1
 if [ $? != 0 ];then
-echo -en '
+echo -n '
 var jump_url = setTimeout("jump_href()", 20000);
 function jump_href() {
   var jump_location = "./pi_int_cp2112.html?" + (new Date().getTime());
@@ -58,12 +66,12 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2023-2026 pepolinux.jpn.org</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2025 pepolinux.jpn.org</TD></TR></TABLE>
 </BODY>
 </HTML>'
   exit -1
 else
-  echo -en $$ >${LOCKPID}
+  echo -n $$ >${LOCKPID}
 fi
 PAGE1=pi_int_cp2112.html.tmp
 PAGE2=pi_int_cp2112.html
@@ -75,13 +83,13 @@ echo_f() {
   local DT FL
   DT=$1
   FL=$PAGE1
-  echo -en $DT |cat >>$FL
+  echo -n $DT |cat >>$FL
 }
 disp_int() {
   local INT
   INT="$1"
   echo_f "$INT:"
-  echo_f `ip addr show $INT |awk '/inet/{printf $2}'`
+  echo_f `ip addr show $INT |mawk '/inet/{printf $2}'`
 }
 DIRD=$DIR/.di_read_data
 DOWD=$DIR/.do_write_data
@@ -124,14 +132,16 @@ while [ $n -lt 34 ];do
   [ -n "${alias_vdo[$n]}" ] && ALIAS_VDO[$n]="${alias_vdo[$n]}" || ALIAS_VDO[$n]=""
   n=$(($n + 1))
 done
+
+# button_ope.html
 cat >$PAGE6<<END
 <!DOCTYPE HTML>
 <HTML LANG="ja">
-<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
-<META name="Auther" content="yamauchi.isamu">
-<META name="Copyright" content="pepolinux">
-<META name="Build" content="$DATE">
-<META name="reply-to" content="izamu@pepolinux.jpn.org">
+<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8" />
+<META name="Auther" content="yamauchi.isamu" >
+<META name="Copyright" content="pepolinux" />
+<META name="Build" content="$DATE" />
+<META name="reply-to" content="izamu@pepolinux.jpn.org" />
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
@@ -139,9 +149,10 @@ cat >$PAGE6<<END
 <script src="remote-hand_gpio.js" type="text/javascript"></script>
 <TITLE>$DIST_NAME Button Control</TITLE>
 </HEAD>
-<BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
-<META http-equiv="Refresh" content="120;URL=/remote-hand/$PAGE6">
+<BODY BGCOLOR="#e0ffff" onload="update_di('onload')" visibilityState="update_di('onunload')>
+<META http-equiv="Refresh" content="120;URL=/remote-hand/$PAGE6" />
 <DIV style="text-align:center"><FONT size="5" color="green">$DIST_NAME<FONT size="2">&nbsp;$VERSION</FONT></FONT></DIV>
+<BR>
 <BR>
 <FONT SIZE="+1"><B>Digital output Button Operation</B></FONT>
 <BR>
@@ -197,121 +208,88 @@ Continuous
 </SELECT>
 <BR>
 State:<span id="recognition_state" >Stop</span>
-<HR>
 <BR>
+<span id="popup"></span>
+<BR>
+<HR>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
 <BR>
 <BR>
-<INPUT style="text-align:center" TYPE="button" VALUE="Setup" onclick="location.href='./$PAGE2'";>
+<INPUT style="text-align:center" TYPE="button" VALUE="Setup" onclick="location.href='./pi_int_cp2112.html'";>
 <BR>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <BR>
 <BR>
-&copy;2024 pepolinux.jpn.org&nbsp;
+&copy;2025 pepolinux.jpn.org&nbsp;
 </H1>
 </BODY>
 </HTML>
 END
-
-SMART_PHONE=`echo "$HTTP_USER_AGENT" |awk 'BEGIN{S_PHONE="NO"};/(iPhone|Android)/{S_PHONE="YES"};END{printf S_PHONE}'`
+SMART_PHONE=`echo "$HTTP_USER_AGENT" |mawk 'BEGIN{S_PHONE="NO"};/(iPad|iPhone|Android)/{S_PHONE="YES"};END{printf S_PHONE}'`
 if [ $SMART_PHONE = "YES" ];then
   cat >$PAGE1<<END
-<?xml version="1.0" encoding="UTF-8"?>
-<HTML>
-<HEAD>
-<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
-<META name="Auther" content="yamauchi.isamu">
-<META name="Copyright" content="pepolinux">
-<META name="Build" content="$DATE">
-<META name="reply-to" content="izamu@pepolinux.jpn.org">
+<!DOCTYPE HTML>
+<HTML LANG="ja">
+<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8" />
+<META name="Auther" content="yamauchi.isamu" />
+<META name="Copyright" content="pepolinux" />
+<META name="Build" content="$DATE" />
+<META name="reply-to" content="izamu@pepolinux.jpn.org" />
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
+<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.html" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
 <script src="remote-hand_gpio.js" type="text/javascript"></script>
 <TITLE>$DIST_NAME Smart Phone Control</TITLE>
 </HEAD>
-<BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
-<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.cgi">
+<BODY BGCOLOR="#e0ffff" onload="update_di('onload')" visibilityState="update_di('onunload')>
 <DIV style="text-align:center"><FONT size="5" color="green">$DIST_NAME<FONT size="2">&nbsp;$VERSION</FONT></FONT></DIV>
+<BR>
 <BR>
 <FORM NAME="menu5" id="menu5_form"  ACTION="./dio_set.cgi" METHOD="get" onsubmit="this.disabled=true;" ENCTYPE="multipart/form-data">
 <FONT SIZE="+1"><B>Digital output information</B></FONT>
 <BR>
-<span id="s_phone_do0">
-</span>
-<span id="s_phone_do1">
-</span>
-<span id="s_phone_do2">
-</span>
-<span id="s_phone_do3">
-</span>
-<span id="s_phone_do8">
-</span>
-<span id="s_phone_do9">
-</span>
-<span id="s_phone_do10">
-</span>
-<span id="s_phone_do11">
-</span>
-<span id="s_phone_do12">
-</span>
-<span id="s_phone_do13">
-</span>
-<span id="s_phone_do14">
-</span>
-<span id="s_phone_do15">
-</span>
-<span id="s_phone_do16">
-</span>
+<BR>
+<span id="s_phone_do0"></span>
+<span id="s_phone_do1"></span>
+<span id="s_phone_do2"></span>
+<span id="s_phone_do3"></span>
+<span id="s_phone_do8"></span>
+<span id="s_phone_do9"></span>
+<span id="s_phone_do10"></span>
+<span id="s_phone_do11"></span>
+<span id="s_phone_do12"></span>
+<span id="s_phone_do13"></span>
+<span id="s_phone_do14"></span>
+<span id="s_phone_do15"></span>
+<span id="s_phone_do16"></span>
 <HR>
 <FONT SIZE="+1"><B>Digital input information</B></FONT>
 <BR>
-<span id="s_phone_di0">
-</span>
-<span id="s_phone_di1">
-</span>
-<span id="s_phone_di2">
-</span>
-<span id="s_phone_di3">
-</span>
-<span id="s_phone_di8">
-</span>
-<span id="s_phone_di9">
-</span>
-<span id="s_phone_di10">
-</span>
-<span id="s_phone_di11">
-</span>
-<span id="s_phone_di12">
-</span>
-<span id="s_phone_di13">
-</span>
-<span id="s_phone_di14">
-</span>
-<span id="s_phone_di15">
-</span>
-<span id="s_phone_di16">
-</span>
-<span id="s_phone_di17">
-</span>
-<span id="s_phone_di18">
-</span>
-<span id="s_phone_di19">
-</span>
-<span id="s_phone_di20">
-</span>
-</span>
-<span id="s_phone_di21">
-</span>
-</span>
-<span id="s_phone_di22">
-</span>
-</span>
-<span id="s_phone_di23">
-</span>
+<BR>
+<span id="s_phone_di0"></span>
+<span id="s_phone_di1"></span>
+<span id="s_phone_di2"></span>
+<span id="s_phone_di3"></span>
+<span id="s_phone_di8"></span>
+<span id="s_phone_di9"></span>
+<span id="s_phone_di10"></span>
+<span id="s_phone_di11"></span>
+<span id="s_phone_di12"></span>
+<span id="s_phone_di13"></span>
+<span id="s_phone_di14"></span>
+<span id="s_phone_di15"></span>
+<span id="s_phone_di16"></span>
+<span id="s_phone_di17"></span>
+<span id="s_phone_di18"></span>
+<span id="s_phone_di19"></span>
+<span id="s_phone_di20"></span>
+<span id="s_phone_di21"></span>
+<span id="s_phone_di22"></span>
+<span id="s_phone_di23"></span>
 </FORM>
 <HR>
 <img border="0" src="./google-microphone.png" width="300" height="300" alt="microphone" onclick="startWebVoiceRecognition();"/>
@@ -324,6 +302,11 @@ Voice control
 <OPTION VALUE="en">English
 </SELECT>
 </span>
+<BR>
+State:<span id="recognition_state" >Stop</span>
+<BR>
+<span id="popup"></span>
+<BR>
 <HR>
 <span id="s_phone_cpu_temp_graph"></span>
 <span id="s_phone_gpio_temp_graph"></span>
@@ -338,20 +321,22 @@ Voice control
 <span id="s_phone_vai_2_graph"></span>
 <span id="s_phone_vai_3_graph"></span>
 <span id="s_phone_vai_4_graph"></span>
-<INPUT style="text-align:center" TYPE="button" VALUE="Temp&Hum Disp" onclick="location.href='./temp_hum.html'";>
+<INPUT style="text-align:center" TYPE="button" VALUE="Temp&Hum Disp" onclick="location.href='./$PAGE5'";>
+<BR>
+<BR>
+<INPUT style="text-align:center" TYPE="button" VALUE="Button Operation" onclick="location.href='./$PAGE6'";>
 <BR>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
-
 <BR>
 <BR>
-<INPUT style="text-align:center" TYPE="button" VALUE="Setup" onclick="location.href='./setup.html'";>
+<INPUT style="text-align:center" TYPE="button" VALUE="Setup" onclick="location.href='./$PAGE4'";>
 <BR>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <BR>
 <BR>
-&copy;2023-2026 pepolinux.jpn.org&nbsp;
+&copy;2025 pepolinux.jpn.org&nbsp;
 </H1>
 </BODY>
 </HTML>
@@ -359,25 +344,29 @@ END
   mv ${PAGE1} ${PAGE2}
   PAGE1=$PAGE3
   PAGE2=$PAGE4
-  cat >$PAGE5<<END
-<?xml version="1.0" encoding="UTF-8"?>
-<HTML>
-<HEAD>
-<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
-<META name="Auther" content="yamauchi.isamu">
-<META name="Copyright" content="pepolinux">
-<META name="Build" content="$DATE">
-<META name="reply-to" content="izamu@pepolinux.jpn.org">
+fi
+
+# Smart Phone Voice Control, Temperature & Humidity 
+cat >$PAGE5<<END
+<!DOCTYPE HTML>
+<HTML LANG="ja">
+<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8" />
+<META name="Auther" content="yamauchi.isamu" />
+<META name="Copyright" content="pepolinux" />
+<META name="Build" content="$DATE" />
+<META name="reply-to" content="izamu@pepolinux.jpn.org" />
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
+<META http-equiv="Refresh" content="120;URL=/remote-hand/$PAGE5" />
 <link rel="stylesheet" href="rasp_phone.css" type="text/css" media="print, projection, screen">
 <script src="jquery-3.5.1.min.js" type="text/javascript"></script>
 <script src="remote-hand_gpio.js" type="text/javascript"></script>
 <TITLE>IOT-House Temperature&Humidity</TITLE>
 </HEAD>
-<BODY BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
-<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.cgi">
+<BODY BGCOLOR="#e0ffff" onload="update_di('onload')" visibilityState="update_di('onunload')>
 <DIV style="text-align:center"><FONT size="5" color="green">$DIST_NAME<FONT size="2">&nbsp;$VERSION</FONT></FONT></DIV>
+<BR>
+<BR>
 <span id="s_phone_temp_hum"></span>
 <span id="s_phone_gpio_temp_graph"></span>
 <span id="s_phone_gpio_hum_graph"></span>
@@ -389,30 +378,50 @@ END
 <span id="gpio_iaq_val"></span>
 <BR>
 <span id="s_phone_gpio_csv"></span>
-<span id="s_phone_tocos_temp_hum"></span>
 <BR>
+<BR>
+<img border="0" src="./google-microphone.png" width="300" height="300" alt="microphone" onclick="startWebVoiceRecognition();"/>
+<BR>
+<span id="voice_sel">
+Voice control
+<input id="voice_val" type="text" style="width:120px;" NAME="voice_val" VALUE="" onkeydown="if(event.keyCode == 13 || event.keyCode == 9) update_do('voice_sel')" placeholder="Command" autofocus />
+<SELECT NAME="voice_lang" id="voice_lang">
+<OPTION VALUE="ja" SELECTED>Japanese
+<OPTION VALUE="en">English
+</SELECT>
+</span>
+<BR>
+Computer name:
+<input id="computer_name" type="text" style="width:240px;" NAME="computer_name" VALUE="" placeholder="$Wake_Up_Word" autofocus />
+Continuous
+<SELECT NAME="Continuous" id="voice_continuous">
+<OPTION VALUE="Yes" SELECTED>Yes
+<OPTION VALUE="Yes">Yes
+<OPTION VALUE="No">No
+</SELECT>
+<BR>
+State:<span id="recognition_state" >Stop</span>
+<BR>
+<span id="popup"></span>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Home" onclick="location.href='./pi_int_cp2112.html'";/>
 <BR>
-<BR>
-&copy;2023-2026 pepolinux.jpn.org&nbsp;
+&copy;2025 pepolinux.jpn.org&nbsp;
 <span id="server_time" style="text-align:left"></span>
 </H1>
 </BODY>
 </HTML>
 END
-fi
 
 # Not Smart Phone
 cat >$PAGE1<<END
-<?xml version="1.0" encoding="UTF-8"?>
-<HTML>
-<HEAD>
-<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8">
-<META name="Auther" content="yamauchi.isamu">
-<META name="Copyright" content="pepolinux">
-<META name="Build" content="$DATE">
-<META name="reply-to" content="izamu@pepolinux.jpn.org">
+<!DOCTYPE HTML>
+<HTML LANG="ja">
+<META http-equiv="Content-Type" content="text/HTML; charset=UTF-8" />
+<META name="Auther" content="yamauchi.isamu" />
+<META name="Copyright" content="pepolinux" />
+<META name="Build" content="$DATE" />
+<META name="reply-to" content="izamu@pepolinux.jpn.org" />
 <META http-equiv="content-style-type" content="text/css" />
 <META http-equiv="content-script-type" content="text/javascript" />
 <link rel="stylesheet" href="pepo_ui.tabs.css" type="text/css" media="print, projection, screen">
@@ -420,19 +429,17 @@ cat >$PAGE1<<END
 <script src="jquery-ui.min.js" type="text/javascript"></script>
 <script src="remote-hand_gpio.js" type="text/javascript"></script>
 <script type="text/javascript">
-<!--
   \$(function() {
     \$("#tabs").tabs();
   });
   \$(function() {
     \$("#tabs").tabs("option","active",1);
   });
-// -->
 </script>
 <TITLE>$DIST_NAME Control Panel</TITLE>
 </HEAD>
-<BODY id="tab_cont_body" BGCOLOR="#e0ffff" onload="update_di('onload')" onunload="update_di('onunload')>
-<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.cgi">
+<BODY id="tab_cont_body" BGCOLOR="#e0ffff" onload="update_di('onload')" visibilityState="update_di('onunload')>
+<META http-equiv="Refresh" content="120;URL=/remote-hand/pi_int_cp2112.html" />
 <DIV id="tabs">
 <DIV  style="text-align:center"><FONT size="5" color="green">$DIST_NAME</FONT><FONT size="2">&nbsp;$VERSION</FONT></DIV>
 <DIV id="tab_cont_div">
@@ -536,7 +543,7 @@ Sound10
 <span id="disp_sound_9">
 </span>&nbsp;
 <INPUT style="text-align:center" TYPE="button" id="menu4_sound_del_9" VALUE="Delete" onClick="return menu4_ck('menu4_sound_del','disp_sound_9');"/>
-<BR>
+<BR><BR>
 </FORM>
 </DD>
 </DL>
@@ -546,24 +553,23 @@ if [ ! -z "${TOCOS_TTY}" ];then
   case ${TOCOS_TTY} in
     ttyUSBTWE-Lite) vTOCOS_TTY="ttyUSBTWE-Lite" ;;
     none) vTOCOS_TTY="none" ;;
-    *) vTOCOS_TTY="none" ;;
   esac
 else
   vTOCOS_TTY="none" ; TOCOS_TTY="none"
 fi
 if [ -n "${DI_TTY}" ];then
   case ${DI_TTY} in
-    gpio) vTTY="cp2112" ;;
+    gpio) vTTY="gpio" ;;
+    piface) vTTY="piface" ;;
     none) vTTY="none" ;;
-    *) vTTY="none" ;;
   esac
 else
-   DI_TTY="gpio" ; vTTY="cp2112"
+   DI_TTY="gpio" ; vTTY="gpio"
 fi
 MODEM=$DIR/.modem
 [ -e $MODEM ] && . $MODEM || modem_dev=none
 LIVE_SERVER=`hostname -I`
-LIVE_SERVER=`echo -en $LIVE_SERVER`
+LIVE_SERVER=`echo -n $LIVE_SERVER`
 cat >>$PAGE1<<END
 <DL id="menu5dl">
 <DT><FONT SIZE="+1"><B>Settings DIO & IRKit & Twelite</B></FONT></DT>
@@ -885,12 +891,14 @@ Voice control
 <BR>
 <input type="button" value="Recognition start" onclick="startWebVoiceRecognition();"/>
 <input type="button" value="Recognition stop" onclick="stopWebVoiceRecognition();"/>
-State<span id="recognition_state" >Stop</span>
+State<span id="recognition_state" >Stop</span>&nbsp&nbsp
+<span id="popup"></span>
 <BR>
 <HR>
 <input type="button" value="Camera_1 photo" onclick="start_photo('video0');"/>&nbsp
 <input type="button" value="Camera_2 photo" onclick="start_photo('video1');"/>&nbsp
 <input type="button" value="Camera_3 photo" onclick="start_photo('video2');"/>&nbsp
+<input type="button" value="Module_Camera photo" onclick="start_photo('vchiq');"/>
 <BR>
 <input type="button" value="Camera_1 video" onclick="start_video('video0');"/>
 <input id="live_timer0" type="text" style="width:20px;" NAME="live_timer0" VALUE="10">Sec&nbsp;
@@ -899,6 +907,8 @@ State<span id="recognition_state" >Stop</span>
 <input type="button" value="Camera_3 video" onclick="start_video('video2');"/>
 <input id="live_timer2" type="text" style="width:20px;" NAME="live_timer2" VALUE="10">Sec&nbsp
 <BR>
+<input type="button" value="Streaming start" onclick="streaming_start_stop('vchiq','start');"/>
+<input type="button" value="Streaming stop" onclick="streaming_start_stop('vchiq','stop');"/>
 Server<input type="text" style="width:100px;" id="live_server" NAME="Server" VALUE="${LIVE_SERVER}">
 <HR>
 <B>Settings digital input terminal name</B>
@@ -1154,10 +1164,11 @@ Slice<INPUT TYPE="text" style="width:24px;" NAME="slice_ai_23" VALUE="${SLICE_AI
 <HR>
 Interface<SELECT NAME="DI_TTY">
 <OPTION VALUE="${DI_TTY}" SELECTED>${vTTY}
-<OPTION VALUE="gpio">cp2112
+<OPTION VALUE="gpio">gpio
+<OPTION VALUE="piface">piface
 <OPTION VALUE="none">none
 </SELECT>&nbsp;&nbsp;
-remote_ip<INPUT TYPE="text" style="width:120px;" NAME="piface_ip" VALUE="${piface_ip}">
+piface_ip<INPUT TYPE="text" style="width:120px;" NAME="piface_ip" VALUE="${piface_ip}">
 <BR>
 <INPUT style="text-align:center" TYPE="button" id="menu5_jikkou" VALUE="Run" onClick="return menu5_ck();"/>
 <INPUT style="text-align:center" TYPE="reset" VALUE="Clear">
@@ -1200,6 +1211,7 @@ IP2<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_1">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
+
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_1">ms&nbsp;
 &nbsp;<SELECT NAME="reg_1">
@@ -1217,6 +1229,7 @@ IP3<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_2">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
+
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_2">ms&nbsp;
 &nbsp;<SELECT NAME="reg_2">
@@ -1234,6 +1247,7 @@ IP4<INPUT TYPE="text" size="22" style="width:110px;" NAME="ip_3">&nbsp;
 <OPTION VALUE="DOFF_2">${ALIAS_DO[2]}low
 <OPTION VALUE="DON_3">${ALIAS_DO[3]}high
 <OPTION VALUE="DOFF_3">${ALIAS_DO[3]}low
+
 </SELECT>&nbsp;
 <INPUT TYPE="text" style="width:48px;text-align:left;" NAME="ping_don_time_3">ms&nbsp;
 &nbsp;<SELECT NAME="reg_3">
@@ -1272,7 +1286,7 @@ font-size:15px;
 <TD WIDTH="100">INTERVAL</TD>
 </TR>
 END
-cat $PING_DON | awk 'BEGIN{FS=" "};{print "<TR><TD WIDTH=\"100\">"$2"</TD><TD WIDTH=\"100\">"$3"<TD WIDTH=\"100\">"$4"</TD><TD WIDTH=\"100\">"$5"</TD></TR>"}' >>$PING_DON_HTML
+cat $PING_DON | mawk 'BEGIN{FS=" "};{print "<TR><TD WIDTH=\"100\">"$2"</TD><TD WIDTH=\"100\">"$3"<TD WIDTH=\"100\">"$4"</TD><TD WIDTH=\"100\">"$5"</TD></TR>"}' >>$PING_DON_HTML
 echo '</TABLE></BODY></HTML>' >>$PING_DON_HTML
 cat >>$PAGE1<<END
 <IFRAME SRC="$PING_DON_HTML" WIDTH="600" HEIGHT="200" SCROLLING="yes"
@@ -1347,7 +1361,7 @@ font-size:15px;
 <TD WIDTH="100">INTERVAL</TD>
 </TR>
 END
-cat $PING_MAIL | awk 'BEGIN{FS=" "};{print "<TR><TD WIDTH=\"100\">"$2"</TD><TD WIDTH=\"160\">"$3"</TD><TD WIDTH=\"100\">"$4"</TD></TR>"}' >>$PING_MAIL_HTML
+cat $PING_MAIL | mawk 'BEGIN{FS=" "};{print "<TR><TD WIDTH=\"100\">"$2"</TD><TD WIDTH=\"160\">"$3"</TD><TD WIDTH=\"100\">"$4"</TD></TR>"}' >>$PING_MAIL_HTML
 echo '</TABLE></BODY></HTML>' >>$PING_MAIL_HTML
 cat >>$PAGE1<<END
 <IFRAME SRC="$PING_MAIL_HTML" WIDTH="600" HEIGHT="200" SCROLLING="yes"
@@ -1423,7 +1437,7 @@ font-size:15px;
 <TD WIDTH="100">INTERVAL</TD>
 </TR>
 END
-cat $PING_PHONE | awk 'BEGIN{FS=" "};{print "<TR><TD WIDTH=\"100\">"$2"</TD><TD WIDTH=\"100\">"$3"</TD><TD WIDTH=\"100\">"$4"</TD></TR>"}' >>$PING_PHONE_HTML
+cat $PING_PHONE | mawk 'BEGIN{FS=" "};{print "<TR><TD WIDTH=\"100\">"$2"</TD><TD WIDTH=\"100\">"$3"</TD><TD WIDTH=\"100\">"$4"</TD></TR>"}' >>$PING_PHONE_HTML
 echo '</TABLE></BODY></HTML>' >>$PING_PHONE_HTML
 cat >>$PAGE1<<END
 <IFRAME SRC="$PING_PHONE_HTML" WIDTH="600" HEIGHT="200" SCROLLING="yes"
@@ -1523,8 +1537,8 @@ while [ $n -lt 22 ];do
       vdi_act[$n]="Sound_8" ;;
     "SOUND_8")
       vdi_act[$n]="Sound_9" ;;
-      "SOUND_9")
-      vdi_act[$n]="Sound_10" ;;
+     "SOUND_9")
+      vdi_act[$n]="Sound_10" ;; 
     *)
       di_act[$n]="none"
       vdi_act[$n]="none" ;;
@@ -1580,7 +1594,10 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1650,7 +1667,10 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1721,6 +1741,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -1733,6 +1755,7 @@ Action:low→high
 <OPTION VALUE="SOUND_9">Sound_10
 </SELECT>
 Alt
+&nbsp;
 <SELECT NAME="di_act_alt_2">
 <OPTION VALUE="${DI_ACT_ALT[2]}" SELECTED>${DI_ACT_ALT[2]}
 <OPTION VALUE="none">none
@@ -1791,7 +1814,10 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1861,7 +1887,10 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -1931,7 +1960,10 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -2001,7 +2033,10 @@ Action:low→high
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -2071,7 +2106,10 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -2141,7 +2179,10 @@ Action:high→low
 <OPTION VALUE="mail">Email
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
-<OPTION VALUE="web_camera_video">Web_camera Video<OPTION VALUE="SOUND_0">Sound_1
+<OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
+<OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
@@ -2212,6 +2253,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2283,6 +2326,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2354,6 +2399,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2425,6 +2472,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2496,6 +2545,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2567,6 +2618,7 @@ while [ $n -lt 22 ];do
   *)
     di_change[$n]="low2high"
     vdi_change[$n]="low→high"
+
   esac
   case "${di_act[$n]}" in
     "DON_0")
@@ -2698,6 +2750,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2766,6 +2820,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2834,6 +2890,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2902,6 +2960,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -2969,6 +3029,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3037,6 +3099,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3105,6 +3169,8 @@ Action:low→high
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3173,6 +3239,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3241,6 +3309,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3309,6 +3379,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3377,6 +3449,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3444,6 +3518,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3512,6 +3588,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3580,6 +3658,8 @@ Action:high→low
 <OPTION VALUE="mail_message">Send_message
 <OPTION VALUE="web_camera_still">Web_camera Still
 <OPTION VALUE="web_camera_video">Web_camera Video
+<OPTION VALUE="mod_camera_still">Mod_camera Still
+<OPTION VALUE="mod_camera_video">Mod_camera Video
 <OPTION VALUE="SOUND_0">Sound_1
 <OPTION VALUE="SOUND_1">Sound_2
 <OPTION VALUE="SOUND_2">Sound_3
@@ -3632,7 +3712,7 @@ CONF="$DIR/.pepogmail4dio.conf"
 [ ! -z "$LOOPTIME" ] && vLOOPTIME="$LOOPTIME"
 cat >>$PAGE1<<END
 <DL id="menu11dl">
-<DT><FONT SIZE="+1"><B>Settings system Address</B></FONT></DT>
+<DT><FONT SIZE="+1"><B>Settings system Email</B></FONT></DT>
 <DD>
 <B>Settings operation in Gmail</B>
 <BR>
@@ -4159,9 +4239,6 @@ for n in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20;do
           vAUTO_ACT4_VAL[0]=Sound_3 ;;
         SOUND_3)
           vAUTO_ACT4_VAL[0]=Sound_4 ;;
-        SOUND_4)
-          vAUTO_ACT4_VAL[0]=Sound_5 ;;
-
         SOUND_4)
           vAUTO_ACT4_VAL[0]=Sound_5 ;;
         SOUND_5)
@@ -7741,7 +7818,6 @@ cat >>$PAGE1<<END
 <OPTION VALUE="SOUND_2">Sound_3
 <OPTION VALUE="SOUND_3">Sound_4
 <OPTION VALUE="SOUND_4">Sound_5
-<OPTION VALUE="SOUND_4">Sound_5
 <OPTION VALUE="SOUND_5">Sound_6
 <OPTION VALUE="SOUND_6">Sound_7
 <OPTION VALUE="SOUND_7">Sound_8
@@ -7799,7 +7875,6 @@ END
 tSTARTUP=$DIR/.startup.s.tmp
 [ -e $tSTARTUP ] && . $tSTARTUP
 [ ! -z $vWEBPASSWORD ] && vWEBPASSWORD="*"
-[ ! -z $vLINENOTIFY ] && vLINENOTIFY="*"
 cat >>$PAGE1<<END
 <DL id="menu13dl">
 <DT><FONT SIZE="+1"><B>Server configuration and save</B></FONT></DT>
@@ -7820,9 +7895,6 @@ web user
 <BR>
 web password
 <INPUT TYPE="password" size="22" style="width:110px;" VALUE="$vWEBPASSWORD" NAME="server_val_1">
-<BR>
-LINE Notify
-<INPUT TYPE="password" size="22" style="width:110px;" VALUE="$vLINENOTIFY" NAME="server_val_2">
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Run" onClick="return menu13_ck()" ;>
 <INPUT style="text-align:center" TYPE="reset" VALUE="Clear">
@@ -8003,7 +8075,7 @@ Ans.<INPUT id="vom_ans_10" type="text" style="width:120px;" NAME="vom_ans_10" VA
 <INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <TABLE ALIGN=RIGHT>
-<TR><TD><FONT SIZE="-1">&copy;2024 pepolinux.jpn.org&nbsp;
+<TR><TD><FONT SIZE="-1">&copy;2025 pepolinux.jpn.org&nbsp;
 <span id="server_time" style="text-align:left"></span>&nbsp;
 </TR>
 </TABLE>
@@ -8013,7 +8085,7 @@ Ans.<INPUT id="vom_ans_10" type="text" style="width:120px;" NAME="vom_ans_10" VA
 </HTML>
 END
 mv ${PAGE1} ${PAGE2}
-echo -en '
+echo -n '
 var jump_url = setTimeout("jump_href()", 1000);
 function jump_href() {
   var  jump_location = "/remote-hand/pi_int_cp2112.html?" + (new Date().getTime());

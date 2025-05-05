@@ -1,0 +1,42 @@
+#!/bin/sh
+# # The MIT License
+# Copyright (c) 2024-2027 Isamu.Yamauchi , 2024.8.24 update 2024.8.25
+# pepotimelapse_tapo ; sscripts to run the timelapse for periodically rotate and obtain images from a security Tapo camera using curl
+# That to run a of 3600 seconds interval.
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+WORKDIR=/www/remote-hand/tmp
+IMAGE_DIR=$WORKDIR/timelapse
+[ -e $IMAGE_DIR ] && rm -rf $IMAGE_DIR
+prog=pepotimelapse_tapo
+# Tapo camera and network latency compensation, exp 10000 ~ 20000
+LATESLEEP=20000
+RMHOST1=iot000
+USER=dokokanodare
+PASSWORD=watashiwadare
+mkdir $IMAGE_DIR
+error(){
+  [ -e $IMAGE_DIR ] && rm -rf $IMAGE_DIR
+  exit 0
+}
+trap error QUIT INT TERM HUP
+
+while true;do
+  j=0
+  while true;do
+    NOWSEC=`date +"%S:"`
+    NOWMIN=`date +"%M:"`
+    if [ $NOWSEC = "00:" ];then
+      k=`printf "image%03d.jpg" $j`
+      ffmpeg -i "rtsp://$USER:$PASSWORD@$RMHOST1:554/stream1" -f image2 -vframes 1 -pix_fmt yuvj420p $IMAGE_DIR/$k >/dev/null 2>&1
+      j=$(($j + 1))
+      if [ $j -gt 59 -o $NOWMIN = "59:" ];then
+        break
+      fi
+    else
+      msleep 100
+      continue
+    fi
+  done
+  msleep $LATESLEEP
+  rm -rf $IMAGE_DIR; mkdir $IMAGE_DIR
+done

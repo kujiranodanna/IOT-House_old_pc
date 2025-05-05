@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , update 2018.2.24
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2018.2.24
 
 DIRD=/www/remote-hand/tmp/.di_read_data
 JSONRD=/www/remote-hand/tmp/.di_read_data.json
@@ -64,18 +64,18 @@ echo '"date":"'$NOWDATE'"' >>$JSONRD
 echo "}" >>$JSONRD
 #cat $JSONRD
 chown apache.apache $JSONRD
-echo -en '
+echo -n '
 <HTML>
 <HEAD>
 <META http-equiv="Content-Type" content="text/HTML; charset=utf-8">
 <META NAME="Auther" content="yamauchi.isamu">
-<META NAME="Copyright" content="pepolinux.osdn.jp">
+<META NAME="Copyright" content="pepolinux.jpn.org">
 <META NAME="Build" content="2012.3.1">
-<META NAME="reply-to" content="izamu@pepolinux.osdn.jp">
+<META NAME="reply-to" content="izamu@pepolinux.jpn.org">
 <TITLE>di2json</TITLE>
 '
 cat $JSONRD
-echo -en '
+echo -n '
 </HEAD>
 </BODY>
 </HTML>'

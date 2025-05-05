@@ -1,13 +1,13 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2017.7.23 update 2020.10.8
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.23 update 2023.12.1
 # pepoipdiotocsd ; For raspberry pi or i386, and scripts to run the Remote DIO and Twlite.
-# licence GPLv2 ; the scripts designed by Isamu.Yamauchi,
+# licence GPLv2 ; the scripts designed by Isamu.Yamauchi, 
 #
 RETRYTIME=20
 RETRY=1
 WAIT=10000
-#WAIT=2000
+WAIT_DUMMY=5000
 PORT=443
 LOCAL_DIR=/www/remote-hand/tmp
 REMOTE_DIR=remote-hand
@@ -40,7 +40,7 @@ error(){
   [ -e $tLO_TOCOS_WD_DATA ] && rm -f $tLO_TOCOS_WD_DATA
   exit 0
 }
-trap error SIGTERM SIGHUP SIGKILL SIGINT
+trap error TERM HUP KILL INT
 
 while true;do
   while [ -e $ALIAS_DI -a -e $SERVERCONF ];do
@@ -63,12 +63,12 @@ while true;do
     if [ ! -z $piface_ip ];then
       RM_HOST=$piface_ip
       rm -f $WORK
-curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
+      curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
 #      wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$RM_JSON_DATA --http-user=${USER} --http-password=${PASSWORD} --output-document=${WORK}
       if [ -e $WORK ];then
         LEN=`cat $WORK |wc -l`
         if [ $LEN -gt 2 ];then
-          cat $WORK |awk '
+          cat $WORK |mawk '
           /"di0"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[0]="i)}
           /"di1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[1]="i)}
           /"di2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[2]="i)}
@@ -79,12 +79,12 @@ curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$
           /"di7"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("di[7]="i)}
           ' >$tLO_DI_DATA
           if [ $DI_TTY = "none" ];then
-            cat $WORK |awk '
+            cat $WORK |mawk '
             /gpio_i2c/{gsub(/gpio_i2c":{|date":|temp":|hum":|pres":|gas":|hPa"|iaq":|℃|％|Ω|{:|"|}/,"",$0);split($0,j,",");printf("gpio_i2c=%s,%s,%s,%s,%s,%s\n",j[1],j[2],j[3],j[4],j[5],j[6],J[7])}' >>$tLO_DI_DATA
           fi
           [ -e $tLO_DI_DATA ] && mv $tLO_DI_DATA $LO_DI_DATA
           if [ $DI_TTY = "none" ];then
-            cat $WORK |awk '
+            cat $WORK |mawk '
             /"do0"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[0]="i)}
             /"do1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[1]="i)}
             /"do2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("do[2]="i)}
@@ -96,30 +96,30 @@ curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$
             ' >$tLO_DO_DATA
             [ -e $tLO_DO_DATA ] && mv $tLO_DO_DATA $LO_DO_DATA
           else
-            [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
+            [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA             
           fi
         fi
       fi
     else
       [ -e $LO_DO_DATA ] && rm -f $LO_DO_DATA
-      [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA
+      [ -e $LO_DI_DATA ] && rm -f $LO_DI_DATA      
     fi
     if [ ! -z $tocos_ip ];then
       if [ ! -z $piface_ip ];then
         if [ $tocos_ip != $piface_ip ];then
           RM_HOST=$tocos_ip
-curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
+          curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
 #          wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$RM_JSON_DATA --http-user=${USER} --http-password=${PASSWORD} --output-document=${WORK}
         fi
       else
         RM_HOST=$tocos_ip
-curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
+        curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RM_HOST:$PORT/$RM_JSON_DATA >${WORK}
 #        wget -q -T $RETRYTIME -t $RETRY --secure-protocol=TLSv1 --no-check-certificate --user-agent=${USERAGENT} https://$RM_HOST:$PORT/$RM_JSON_DATA --http-user=${USER} --http-password=${PASSWORD} --output-document=${WORK}
       fi
       if [ -e $WORK ];then
         LEN=`cat $WORK |wc -l`
         if [ $LEN -gt 2 ];then
-          cat $WORK |awk '
+          cat $WORK |mawk '
             /"ti1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI1="i)}
             /"ti2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI2="i)}
             /"ti3"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TI3="i)}
@@ -133,20 +133,20 @@ curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$
             . $tLO_TOCOS_RD_DATA
             if [ -n "${slice_ai[12]}" ];then
               [ "${VAI1}" -lt "${slice_ai[12]}" ] && AI1="0" || AI1="1"
-            fi
+            fi                
             if [ -n "${slice_ai[13]}" ];then
               [ "${VAI2}" -lt "${slice_ai[13]}" ] && AI2="0" || AI2="1"
-            fi
+            fi                
             if [ -n "${slice_ai[14]}" ];then
               [ "${VAI3}" -lt "${slice_ai[14]}" ] && AI3="0" || AI3="1"
-            fi
+            fi                
             if [ -n "${slice_ai[15]}" ];then
               [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"
             fi
             echo -e "AI1=$AI1\nAI2=$AI2\nAI3=$AI3\nAI4=$AI4" >> $tLO_TOCOS_RD_DATA
             mv $tLO_TOCOS_RD_DATA $LO_TOCOS_RD_DATA
           fi
-          cat $WORK |awk '
+          cat $WORK |mawk '                        
             /"to1"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO1="i)}
             /"to2"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO2="i)}
             /"to3"/{if(/high/) i=1 ;if(/low/) i=0 ;if(/none/) i=-1;print("TO3="i)}
@@ -159,6 +159,7 @@ curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$
       [ -e $LO_TOCOS_RD_DATA ] && rm -f $LO_TOCOS_RD_DATA
     fi
     rm -f $WORK
-    msleep $WAIT
+    msleep $WAIT 
   done
+  msleep $WAIT_DUMMY
 done

@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2024.2.10 update 2024.7.14
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2024.2.10 update 2024.8.17
 # 2024.7.12 add Nature Remo proc
 PATH=$PATH:/usr/local/bin
 # irkit_reg.cgi,Registration of IR data for IRKit, Nature Remo
@@ -54,14 +54,18 @@ else
   rm -f $IRFILE
   exit
 fi
-REMO3_MAC="0c:8b:95"
-REMONANO_MAC="c0:4e:30"
-IRKIT_MAC="20:f8:5e"
-ping -c 1 $IP >${DOCFILE}
-tREMO3_MAC=$(arp $IP|grep $REMO3_MAC|wc -l)
-tREMONANO_MAC=$(arp $IP|grep $REMONANO_MAC|wc -l)
-tIRKIT_MAC=$(arp $IP|grep $IRKIT_MAC|wc -l)
-if [ $tREMO_MAC != 0 -a $tREMONANO_MAC != 0 ];then
+[ -e /.dockerenv ] && IS_CONTAINER="YES" || IS_CONTAINER="NO"
+if [ $IS_CONTAINER = "YES" ];then
+  tREMO3_MAC=1
+  tIRKIT_MAC=0
+else
+  REMO3_MAC="0c:8b:95"
+  IRKIT_MAC="20:f8:5e"
+  ping -c 1 $IP >${DOCFILE}
+  tREMO3_MAC=$(arp $IP|grep $REMO3_MAC|wc -l)
+  tIRKIT_MAC=$(arp $IP|grep $IRKIT_MAC|wc -l)
+fi
+if [ $tREMO3_MAC != 0 ];then
   tMAC=REMO
 elif [ $tIRKIT_MAC != 0 ];then
   tMAC=IRKIT
