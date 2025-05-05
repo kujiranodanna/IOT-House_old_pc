@@ -31,15 +31,15 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 Disklabel type: dos
 Disk identifier: 0x15ae16d5
 ```
-2. Download the binaries from here
-https://osdn.net/projects/pepolinux/releases/75081
-
-3. Extract the downloaded IOT-House_old_pc_xx.7z and write IOT-House_old_pc_xx.img to the flash memory
-4. Write IOT-House_old_pc_xx.img to flash memory with the dd command,For example
-- dd if=IOT-House_old_pc_xx.img of=/dev/sdb bs=100M count=80
+2. Download the binaries from here:New Release2024.12.29
+  [iot-house_old_pc.img.7z](https://pepolinux.jpn.org/iot-house_images_old_pc/iot-house_old_pc.img.7z) about 2GB,
+  Download security is the same as the following 8
+4. Extract the downloaded iot-house_old_img.7z and write iot-house_old_pc.img to the flash memory,SSD recommended
+5. Write iot-house_old_pc.img to flash memory with the dd command,For example
+- dd if=iot-house_old_pc.img of=/dev/sdb bs=100M count=80
 5. Attach it to the USB of the flash memory notebook PC and start it by turning on the power.
-- It may take about 5 minutes to start.
-6. When the login screen appears, user: remote, password: hand ,Log in with.
+- It may take about 5 minutes to start.-->It's been a long time since I've been waiting (´ω｀)
+6. When the login screen appears, user: remote, password: pepolinux ,Log in with.
 7. Please set the network properly,
 - the initial state is wired LAN, the host name is iot000.
 8. From another PC http://iot000.local etc. user:remote, password: hand ,Log in with.
