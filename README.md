@@ -31,7 +31,7 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 Disklabel type: dos
 Disk identifier: 0x15ae16d5
 ```
-2. Download the binaries from here:New Release2024.12.29
+2. Download the binaries from here:New Release2025.5.3
   [iot-house_old_pc.img.7z](https://pepolinux.jpn.org/iot-house_images_old_pc/iot-house_old_pc.img.7z) about 2GB,
   Download security is following [iot-house_old_pc](https://note.com/kujiranodanna/n/n9ce3c4089b7c)
 4. Extract the downloaded iot-house_old_img.7z and write iot-house_old_pc.img to the flash memory,SSD recommended
