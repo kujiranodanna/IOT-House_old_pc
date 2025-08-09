@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2025.4.17
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2025.7.27
 # Scan CP2112GPIO for i386.
 # pepocp2112ctld
 GPIOINT="/usr/local/bin/pepocp2112ctl 9"
@@ -17,6 +17,10 @@ LOOPDOCT=2
 LOOPI2CT=20
 LOOPI2CT_BME680=2
 BASECT=50
+AMB_TEMP=25
+AMB_TEMPAVG=$AMB_TEMP
+AMB_TEMPDEF=2
+GAS_BASECONST=3000000
 EPOCHOLD=`date -ud "0 second ago" +%s`
 EPOC5MIN=300
 gpio_i2c="-1"
@@ -32,17 +36,17 @@ GPIO_INIT_FILE=/var/run/pepocp2112.semaphore
 GPIO_INIT_FLAG="YES"
 ISLIVEBME680="NO"
 BME680_RD=$DIR/.pepocp2112bme680
-WAITUPBME680=10000
+# BME680 keep alive seconds
+BME680_ALIVE=30
 error(){
   [ -e $tGPIORD ] && rm -f $tGPIORD
   [ -e $GPIORD ] && rm -f $GPIORD
   [ -e $GPIOWD ] && rm -f $GPIOWD
   [ -e $GPIO_INIT_FILE ] && rm -f $GPIO_INIT_FILE
-  $GPIO_INIT_FILE
   pkill -f "$GPIOCTL_I2CBME680"
   exit 0
 }
-trap error SIGTERM SIGHUP SIGKILL SIGINT SIGQUIT
+trap error TERM HUP KILL INT QUIT
 [ -e $tGPIORD ] && rm -f $tGPIORD
 [ -e $GPIORD ] && rm -f $GPIORD
 [ -e $GPIOWD ] && rm -f $GPIOWD
@@ -77,8 +81,11 @@ while true;do
   # recovering cp2112 "disabled by hub (EMI?), re-enabling..."
   if [ $ISLIVEBME680 = "NO" ];then
     if [ ! -e $BME680_RD ];then
-      $GPIOCTL_I2CBME680 &
-      ISLIVEBME680="YES"
+      BME680PID=$(pgrep -f "$GPIOCTL_I2CBME680")
+      if [  -z $BME680PID ];then
+        $GPIOCTL_I2CBME680 &
+        ISLIVEBME680="YES"
+      fi
     fi
   fi
   # usb gpio_do initialize
@@ -154,11 +161,21 @@ while true;do
       if [ ! -z $GAS_BASE_CONF ];then
         GAS_BASE=$GAS_BASE_CONF
       else
-        GAS_BASE=3000000
+        GAS_BASE=$GAS_BASECONST
       fi
       EPOCHNOW=`date -ud "0 second ago" +%s`
       if [ $(($EPOCHNOW - $EPOCHOLD)) -gt $EPOC5MIN ];then
         EPOCHOLD=$EPOCHNOW
+        if [ $BME680TEMP -gt $AMB_TEMPAVG ];then
+          TEM_DEF=$(($BME680TEMP - $AMB_TEMPAVG))
+        else
+          TEM_DEF=$(($AMB_TEMPAVG - $BME680TEMP))
+        fi
+        AMB_TEMPAVG=$BME680TEMP
+        if [ $TEM_DEF -gt $AMB_TEMPDEF ];then
+# Ambient temperature set before resetting the BME680 gas sensor. Executed using the USR1 signal.  
+          pkill -USR1 -f "$GPIOCTL_I2CBME680"
+        fi
         i=0
         j=0
         GAS_SUM=0
@@ -221,7 +238,7 @@ while true;do
     else
       if [ ! -z $EPOCHNOW ];then
         tEPOCHNOW=$(date -ud "0 second ago" +%s)
-        if [ $(($tEPOCHNOW - $EPICONOW)) -gt $BME680_ALIVE ];then
+        if [ $(($tEPOCHNOW - $EPOCHNOW)) -gt $BME680_ALIVE ];then
           $GPIOCTL_I2CBME680 &
         fi
       fi
