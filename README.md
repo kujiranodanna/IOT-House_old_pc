@@ -31,9 +31,9 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 Disklabel type: dos
 Disk identifier: 0x15ae16d5
 ```
-2. Download the binaries from here:New Release2024.12.29
+2. Download the binaries from here:New Release2025.5.3
   [iot-house_old_pc.img.7z](https://pepolinux.jpn.org/iot-house_images_old_pc/iot-house_old_pc.img.7z) about 2GB,
-  Download security is the same as the following 8
+  Download security is following [iot-house_old_pc](https://note.com/kujiranodanna/n/n9ce3c4089b7c)
 4. Extract the downloaded iot-house_old_img.7z and write iot-house_old_pc.img to the flash memory,SSD recommended
 5. Write iot-house_old_pc.img to flash memory with the dd command,For example
 - dd if=iot-house_old_pc.img of=/dev/sdb bs=100M count=80
@@ -42,7 +42,7 @@ Disk identifier: 0x15ae16d5
 6. When the login screen appears, user: remote, password: pepolinux ,Log in with.
 7. Please set the network properly,
 - the initial state is wired LAN, the host name is iot000.
-8. From another PC http://iot000.local etc. user:remote, password: hand ,Log in with.
+8. From another PC http://iot011.local etc. user:remote, password: hand ,Log in with.
 Control panel below
 ![sshot_iot-house_old_pc](https://user-images.githubusercontent.com/70492305/117527575-08df2200-b008-11eb-990a-0898cda7eed1.png)
 ![sshot_iot-house_old_pc-2](https://user-images.githubusercontent.com/70492305/117527767-6758d000-b009-11eb-8510-1410da3beade.png)
