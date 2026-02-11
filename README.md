@@ -2,6 +2,13 @@
 ### Revive abandoned PCs at IOT House
 - News 2021.11.23 [IOT-House_docker](https://hub.docker.com/repository/docker/kujiranodanna/iot-house_docker) release
   - docker run -itd --privileged --name iot-house_docker -p 8022:22 -p 80:80 -p 443:443 kujiranodanna/iot-house_docker:v0.01
+- News 2026.2.11 [IOT-House_docker](https://hub.docker.com/repository/docker/kujiranodanna/iot-house_docker) release Ver:v0.16
+  - From Ver:0.16, you can now switch between CP2112 and RP2040-Zero.
+  - Please refer to the URL below for the Python program code of [RP2040-Zero](https://amzn.to/3Ox7vjL).
+  - [note kujiranodanna](https://note.com/kujiranodanna/n/nf63a393560dd)
+  - After installing it on the USB, run the following command.
+  - Execute as follows.<br>
+  docker run -itd --privileged --name iot-house_docker --device=/dev/ttyACM0:/dev/ttyACM0 -p 8022:22 -p 80:80 -p 443:443 kujiranodanna/iot-house_docker:latest
 
 Give your old laptop another chance to play an active role!
 ![IOT-House_old_pc](https://user-images.githubusercontent.com/70492305/115954863-33bc7700-a52e-11eb-9c52-d42f607de5d1.jpeg)
