@@ -1,58 +1,60 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2026.2.10
-# Scan CP2112GPIO for i386.
-# pepocp2112ctld
-GPIOINT="/usr/local/bin/pepocp2112ctl 9"
-GPIOCTL_I2CBME680="/usr/local/bin/pepocp2112ctl 10"
-GPIOCTL="/usr/local/bin/pepocp2112ctl 8"
-GPIOCTL_0="/usr/local/bin/pepocp2112ctl 0 0"
-GPIOCTL_1="/usr/local/bin/pepocp2112ctl 1 0"
-GPIOCTL_2="/usr/local/bin/pepocp2112ctl 2 0"
-GPIOCTL_3="/usr/local/bin/pepocp2112ctl 3 0"
-GPIOCTL_DO="/usr/local/bin/pepocp2112ctl"
-WAIT=5
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2026.2.10 update 2026.2.11
+# Control RP2040-Zero for i386.
+# peporp2040rwctld
+WAIT=100
+DIO_DEV=/dev/ttyACM0
 LOOPSLEEP=1000
 LOOPDOCT=2
 LOOPI2CT=20
 LOOPI2CT_BME680=2
 BASECT=50
-AMB_TEMP=25
-AMB_TEMPAVG=$AMB_TEMP
-AMB_TEMPDEF=2
 GAS_BASECONST=3000000
+ADC_CT=16
+ADC_CT_MIN=14
 EPOCHOLD=`date -ud "0 second ago" +%s`
 EPOC5MIN=300
 gpio_i2c="-1"
+DATEjitter=2
+RETRY=2
+DIOCT=2
 DIR=/www/remote-hand/tmp
 GPIORD=$DIR/.gpiodi_read_data
 tGPIORD=$DIR/.gpiodi_read_data.tmp
 GPIOWD=$DIR/.gpiodo_write_data
 tGPIOWD=$DIR/.gpiodo_write_data.tmp
-DOWDHELP=$DIR/.do_write_cp2112_helper
+DOWDHELP=$DIR/.do_write_rp2040_helper
 ALIAS_DI=$DIR/.alias_di
-tALIAS_DI=$DIR/.alias_di_pepogpioctld
-GPIO_INIT_FILE=/var/run/pepocp2112.semaphore
+tALIAS_DI=$DIR/.alias_di_peporp2040rwctld
+TCOSRD=$DIR/.tocos_read_data
+tTCOSRD=$DIR/.tocos_read_tmp_peporp2040rwctld
 GPIO_INIT_FLAG="YES"
 ISLIVEBME680="NO"
-BME680_RD=$DIR/.pepocp2112bme680
+BME680_RD=$DIR/.peporp2040bme680
+BME680_CT_MIN=42
+GPIOCTL_I2CBME680="/usr/local/bin/peporp2040rwctl i2c 45 $WAIT"
+GPIOCTL_IN="/usr/local/bin/peporp2040rwctl dob,0 2 $WAIT"
+GPIOCTL_ADC="/usr/local/bin/peporp2040rwctl adc $ADC_CT $WAIT"
+GPIOCTL="/usr/local/bin/peporp2040rwctl"
+GPIOCTL_DU="/usr/local/bin/peporp2040rwctl DUMMY"
 error(){
   [ -e $tGPIORD ] && rm -f $tGPIORD
   [ -e $GPIORD ] && rm -f $GPIORD
   [ -e $GPIOWD ] && rm -f $GPIOWD
-  [ -e $GPIO_INIT_FILE ] && rm -f $GPIO_INIT_FILE
-  pkill -f "$GPIOCTL_I2CBME680"
+  [ -e $BME680_RD ] && rm -f $BME680_RD
+  [ -e $TCOSRD ] && rm -f $TCOSRD
+  [ -e $tTCOSRD ] && rm -f $tTCOSRD
   exit 0
 }
 while true;do
   [ -e $ALIAS_DI ] && . $ALIAS_DI
-  if [ "$DI_TTY" != "gpio" ];then
+  if [ "$DI_TTY" != "rp2040" ];then
     GPIO_INIT_FLAG="YES"
     LOOPTIME=$LOOPSLEEP
     msleep $LOOPTIME
-    pkill -f "$GPIOCTL_I2CBME680"
     continue
-  elif [ "$DI_TTY" = "gpio" ];then
+  elif [ "$DI_TTY" = "rp2040" ];then
     break
   fi
 done
@@ -63,10 +65,10 @@ trap error TERM HUP KILL INT QUIT
 [ -e $GPIORD ] && rm -f $GPIORD
 [ -e $GPIOWD ] && rm -f $GPIOWD
 [ -e $tGPIOWD ] && rm -f $tGPIOWD
-[ -e $GPIO_INIT_FILE ] && rm -f $GPIO_INIT_FILE
+[ -e $TCOSRD ] && rm -f $TCOSRD
+[ -e $tTCOSRD ] && rm -f $tTCOSRD
 LOOPDO=${LOOPDOCT}
 LOOPI2C=${LOOPI2CT}
-pkill -f "$GPIOCTL_I2CBME680"
 ISLIVEBME680="YES"
 i=0
 while [ $i -lt $BASECT ];do
@@ -78,38 +80,85 @@ GAS[$i]=0
 while true;do
   unset DI_TTY
   [ -e $ALIAS_DI ] && . $ALIAS_DI
-  if [ "$DI_TTY" != "gpio" ];then
+  if [ "$DI_TTY" = "none" ];then
     GPIO_INIT_FLAG="YES"
     LOOPTIME=$LOOPSLEEP
     msleep $LOOPTIME
-    pkill -f "$GPIOCTL_I2CBME680"
     continue
   fi
+  if [ "$DI_TTY" != "rp2040" ];then
+    LOOPTIME=$LOOPSLEEP
+    msleep $LOOPTIME
+    continue
+  elif [ "$DI_TTY" = "rp2040" ];then
+    LOOPTIME=$LOOPSLEEP
+    msleep $LOOPTIME    
+    [ ! -e $DIO_DEV ] && continue
+  fi
+  svc -d /www/pepolinux/tocosd
+  retry(){
+    TRY=$RETRY
+    while [ $TRY -ne 0 ];do
+      retry_time=`echo -en "${RANDOM}" |cut -c 1-3`
+      msleep $retry_time
+      TMP=`$GPIOCTL_DU 2>&1`
+      if [ "$TMP" = "-1" ];then
+        break
+      else
+        msleep $retry_time
+        TRY=$(($TRY - 1))
+      fi
+    done
+  }
+  adc_read(){
+    # ADC read
+    ADC=`$GPIOCTL_ADC 2>&1`
+    LEN=`echo -en $ADC| wc -c`
+    if [ $LEN -lt $ADC_CT_MIN -o $ADC = "-1" ];then
+      retry
+      ADC=`$GPIOCTL_ADC 2>&1`
+      LEN=`echo -en $ADC| wc -c`
+    fi
+    [ $LEN -lt $ADC_CT_MIN -o $ADC = "-1" ] && return
+    VAI4=`echo ${ADC}|awk '{split($0,I,":");printf I[2]}'`
+    [[ "$VAI4" =~ ^[0-9]+$ ]] || return
+    if [ -n "${slice_ai[15]}" ];then
+      [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"
+    fi
+    if [ -e $TCOSRD ];then
+      cat $TCOSRD |grep -v "VAI4" |grep -v "AI4" > $tTCOSRD
+      cat >>$tTCOSRD<<END
+AI4=$AI4
+VAI4=$VAI4
+END
+    else
+      cat >$tTCOSRD<<END
+AI4=$AI4
+VAI4=$VAI4
+END
+    fi
+    mv $tTCOSRD $TCOSRD
+  }
+
   unset piface_ip di do DO
   for i in 0 1 2 3 4 5 6 7; do old[$i]="-1" ;done
   LOOPTIME=$LOOPSLEEP
-  # recovering cp2112 "disabled by hub (EMI?), re-enabling..."
-  if [ $ISLIVEBME680 = "NO" ];then
-    if [ ! -e $BME680_RD ];then
-      BME680PID=$(pgrep -f "$GPIOCTL_I2CBME680")
-      if [  -z $BME680PID ];then
-        $GPIOCTL_I2CBME680 &
-        ISLIVEBME680="YES"
-      fi
-    fi
-  fi
   # usb gpio_do initialize
   if [ $GPIO_INIT_FLAG = "YES" ];then
-    RD=`$GPIOCTL 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="YES"
+    NOW=$(($(date +%s) + $DATEjitter))
+    NOW="dt"$NOW
+    RD=`$GPIOCTL $NOW 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="YES"
     msleep $WAIT
-    RD=`$GPIOCTL_0 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="YES"
+    RD=`$GPIOCTL_DU 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="NO"
     msleep $WAIT
-    RD=`$GPIOCTL_1 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="YES"
+    RD=`$GPIOCTL_IN 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="YES"
     msleep $WAIT
-    RD=`$GPIOCTL_2 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="YES"
+    adc_read
     msleep $WAIT
-    RD=`$GPIOCTL_3 2>&1` ; [ "$RD" != "-1" ] && GPIO_INIT_FLAG="NO" || GPIO_INIT_FLAG="YES"
-    msleep $WAIT
+    RD=`$GPIOCTL_I2CBME680 2>&1` ; [ "$RD" != "-1" ] && ISLIVEBME680="NO" || ISLIVEBME680="YES"
+    LEN=$(echo -en $RD| wc -c)
+    [ $LEN -lt $BME680_CT_MIN ] && RD="-1" || LOOPI2C=0
+    [ $RD != "-1" ] && echo -n $RD >$BME680_RD || rm $BME680_RD
   fi
   #DO write
   if [ -e $DOWDHELP ];then
@@ -117,23 +166,33 @@ while true;do
       LOOPDO=${LOOPDOCT}
       unset DO
       . $DOWDHELP
-      for i in 0 1 2 3 ;do
+      BDO=0
+      for i in 0 1 2 3; do
       if [ ! -z ${DO[$i]} ];then
         case "$i" in
-          0) RD=`$GPIOCTL_DO 0 ${DO[0]} 2>&1 ;msleep $WAIT` ;;
-          1) RD=`$GPIOCTL_DO 1 ${DO[1]} 2>&1 ;msleep $WAIT` ;;
-          2) RD=`$GPIOCTL_DO 2 ${DO[2]} 2>&1 ;msleep $WAIT` ;;
-          3) RD=`$GPIOCTL_DO 3 ${DO[3]} 2>&1 ;msleep $WAIT` ;;
+          0) BDO=$((${DO[i]} * 1 + $BDO)) ;;
+          1) BDO=$((${DO[i]} * 2 + $BDO)) ;;
+          2) BDO=$((${DO[i]} * 4 + $BDO)) ;;
+          3) BDO=$((${DO[i]} * 8 + $BDO)) ;;
         esac
       fi
       done
+      RD=`$GPIOCTL dob,$(printf %x $BDO) 2 $WAIT 2>&1`
     else
       LOOPDO=$(($LOOPDO - 1))
     fi
   fi
   if [ $LOOPI2C = 0 ];then
+    adc_read
     ISLIVEBME680="NO"
     LOOPI2C=$LOOPI2CT
+    RD=`$GPIOCTL_I2CBME680 2>&1` ; [ "$RD" != "-1" ] && ISLIVEBME680="NO" || ISLIVEBME680="YES"
+    LEN=$(echo -en $RD| wc -c)
+    [ $LEN -lt $BME680_CT_MIN ] && RD="-1"
+    [ $RD != "-1" ] && echo -n $RD >$BME680_RD || rm $BME680_RD
+    if [ $RD != "-1" ];then
+      echo -n $RD >$BME680_RD
+    fi
     if [ -e $BME680_RD ];then
       if [ $(($(date "+%s") - $(date "+%s" -r $BME680_RD))) -gt 10 ];then
         rm $BME680_RD
@@ -176,16 +235,6 @@ while true;do
       EPOCHNOW=`date -ud "0 second ago" +%s`
       if [ $(($EPOCHNOW - $EPOCHOLD)) -gt $EPOC5MIN ];then
         EPOCHOLD=$EPOCHNOW
-        if [ $BME680TEMP -gt $AMB_TEMPAVG ];then
-          TEM_DEF=$(($BME680TEMP - $AMB_TEMPAVG))
-        else
-          TEM_DEF=$(($AMB_TEMPAVG - $BME680TEMP))
-        fi
-        AMB_TEMPAVG=$BME680TEMP
-        if [ $TEM_DEF -gt $AMB_TEMPDEF ];then
-# Ambient temperature set before resetting the BME680 gas sensor. Executed using the USR1 signal.  
-          pkill -USR1 -f "$GPIOCTL_I2CBME680"
-        fi
         i=0
         j=0
         GAS_SUM=0
@@ -249,15 +298,24 @@ while true;do
       if [ ! -z $EPOCHNOW ];then
         tEPOCHNOW=$(date -ud "0 second ago" +%s)
         if [ $(($tEPOCHNOW - $EPOCHNOW)) -gt $BME680_ALIVE ];then
-          $GPIOCTL_I2CBME680 &
+          RD=`$GPIOCTL_I2CBME680 2>&1`
+          LEN=$(echo -en $RD| wc -c)
+          [ $LEN -lt $BME680_CT_MIN ] && RD="-1"
+          [ $RD != "-1" ] && echo -n $RD >$BME680_RD || rm $BME680_RD
         fi
       fi
     fi
   else
     LOOPI2C=$(($LOOPI2C - 1))
   fi
-  RD="-1"
-  RD=`$GPIOCTL 2>&1`
+  RD=`$GPIOCTL diob 2 $WAIT 2>&1`
+  LEN=`echo $RD|mawk '{print(length($0))}'`
+  if [ $LEN != $DIOCT ];then
+    retry
+    RD=`$GPIOCTL diob 2 $WAIT 2>&1`
+    LEN=`echo $RD|mawk '{print(length($0))}'`
+    [ $LEN != $DIOCT ] && RD="-1"
+  fi
   LEN=`echo $RD|mawk '{print(length($0))}'`
   if [ "$RD" != "-1" -o "LEN" = 2 ];then
     GPIO_INIT_FLAG="NO"
@@ -274,24 +332,21 @@ while true;do
       esac
     old[$j]=$tRD
     done
-  else
-    GPIO_INIT_FLAG="YES"
-    rm -f $GPIORD $GPIOWD
-  fi
-  cat>$tGPIORD<<END
-di[0]=${old[4]}
-di[1]=${old[5]}
-di[2]=${old[6]}
-di[3]=${old[7]}
+    cat>$tGPIORD<<END
+di[0]=${old[0]}
+di[1]=${old[1]}
+di[2]=${old[2]}
+di[3]=${old[3]}
 gpio_i2c=${gpio_i2c}
 END
-cat>$tGPIOWD<<END
-do[0]=${old[0]}
-do[1]=${old[1]}
-do[2]=${old[2]}
-do[3]=${old[3]}
+    cat>$tGPIOWD<<END
+do[0]=${old[4]}
+do[1]=${old[5]}
+do[2]=${old[6]}
+do[3]=${old[7]}
 END
-  chown www-data:www-data $tGPIORD $tGPIOWD
-  mv $tGPIORD $GPIORD ; mv $tGPIOWD $GPIOWD
+    chown www-data:www-data $tGPIORD $tGPIOWD
+    mv $tGPIORD $GPIORD ; mv $tGPIOWD $GPIOWD
+  fi
   msleep $LOOPTIME
 done

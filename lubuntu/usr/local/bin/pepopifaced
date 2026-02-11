@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.2.20 update 2023.8.18
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2015.2.20 update 2026.2.9
 # Scan piface & CPU Temp ,GPIO , I2C Hum&Temp daemon for rasberry pi.
 # pepopifaced
 PIFACE_CTL="/usr/local/bin/pepopiface_local 8"
@@ -17,6 +17,7 @@ TCOSRD=$DIR/.tocos_read_data
 GPIORD=$DIR/.gpiodi_read_data
 GPIOGPIOWD=$DIR/.gpiodo_write_data
 ALIAS_DI=$DIR/.alias_di
+tALIAS_DI=$DIR/.alias_di.pepopifaced
 SLICE_AI=$DIR/.slice_ai
 tSLICE_AI=$DIR/.slice_ai.tmp
 DIREADJSON=/www/remote-hand/.di_read_data.json
@@ -55,7 +56,14 @@ while true; do
   if [ -e $ALIAS_DI ];then
     . $ALIAS_DI
   else
-    echo -en "DI_TTY=gpio" >$ALIAS_DI
+    if [ -e /dev/ttyACM0 ];then
+      DI_TTY="rp2040" ; vTTY="RP2040"
+    else
+      DI_TTY="gpio" ; vTTY="gpio"
+    fi
+    echo -n "DI_TTY=${DI_TTY}" >$tALIAS_DI
+    chown www-data:www-data $tALIAS_DI
+    mv $tALIAS_DI $ALIAS_DI
   fi
   for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35; do old[$i]="-1" ;done
 # gpio read data initialize
@@ -215,7 +223,7 @@ do[9]=${old[30]}
 do[10]=${old[31]}
 do[11]=${old[32]}
 END
-  chown www-data.www-data $tDIORD ;  mv $tDIORD $DIORD
-  chown www-data.www-data $tDIOWD ;  mv $tDIOWD $DIOWD
+  chown www-data:www-data $tDIORD ;  mv $tDIORD $DIORD
+  chown www-data:www-data $tDIOWD ;  mv $tDIOWD $DIOWD
   msleep $LOOPWAIT
 done

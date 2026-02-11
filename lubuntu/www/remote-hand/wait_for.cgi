@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2023.8.15
+# Copyright (c) 2021-2027 Isamu.Yamauchi , update 2026.2.7
 PATH=$PATH:/usr/local/bin
 # for i386
 if [ ! -e pi_int_gpio.cgi ];then
@@ -61,17 +61,22 @@ if [ -e $GMAIL ];then
   [ $(($NOWTIME - $timeSTAMP)) -lt $JITTER ] && RMHOMEPAGE="YES"
 fi
 [ -e $ALIAS_DI ] && . $ALIAS_DI
-if [ $DI_TTY != "gpio" ];then
+if [ $DI_TTY = "rp2040" ];then
    PI_INT=pi_int_cp2112.cgi
    cat>$CMD<<END
 #!/bin/bash
 rm -f /www/remote-hand/pepocp2112help
+rm -f /www/remote-hand/pepopiface
+ln -s /usr/local/bin/peporp2040help /www/remote-hand/pepopiface
+ln -s /usr/local/bin/peporp2040help /www/remote-hand/pepocp2112help
 END
-else
+elif [ $DI_TTY = "gpio" ];then
    PI_INT=pi_int_cp2112.cgi
    cat>$CMD<<END
 #!/bin/bash
 rm -f /www/remote-hand/pepocp2112help
+rm -f /www/remote-hand/pepopiface
+ln -s /usr/local/bin/pepocp2112help /www/remote-hand/pepopiface
 ln -s /usr/local/bin/pepocp2112help /www/remote-hand/pepocp2112help
 END
 fi
@@ -130,7 +135,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2024 pepolinux.jpn.org</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2026 pepolinux.jpn.org</TD><TR></TABLE>
 </BODY>
 </HTML>'
 exit -1
@@ -153,7 +158,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2024 pepolinux.jpn.org</TD><TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2026 pepolinux.jpn.org</TD><TR></TABLE>
 </BODY>
 </HTML>'
   msleep 20000
@@ -169,7 +174,7 @@ cat>$CMD<<EOF
 #!/bin/bash
 ppp_user=\`cat $PPP_SEC |grep -F -v "#"|awk 'BEGIN{FS="\""};{print \$2}'\`
 echo \$ppp_user > $PPP_USR
-chown www-data.www-data $PPP_USR
+chown www-data:www-data $PPP_USR
 ppp_mode=\`cat $PPP_DIAL_MODE |grep -E "64k=" |awk '{
 split(\$1,I,"=")
 if (I[2] == "yes")
@@ -181,7 +186,7 @@ else if (I[2] == "NONE")
 }'\`
 
 echo \$ppp_mode >$PPP_MODE
-chown www-data.www-data $PPP_MODE
+chown www-data:www-data $PPP_MODE
 EOF
 fi
 
@@ -192,7 +197,7 @@ if [ -e $WEBPASS ]; then
 cat>>$CMD<<EOF
 WEB_USER=\`cat $WEBPASS |grep -F -v "#"|awk 'BEGIN{FS=":"};{print \$1}'\`
 echo "\$WEB_USER" > $TMPWEB
-chown www-data.www-data $TMPWEB
+chown www-data:www-data $TMPWEB
 EOF
 fi
 
@@ -207,7 +212,7 @@ if [ -e \$STARTUP ];then
   echo "vWEBUSER=\$SET_WEBUSER" >> \$tSTARTUP
   echo "vWEBPASSWORD=\$SET_WEBPASSWORD" >> \$tSTARTUP
   echo "vLINENOTIFY=\$SET_LINENOTIFY" >> \$tSTARTUP
-  chown www-data.www-data \$tSTARTUP
+  chown www-data:www-data \$tSTARTUP
 fi
 EOF
 
@@ -243,12 +248,12 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2024 pepolinux.jpn.org</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2026 pepolinux.jpn.org</TD></TR></TABLE>
 </BODY>
 </HTML>'
   msleep 1000
   ./${PI_INT} >/dev/null 2>&1
-  chown www-data.www-data ./pi_int_cp2112.html
+  chown www-data:www-data ./pi_int_cp2112.html
 else
   if [ $DI_TTY = "cp2112" ];then
     echo -en '
@@ -276,7 +281,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2024 pepolinux.jpn.org</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2026 pepolinux.jpn.org</TD></TR></TABLE>
 </BODY>
 </HTML>'
 fi

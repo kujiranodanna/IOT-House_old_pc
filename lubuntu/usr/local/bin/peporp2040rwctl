@@ -1,0 +1,130 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2022-2027 Isamu.Yamauchi , 2026.1.28 update 2026.1.29
+####################################################################################
+# peporp2040rwctl
+# What's this?
+# This is a shell program that sends and receives data on the RP2040.
+# This works independently, unlike daemon & client.
+# This program requires epicon.
+# Please install it by following the instructions below.
+# https://github.com/kujiranodanna/epicon
+#####################################################################################
+DIR=/www/remote-hand/tmp
+prog=peporp2040rwctl
+DIO_DEV=/dev/ttyACM0
+EPICON_CMD=${DIR}/${prog}.cmd
+MYPID=${DIR}/${prog}.pid
+EPICONPID=${DIR}/${prog}.epicon_pid
+WAIT=1000
+sWAIT=50
+READTM=4
+TRY=3
+DATEjitter=2
+# RP2040_RD MAX Bytes
+READCT=47
+CMD_DIO="/usr/local/bin/epicon -ql ${DIO_DEV} -s 19200 -c ${EPICON_CMD}"
+error(){
+  cPID=$(pgrep epicon)
+  while [ ! -z $cPID ];do
+    if [ -e $EPICONPID ];then
+      kill -HUP $(cat $EPICONPID)
+    fi
+    msleep $sWAIT
+    cPID=$(pgrep epicon)
+  done
+  [ -e $EPICON_CMD ] && rm -f $EPICON_CMD
+  [ -e $MYPID ] && rm -f $MYPID
+  [ -e $EPICONPID ] && rm -f $EPICONPID
+  exit
+}
+trap error TERM HUP INT QUIT
+
+usage(){
+  echo $prog "RP2040_COMMAND(eg. do1,1) {READ_COUNTER} {WAIT_TIMER}"
+  error
+}
+
+if [ $# -eq 0 ];then
+  usage
+elif [ $# -gt 3 ];then
+  usage
+fi
+if [ ! -e $MYPID ];then
+  echo -en $$ >$MYPID
+else
+  echo $prog aleady running!
+  exit
+fi
+
+cat >${EPICON_CMD}<<EOF
+#!/bin/bash
+[ -e  $EPICONPID ] && exit
+echo -en \$\$ >$EPICONPID
+error(){
+  [ -e  $EPICONPID ] && rm -f $EPICONPID
+  exit 0
+}
+trap error TERM HUP INT QUIT
+
+rp2040_rdout(){
+  echo -en "\$1\\n" >/dev/stderr
+  msleep $sWAIT
+}
+
+rp2040_dummy_read(){
+  echo -en "\\n"
+  msleep $sWAIT
+  read -s -t $READTM tRD
+# RD=\$(mawk '{print \$0;exit}')
+}
+
+rp2040_write(){
+  local tSD tRCT tRTM
+  tSD=\$(echo \$1| mawk '{gsub(" ","",\$0);printf \$0}')
+  tRCT=\$(echo \$2| mawk '{gsub(" ","",\$0);printf \$0}')
+  tRTM=\$(echo \$3| mawk '{gsub(" ","",\$0);printf \$0}')
+  [ -z \$tRCT ] && tRCT=$READCT
+  [ -z \$tRTM ] && tRTM=$WAIT
+  echo -en "\${tSD}\\n"
+  RETRY=$TRY
+  while [ \${RETRY} -ne 0 ];do
+    retry_time=\`echo -en "\${RANDOM}" |cut -c 1-2\`
+    msleep \${tRTM}
+    read -s -n \${tRCT} -t ${READTM} RD || RD="-1"
+#    RD=\$(mawk '{print \$0;exit}')
+     [ \${RD} != "-1" ] && break
+    RETRY=\$((\${RETRY} - 1))
+    msleep \${retry_time}
+  done
+  rp2040_dummy_read
+  rp2040_rdout \${RD}
+}
+
+rp2040_send(){
+  SEND="$1 $2 $3" 
+  SD=\$(echo \$SEND |mawk '{printf \$1}')
+  RCT=\$(echo \$SEND |mawk '{printf \$2}')
+  RTM=\$(echo \$SEND |mawk '{printf \$3}')
+  if [ \$SD = "DUMMY" ];then
+    rp2040_dummy_read
+    [ -z \$RD ] && RD="-1"
+    rp2040_rdout \$RD
+  else
+    rp2040_write "\$SD" "\$RCT" "\$RTM"
+  fi
+}
+
+rp2040_send $1 $2 $3
+error
+EOF
+
+chmod +x ${EPICON_CMD}
+${CMD_DIO}
+RETRY=$TRY
+while [ $RETRY -ne 0 ];do
+  RETRY=$((${RETRY} - 1))
+  [ ! -e ${EPICONPID} ] && break
+  msleep $WAIT
+done
+error

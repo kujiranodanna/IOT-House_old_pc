@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2016.5.3 update 2020.7.4
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2016.5.3 update 2026.2.11
 # pepoi2crrdtool ; For raspberry pi or Iubuntu, and scripts to run the I2C Temperature&Humidity Data Base Create and Update.
 # That to run a cron of 300 seconds interval.
 # add following 2 lines --> /etc/cron.d/pepoi2crrdtool
@@ -12,15 +12,29 @@ DSFILE=${WORKDIR}/tmp/.i2c_temp_hum.rrd
 RRDSTART=${WORKDIR}/tmp/.i2c_start_time
 DIREADJSON=${WORKDIR}/.di_read_data.json
 [ ! -e $DIREADJSON ] && exit
-TEMP=`cat ${DIREADJSON} | jq  -r .i2ctemp.temp | awk '{gsub(/℃/,"",$0);printf $0}'`
-HUM=`cat ${DIREADJSON} | jq  -r .i2ctemp.hum | awk '{gsub(/％/,"",$0);printf $0}'`
-VAI1=`cat ${DIREADJSON} |awk '/vai1/{gsub(/"|vai1|,|:/,"",$0);printf $0}'`
-VAI2=`cat ${DIREADJSON} |awk '/vai2/{gsub(/"|vai2|,|:/,"",$0);printf $0}'`
-VAI3=`cat ${DIREADJSON} |awk '/vai3/{gsub(/"|vai3|,|:/,"",$0);printf $0}'`
-VAI4=`cat ${DIREADJSON} |awk '/vai4/{gsub(/"|vai4|,|:/,"",$0);printf $0}'`
-I2_YESNO=`echo ${HUM} ${TEMP} ${VAI1} ${VAI2} ${VAI3} ${VAI4} | awk 'BEGIN{YESNO="NO"};/none/{YESNO="YES"};END{printf("%s",YESNO)}'`
-[ "${I2_YESNO}" = "YES" ] && exit
-[ -z "${HUM}" -o -z "${TEMP}" -o -z "${VAI1}" -o  -z "${VAI2}" -o -z "${VAI3}" -o -z "${VAI4}" ] && exit
+tTEMP=`cat ${DIREADJSON} | jq  -r .i2ctemp`
+if [ "${tTEMP}" != "none" ];then
+  TEMP=`cat ${DIREADJSON} | jq  -r .i2ctemp.temp | awk '{gsub(/℃/,"",$0);printf $0}'`
+  HUM=`cat ${DIREADJSON} | jq  -r .i2ctemp.hum | awk '{gsub(/％/,"",$0);printf $0}'`
+  VAI1=`cat ${DIREADJSON} |awk '/vai1/{gsub(/"|vai1|,|:/,"",$0);printf $0}'`
+  VAI2=`cat ${DIREADJSON} |awk '/vai2/{gsub(/"|vai2|,|:/,"",$0);printf $0}'`
+  VAI3=`cat ${DIREADJSON} |awk '/vai3/{gsub(/"|vai3|,|:/,"",$0);printf $0}'`
+  VAI4=`cat ${DIREADJSON} |awk '/vai4/{gsub(/"|vai4|,|:/,"",$0);printf $0}'`
+  I2_YESNO=`echo ${HUM} ${TEMP} ${VAI1} ${VAI2} ${VAI3} ${VAI4} | awk 'BEGIN{YESNO="NO"};/none/{YESNO="YES"};END{printf("%s",YESNO)}'`
+  [ "${I2_YESNO}" = "YES" ] && exit
+  [ -z "${HUM}" -o -z "${TEMP}" -o -z "${VAI1}" -o  -z "${VAI2}" -o -z "${VAI3}" -o -z "${VAI4}" ] && exit
+else
+  TEMP="111"
+  HUM="111"
+  VAI1=`cat ${DIREADJSON} |awk '/vai1/{gsub(/"|vai1|,|:/,"",$0);printf $0}'`
+  VAI2=`cat ${DIREADJSON} |awk '/vai2/{gsub(/"|vai2|,|:/,"",$0);printf $0}'`
+  VAI3=`cat ${DIREADJSON} |awk '/vai3/{gsub(/"|vai3|,|:/,"",$0);printf $0}'`
+  VAI4=`cat ${DIREADJSON} |awk '/vai4/{gsub(/"|vai4|,|:/,"",$0);printf $0}'`
+  [ $VAI1 = "none" ] && VAI1=4000
+  [ $VAI2 = "none" ] && VAI2=4000
+  [ $VAI3 = "none" ] && VAI3=4000
+  [ $VAI4 = "none" ] && VAI4=4000
+fi
 if [ ! -e ${DSFILE} ];then
 # db create
   START=`date "+%Y%m%d %H:%M:00"`

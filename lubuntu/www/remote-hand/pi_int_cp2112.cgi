@@ -1,14 +1,14 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2025.8.9
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2026.2.11
 # pi_int_cp2112.cgi ;gpio main script
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2025.8.9"
-VERSION="ver:0.15&nbsp;$DATE"
+DATE="2026.2.11"
+VERSION="ver:0.16&nbsp;$DATE"
 # Voice ontorl wake up word
 Wake_Up_Word="ジャービス"
 [ -e /.dockerenv ] && IS_CONTAINER="YES" || IS_CONTAINER="NO"
@@ -66,7 +66,7 @@ function jump_href() {
 <TR ALIGN=CENTER><TD>Please wait</TD></TR>
 </TABLE>
 <HR>
-<TABLE ALIGN=RIGHT><TR><TD>&copy;2025 pepolinux.jpn.org</TD></TR></TABLE>
+<TABLE ALIGN=RIGHT><TR><TD>&copy;2026 pepolinux.jpn.org</TD></TR></TABLE>
 </BODY>
 </HTML>'
   exit -1
@@ -222,7 +222,7 @@ State:<span id="recognition_state" >Stop</span>
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <BR>
 <BR>
-&copy;2025 pepolinux.jpn.org&nbsp;
+&copy;2026 pepolinux.jpn.org&nbsp;
 </H1>
 </BODY>
 </HTML>
@@ -336,7 +336,7 @@ State:<span id="recognition_state" >Stop</span>
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <BR>
 <BR>
-&copy;2025 pepolinux.jpn.org&nbsp;
+&copy;2026 pepolinux.jpn.org&nbsp;
 </H1>
 </BODY>
 </HTML>
@@ -406,7 +406,7 @@ State:<span id="recognition_state" >Stop</span>
 <BR>
 <INPUT style="text-align:center" TYPE="button" VALUE="Home" onclick="location.href='./pi_int_cp2112.html'";/>
 <BR>
-&copy;2025 pepolinux.jpn.org&nbsp;
+&copy;2026 pepolinux.jpn.org&nbsp;
 <span id="server_time" style="text-align:left"></span>
 </H1>
 </BODY>
@@ -560,11 +560,16 @@ fi
 if [ -n "${DI_TTY}" ];then
   case ${DI_TTY} in
     gpio) vTTY="gpio" ;;
+    rp2040) vTTY="RP2040" ;;
     piface) vTTY="piface" ;;
     none) vTTY="none" ;;
   esac
 else
-   DI_TTY="gpio" ; vTTY="gpio"
+   if [ -e /dev/ttyACM0 ];then
+     DI_TTY="rp2040" ; vTTY="RP2040"
+   else
+     DI_TTY="gpio" ; vTTY="gpio"
+  fi
 fi
 MODEM=$DIR/.modem
 [ -e $MODEM ] && . $MODEM || modem_dev=none
@@ -1162,12 +1167,19 @@ Slice<INPUT TYPE="text" style="width:24px;" NAME="slice_ai_23" VALUE="${SLICE_AI
 <FONT SIZE="-2">IAQ is Sample 0(Good) to 500(Hazardous) Temperature(17-28℃):10% Humidity(40-70%):10% Gas(Gas±Gas_base/Gas_base):80%
 </FONT>
 &nbsp;
+END
+if [ $DT_TTY != "rp2040" ];then
+  cat >>$PAGE1<<END
 <input type="button" value="BME680 amb_temp correction" onclick="location.href='./cp2112bme680_amb_temp.cgi'">
+END
+fi
+  cat >>$PAGE1<<END
 <BR>
 <HR>
 Interface<SELECT NAME="DI_TTY">
 <OPTION VALUE="${DI_TTY}" SELECTED>${vTTY}
 <OPTION VALUE="gpio">gpio
+<OPTION VALUE="rp2040">RP2040
 <OPTION VALUE="piface">piface
 <OPTION VALUE="none">none
 </SELECT>&nbsp;&nbsp;
@@ -8078,7 +8090,7 @@ Ans.<INPUT id="vom_ans_10" type="text" style="width:120px;" NAME="vom_ans_10" VA
 <INPUT style="text-align:center" TYPE="button" VALUE="Update" onclick="clearTimeout(Update_di_Timer);location.href='./update.cgi'">&nbsp;
 <INPUT style="text-align:center" TYPE="button" VALUE="Logout" onclick="logout()" ;>
 <TABLE ALIGN=RIGHT>
-<TR><TD><FONT SIZE="-1">&copy;2025 pepolinux.jpn.org&nbsp;
+<TR><TD><FONT SIZE="-1">&copy;2026 pepolinux.jpn.org&nbsp;
 <span id="server_time" style="text-align:left"></span>&nbsp;
 </TR>
 </TABLE>
