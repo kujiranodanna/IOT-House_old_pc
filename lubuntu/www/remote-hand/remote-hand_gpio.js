@@ -1,7 +1,7 @@
 /*
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2024.11.26
-* remote-hand_pi_gpio.js ver0.24 2024.11.26
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2026.2.11
+* remote-hand_pi_gpio.js ver0.25 2026.2.11
 */
 function blink(){
   if (!document){ return; }
@@ -2891,7 +2891,7 @@ function update_di(item){
             val = di2json.vai3;
             if (val != "-1"){
               $("#vai_3").text(val+"mv");
-              $("#vai_3_graph").html('&nbsp;<input id="vai_3_graph" type="button" NAME="vai_3_graph" VALUE="Analog input-2 Graph" onClick="window.open(\'./vai2_graph_disp.cgi\',\'\',\'width=600,height=200\')">&nbsp;<input id="vai_3_graph_day" type="button" NAME="vai_3_graph_day" VALUE="Analog input-2 Day Graph" onClick="window.open(\'./vai2_graph_disp_day.cgi\',\'\',\'width=600,height=200\')">');
+              $("#vai_3_graph").html('&nbsp;<input id="vai_3_graph" type="button" NAME="vai_3_graph" VALUE="Analog input-3 Graph" onClick="window.open(\'./vai2_graph_disp.cgi\',\'\',\'width=600,height=200\')">&nbsp;<input id="vai_3_graph_day" type="button" NAME="vai_3_graph_day" VALUE="Analog input-3 Day Graph" onClick="window.open(\'./vai2_graph_disp_day.cgi\',\'\',\'width=600,height=200\')">');
               val = val + "mv";
               s_phone_di_graph("#s_phone_vai_3_graph","Twlite AI3",val, "vai3_graph_disp_day.cgi");
             }
@@ -2905,7 +2905,7 @@ function update_di(item){
             val = di2json.vai4;
             if (val != "-1"){
               $("#vai_4").text(val+"mv");
-              $("#vai_4_graph").html('&nbsp;<input id="vai_4_graph" type="button" NAME="vai_4_graph" VALUE="Analog input-2 Graph" onClick="window.open(\'./vai2_graph_disp.cgi\',\'\',\'width=600,height=200\')">&nbsp;<input id="vai_4_graph_day" type="button" NAME="vai_4_graph_day" VALUE="Analog input-2 Day Graph" onClick="window.open(\'./vai2_graph_disp_day.cgi\',\'\',\'width=600,height=200\')">');
+              $("#vai_4_graph").html('&nbsp;<input id="vai_4_graph" type="button" NAME="vai_4_graph" VALUE="Analog input-4 Graph" onClick="window.open(\'./vai2_graph_disp.cgi\',\'\',\'width=600,height=200\')">&nbsp;<input id="vai_4_graph_day" type="button" NAME="vai_4_graph_day" VALUE="Analog input-4 Day Graph" onClick="window.open(\'./vai2_graph_disp_day.cgi\',\'\',\'width=600,height=200\')">');
               val = val + "mv";
               s_phone_di_graph("#s_phone_vai_4_graph","Twlite AI4",val, "vai4_graph_disp_day.cgi");
             }
