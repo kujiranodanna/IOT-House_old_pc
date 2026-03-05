@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2022-2027 Isamu.Yamauchi , 2026.1.28 update 2026.1.29
+# Copyright (c) 2022-2027 Isamu.Yamauchi , 2026.1.28 update 2026.3.3
 ####################################################################################
 # peporp2040rwctl
 # What's this?
@@ -14,8 +14,8 @@ DIR=/www/remote-hand/tmp
 prog=peporp2040rwctl
 DIO_DEV=/dev/ttyACM0
 EPICON_CMD=${DIR}/${prog}.cmd
-MYPID=${DIR}/${prog}.pid
 EPICONPID=${DIR}/${prog}.epicon_pid
+LOCKFILE=${DIR}/${prog}.lockfile
 WAIT=1000
 sWAIT=50
 READTM=4
@@ -34,7 +34,7 @@ error(){
     cPID=$(pgrep epicon)
   done
   [ -e $EPICON_CMD ] && rm -f $EPICON_CMD
-  [ -e $MYPID ] && rm -f $MYPID
+  [ -e $LOCKFILE ] && rm -f $LOCKFILE
   [ -e $EPICONPID ] && rm -f $EPICONPID
   exit
 }
@@ -50,12 +50,12 @@ if [ $# -eq 0 ];then
 elif [ $# -gt 3 ];then
   usage
 fi
-if [ ! -e $MYPID ];then
-  echo -en $$ >$MYPID
-else
+lockfile -1 -r 5 ${LOCKFILE} >/dev/null 2>&1
+if [ $? != 0 ];then
   echo $prog aleady running!
   exit
 fi
+echo -en $$ >${LOCKFILE}
 
 cat >${EPICON_CMD}<<EOF
 #!/bin/bash
@@ -76,14 +76,13 @@ rp2040_dummy_read(){
   echo -en "\\n"
   msleep $sWAIT
   read -s -t $READTM tRD
-# RD=\$(mawk '{print \$0;exit}')
 }
 
 rp2040_write(){
   local tSD tRCT tRTM
-  tSD=\$(echo \$1| mawk '{gsub(" ","",\$0);printf \$0}')
-  tRCT=\$(echo \$2| mawk '{gsub(" ","",\$0);printf \$0}')
-  tRTM=\$(echo \$3| mawk '{gsub(" ","",\$0);printf \$0}')
+  tSD=\$(echo \$1| awk '{gsub(" ","",\$0);printf \$0}')
+  tRCT=\$(echo \$2| awk '{gsub(" ","",\$0);printf \$0}')
+  tRTM=\$(echo \$3| awk '{gsub(" ","",\$0);printf \$0}')
   [ -z \$tRCT ] && tRCT=$READCT
   [ -z \$tRTM ] && tRTM=$WAIT
   echo -en "\${tSD}\\n"
@@ -92,7 +91,6 @@ rp2040_write(){
     retry_time=\`echo -en "\${RANDOM}" |cut -c 1-2\`
     msleep \${tRTM}
     read -s -n \${tRCT} -t ${READTM} RD || RD="-1"
-#    RD=\$(mawk '{print \$0;exit}')
      [ \${RD} != "-1" ] && break
     RETRY=\$((\${RETRY} - 1))
     msleep \${retry_time}
@@ -103,9 +101,9 @@ rp2040_write(){
 
 rp2040_send(){
   SEND="$1 $2 $3" 
-  SD=\$(echo \$SEND |mawk '{printf \$1}')
-  RCT=\$(echo \$SEND |mawk '{printf \$2}')
-  RTM=\$(echo \$SEND |mawk '{printf \$3}')
+  SD=\$(echo \$SEND |awk '{printf \$1}')
+  RCT=\$(echo \$SEND |awk '{printf \$2}')
+  RTM=\$(echo \$SEND |awk '{printf \$3}')
   if [ \$SD = "DUMMY" ];then
     rp2040_dummy_read
     [ -z \$RD ] && RD="-1"
