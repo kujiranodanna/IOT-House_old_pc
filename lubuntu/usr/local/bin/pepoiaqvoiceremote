@@ -1,0 +1,111 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2026-2028 Isamu.Yamauchi , 2026.3.26 update 2026.3.26
+# pepoiaqvoiceremote ;For raspberry pi & i386,IAQ request remote host to Open jtalk.
+
+PATH=$PATH:/usr/local/bin:/usr/local/sbin
+DIR=/www/remote-hand/tmp
+OPENJTALK=/usr/bin/open_jtalk
+CMD=$DIR/pepoltalkzero.pepocmd
+VOICETMP=$DIR/iot001voice_wav.wav
+VOICE_PITCH=0.7
+INTERVAL=10
+PROG=pepoiaqvoiceremote
+REMOTE_DIR=remote-hand
+JSON_DATA=.di_read_data.json
+RM_JSON_DATA=$REMOTE_DIR/$JSON_DATA
+WORK=${DIR}.${PROG}
+USERAGENT="Chrome/146.0.7680.154"
+GETSIZE="1024"
+LOCK=${DIR}/.${PROG}.pid
+LOCKWAIT=30
+MSLEEP=100
+RETRYTIME=20
+RETRY=0
+WAIT=500
+PORT=443
+MAXLOCKWAIT_SEC=10
+ROOMNAME="部屋の"
+
+usage(){
+  echo "usage $0 host user password" >/dev/stderr
+  exit
+}
+if [ $# -ne 3 ];then
+  usage
+fi
+RMHOST=$1
+USER=$2
+PASSWORD=$3
+VOICETMP=${DIR}/${RMHOST}.wav
+error(){
+  [ -e ${WORK} ] && rm ${WORK}
+  [ -e ${LOCK} ] && rm ${LOCK}
+  [ -e ${VOICETMP} ] && rm $VOICETMP
+  exit 0
+}
+trap error TERM HUP KILL INT QUIT
+ONOFF="none"
+if [ $0 = "pepoiaqvoiceremote_on" ];then
+  ONOFF="on"
+elif [ $0 = "pepoiaqvoiceremote_off" ];then
+  ONOFF="off"
+fi
+echo -en $ONOFF >/dev/stderr
+while [ -e $LOCK ];do
+  NOWTIME=`date +%s`
+  timeSTAMP=`date +%s -r $LOCK`
+  [ $(($NOWTIME - $timeSTAMP)) -gt $MAXLOCKWAIT_SEC ] && rm $LOCK
+  msleep $MSLEEP
+  CT=$(($CT + 1))
+  if [ $CT -gt $LOCKWAIT ];then
+    kill -HUP $$
+    exit
+  fi
+done
+echo -en $$ >$LOCK
+curl -s -m $RETRYTIME --retry $RETRY --tlsv1 -k -u ${USER}:${PASSWORD} https://$RMHOST:$PORT/$RM_JSON_DATA >${WORK}
+if [ -e $WORK ];then
+  LEN=`cat $WORK |wc -l`
+  if [ $LEN -lt 3 ];then
+    kill -HUP $$
+    exit
+  fi
+else
+  kill -HUP $$
+  exit
+fi
+JSON_DATA=$WORK
+CPU_TEMP=`cat $WORK |jq -r .cpu_temp`
+TEMP=`cat $WORK |jq -r .gpio_i2c.temp |mawk '{gsub(/[^0-9\.]+/,"",$0);printf $0}'`
+HUM=`cat $WORK |jq -r .gpio_i2c.hum`
+PRES=`cat $WORK |jq -r .gpio_i2c.pres |mawk '{gsub(/[^0-9\.]+/,"",$0);printf $0}'`
+IAQ=`cat $WORK |jq -r .gpio_i2c.iaq`
+IAQ_STATUS="good"
+if [ $IAQ -lt 51 ];then
+  IAQ_STATUS="よい"
+elif [ $IAQ -lt 101 ];then
+  IAQ_STATUS="ふつう"
+elif [ $IAQ -lt 151 ];then
+  IAQ_STATUS="少しわるい"
+elif [ $IAQ -lt 201 ];then
+  IAQ_STATUS="わるい"
+elif [ $IAQ -lt 301 ];then
+  IAQ_STATUS="とってもわるい"
+elif [ $IAQ -gt 300 ];then
+  IAQ_STATUS="さいあく"
+fi
+VOICE=`echo -en "${ROOMNAME}温度,${TEMP}度,湿度,${HUM},気圧,${PRES}ヘクトパスカル,空気の状態,${IAQ}で${IAQ_STATUS}です"`
+cat >$CMD<<END
+#!/bin/sh
+echo -n $VOICE |$OPENJTALK -r $VOICE_PITCH -x /var/lib/mecab/dic/open-jtalk/naist-jdic -m /usr/share/hts-voice/mei/mei_normal.htsvoice -ow $VOICETMP
+#aplay $VOICETMP
+pepocurlupload $RMHOST $VOICETMP
+END
+CT=0
+while [ $CT -lt $LOCKWAIT ];do
+  CT=$(($CT + 1))
+  msleep $WAIT
+done
+kill -HUP $$
+

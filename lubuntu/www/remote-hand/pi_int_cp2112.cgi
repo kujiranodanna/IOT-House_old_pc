@@ -1,13 +1,13 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2026.2.11
+# Copyright (c) 2020-2027 Isamu.Yamauchi , update 2026.4.10
 # pi_int_cp2112.cgi ;gpio main script
 
 PATH=$PATH:/usr/local/bin
 DIR=/www/remote-hand/tmp
 LOCKFILE="$DIR/LCK..pi_int_cp2112.cgi"
 LOCKPID="$DIR/LCK..pi_int_cp2112.cgi.pid"
-DATE="2026.2.11"
+DATE="2026.4.10"
 VERSION="ver:0.16&nbsp;$DATE"
 # Voice ontorl wake up word
 Wake_Up_Word="ジャービス"

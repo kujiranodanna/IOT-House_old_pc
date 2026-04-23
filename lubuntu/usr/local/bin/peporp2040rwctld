@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2026.2.10 update 2026.2.11
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2026.2.10 update 2026.3.25
 # Control RP2040-Zero for i386.
 # peporp2040rwctld
 WAIT=100
@@ -121,6 +121,7 @@ while true;do
     fi
     [ $LEN -lt $ADC_CT_MIN -o $ADC = "-1" ] && return
     VAI4=`echo ${ADC}|awk '{split($0,I,":");printf I[2]}'`
+    VAI4=`echo ${VAI4} | sed -e "s/[\r\n]\+//g"`
     [[ "$VAI4" =~ ^[0-9]+$ ]] || return
     if [ -n "${slice_ai[15]}" ];then
       [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"

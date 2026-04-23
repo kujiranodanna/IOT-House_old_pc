@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2024.9.26
+# Copyright (c) 2020-2027 Isamu.Yamauchi , 2017.7.13 update 2026.4.22
 # peposound ; Play a sound file
 # usage peposound sound file_Num timer
 if [ $# -lt 1 -o $# -gt 2 ];then
@@ -50,8 +50,8 @@ elif [ $WAV_YES_NO = "YES" ];then
 else
   SOUND_PLAYER=$SOUND_PLAYER_MPL
 fi
-[ $(uname -a|grep microsoft|wc -l) -gt 0 ] && IS_MSCONTAINER="YES" || IS_MSCONTAINER="NO"
-if [ $IS_MSCONTAINER = "YES" ];then
+[ -e /.dockerenv ] && IS_CONTAINER="YES" || IS_CONTAINER="NO"
+if [ $IS_CONTAINER = "YES" ];then
   cp ${SOUND_FILE} ${SOUND_FILE}.tmp
   if [ $MP3_YES_NO = "YES" ];then
     WHAT_POP=$DIR/what_pop.mp3

@@ -1,0 +1,83 @@
+#!/bin/bash
+# The MIT License
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2026.3.25 update 2026.3.25
+# Control RP2040-Zero for i386.
+# peporp2040adcread
+prog=peporp2040adcread
+WAIT=500
+DIO_DEV=/dev/ttyACM0
+LOOPSLEEP=2000
+LOOPADC=30
+RETRY=2
+ADC_CT=16
+ADC_CT_MIN=14
+DIR=/www/remote-hand/tmp
+TCOSRD=$DIR/.tocos_read_data
+ALIAS_DI=$DIR/.alias_di
+tTCOSRD=$DIR/.tocos_read_tmp_${prog}
+GPIOCTL_ADC="/usr/local/bin/peporp2040rwctl adc $ADC_CT $WAIT"
+GPIOCTL="/usr/local/bin/peporp2040rwctl"
+GPIOCTL_DU="/usr/local/bin/peporp2040rwctl DUMMY"
+error(){
+  [ -e $tTCOSRD ] && rm -f $tTCOSRD
+  exit 0
+}
+trap error TERM HUP KILL INT QUIT
+svc -d /www/pepolinux/tocosd
+svc -d /www/pepolinux/ipdiod
+while true;do
+  LOOPTIME=$LOOPSLEEP
+  msleep $LOOPTIME    
+  [ ! -e $DIO_DEV ] && continue
+  [ ! -e $ALIAS_DI ] && continue || . $ALIAS_DI
+  retry(){
+    TRY=$RETRY
+    while [ $TRY -ne 0 ];do
+      retry_time=`echo -en "${RANDOM}" |cut -c 1-3`
+      msleep $retry_time
+      TMP=`$GPIOCTL_DU 2>&1`
+      if [ "$TMP" = "-1" ];then
+        break
+      else
+        msleep $retry_time
+        TRY=$(($TRY - 1))
+      fi
+    done
+  }
+  adc_read(){
+    # ADC read
+    ADC=`$GPIOCTL_ADC 2>&1`
+    LEN=`echo -en $ADC| wc -c`
+    if [ $LEN -lt $ADC_CT_MIN -o $ADC = "-1" ];then
+      retry
+      ADC=`$GPIOCTL_ADC 2>&1`
+      LEN=`echo -en $ADC| wc -c`
+    fi
+    [ $LEN -lt $ADC_CT_MIN -o $ADC = "-1" ] && return
+    VAI4=`echo -en ${ADC}|awk '{split($0,I,":");printf I[2]}'`
+    VAI4=`echo ${VAI4} | sed -e "s/[\r\n]\+//g"`
+    [[ "$VAI4" =~ ^[0-9]+$ ]] || return
+    if [ -n "${slice_ai[15]}" ];then
+      [ "${VAI4}" -lt "${slice_ai[15]}" ] && AI4="0" || AI4="1"
+    fi
+    if [ -e $TCOSRD ];then
+      cat $TCOSRD |grep -v "VAI4" |grep -v "AI4" > $tTCOSRD
+      cat >>$tTCOSRD<<END
+AI4=$AI4
+VAI4=$VAI4
+END
+    else
+      cat >$tTCOSRD<<END
+AI4=$AI4
+VAI4=$VAI4
+END
+    fi
+    mv $tTCOSRD $TCOSRD
+  }
+  SLEEPCT=$LOOPADC
+  adc_read
+  while [ $SLEEPCT -ne 0 ];do
+    SLEEPCT=$(($SLEEPCT - 1))
+    msleep $LOOPTIME
+  done
+done
