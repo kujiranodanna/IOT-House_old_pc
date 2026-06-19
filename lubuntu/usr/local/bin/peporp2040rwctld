@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2026.2.10 update 2026.3.25
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2026.2.10 update 2026.6.19
 # Control RP2040-Zero for i386.
 # peporp2040rwctld
 WAIT=100
@@ -10,7 +10,7 @@ LOOPDOCT=2
 LOOPI2CT=20
 LOOPI2CT_BME680=2
 BASECT=50
-GAS_BASECONST=3000000
+GAS_BASE=3000000
 ADC_CT=16
 ADC_CT_MIN=14
 EPOCHOLD=`date -ud "0 second ago" +%s`
@@ -77,6 +77,8 @@ while [ $i -lt $BASECT ];do
   i=$(($i + 1))
 done
 GAS[$i]=0
+k=0
+GAS_SUM=0
 while true;do
   unset DI_TTY
   [ -e $ALIAS_DI ] && . $ALIAS_DI
@@ -227,11 +229,20 @@ END
       GAS_WEIGHT=$(($GAS_WEIGHT * 5))
       GAS_BASE_CONF=${slice_ai[24]}
       GAS_BASE_AUTO_FIX=${slice_ai[25]}
+      GAS_OFFSET=$BME680GAS
       [ -z $GAS_BASE_AUTO_FIX ] && GAS_BASE_AUTO_FIX="Auto"
+      if [ $k -lt $BASECT ];then
+        if [ $GAS_OFFSET != 0 ];then
+          GAS_SUM=$(($GAS_SUM + $GAS_OFFSET))
+          GAS[$k]=$GAS_OFFSET
+          k=$(($k + 1))
+          if [ $k -eq $BASECT ];then
+            GAS_BASE=$(($GAS_SUM / $BASECT))
+          fi
+        fi
+      fi
       if [ ! -z $GAS_BASE_CONF ];then
         GAS_BASE=$GAS_BASE_CONF
-      else
-        GAS_BASE=$GAS_BASECONST
       fi
       EPOCHNOW=`date -ud "0 second ago" +%s`
       if [ $(($EPOCHNOW - $EPOCHOLD)) -gt $EPOC5MIN ];then

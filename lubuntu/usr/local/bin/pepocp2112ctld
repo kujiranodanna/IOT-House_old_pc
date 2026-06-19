@@ -1,6 +1,6 @@
 #!/bin/bash
 # The MIT License
-# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2026.2.10
+# Copyright (c) 2021-2028 Isamu.Yamauchi , 2018.1.8 update 2026.6.19
 # Scan CP2112GPIO for i386.
 # pepocp2112ctld
 GPIOINT="/usr/local/bin/pepocp2112ctl 9"
@@ -20,7 +20,7 @@ BASECT=50
 AMB_TEMP=25
 AMB_TEMPAVG=$AMB_TEMP
 AMB_TEMPDEF=2
-GAS_BASECONST=3000000
+GAS_BASE=3000000
 EPOCHOLD=`date -ud "0 second ago" +%s`
 EPOC5MIN=300
 gpio_i2c="-1"
@@ -75,6 +75,8 @@ while [ $i -lt $BASECT ];do
   i=$(($i + 1))
 done
 GAS[$i]=0
+k=0
+GAS_SUM=0
 while true;do
   unset DI_TTY
   [ -e $ALIAS_DI ] && . $ALIAS_DI
@@ -167,11 +169,22 @@ while true;do
       GAS_WEIGHT=$(($GAS_WEIGHT * 5))
       GAS_BASE_CONF=${slice_ai[24]}
       GAS_BASE_AUTO_FIX=${slice_ai[25]}
+      k=0
+      GAS_SUM=0
+      GAS_OFFSET=$BME680GAS
       [ -z $GAS_BASE_AUTO_FIX ] && GAS_BASE_AUTO_FIX="Auto"
+      if [ $k -lt $BASECT ];then
+        if [ $GAS_OFFSET != 0 ];then
+          GAS_SUM=$(($GAS_SUM + $GAS_OFFSET))
+          GAS[$k]=$GAS_OFFSET
+          k=$(($k + 1))
+          if [ $k -eq $BASECT ];then
+            GAS_BASE=$(($GAS_SUM / $BASECT))
+          fi
+        fi
+      fi
       if [ ! -z $GAS_BASE_CONF ];then
         GAS_BASE=$GAS_BASE_CONF
-      else
-        GAS_BASE=$GAS_BASECONST
       fi
       EPOCHNOW=`date -ud "0 second ago" +%s`
       if [ $(($EPOCHNOW - $EPOCHOLD)) -gt $EPOC5MIN ];then
