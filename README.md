@@ -2,7 +2,7 @@
 ### Revive abandoned PCs at IOT House
 - News 2021.11.23 [IOT-House_docker](https://hub.docker.com/repository/docker/kujiranodanna/iot-house_docker) release
   - docker run -itd --privileged --name iot-house_docker -p 8022:22 -p 80:80 -p 443:443 kujiranodanna/iot-house_docker:v0.01
-- News 2026.2.11 [IOT-House_docker](https://hub.docker.com/repository/docker/kujiranodanna/iot-house_docker) release Ver:v0.16
+- News 2026.6.20 [IOT-House_docker](https://hub.docker.com/repository/docker/kujiranodanna/iot-house_docker) release Ver:v0.17
   - From Ver:0.16, you can now switch between CP2112 and RP2040-Zero.
   - Please refer to the URL below for the Python program code of [RP2040-Zero](https://amzn.to/3Ox7vjL).
   - [note kujiranodanna](https://note.com/kujiranodanna/n/nf63a393560dd)
